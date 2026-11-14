@@ -82,7 +82,7 @@
     <section>
       <h2>Match history</h2>
       <p>Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games.</p>
-      <p>History uses the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A late name stays on the row it was already drawn into. A finished match can be copied as an image.</p>
+      <p>History uses the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A finished match shows each round: whether you won it, how it ended, and which side you were on. A late name stays on the row it was already drawn into. A finished match can be copied as an image.</p>
       <figure>
         <img src="shots/history.png" alt="Match history with KDA order, MVP, SVP, ranks, and peak ranks" />
         <figcaption>History. KDA order, MVP and SVP, ranks, and the average for each side.</figcaption>
@@ -115,7 +115,7 @@
         <div><b>Esports</b> Events in a grid, largest prize first. Open a capsule for the items inside.</div>
         <div><b>Pass</b> Current battle pass. A free pass shows on the same page when Riot ships one.</div>
         <div><b>Game</b> The graphics and sensitivity Valorant is using on this PC. Copy sends the list to someone else.</div>
-        <div><b>Crosshairs</b> Import and export a code and draw a preview. The crosshair is not read from the game config.</div>
+        <div><b>Crosshairs</b> Reads the profile Valorant is using on this PC when the config is there. A code can still be imported, kept, and exported.</div>
         <div><b>Discord</b> Optional channel webhook for the map, a found game, the final score, a watched player, or an unfriend.</div>
       </div>
       <p>An optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the other pages. A background image can recolor the app from the picture.</p>
@@ -136,7 +136,7 @@
 
     <section>
       <h2>Install</h2>
-      <p>Download VelvetSetup.exe and run it. It copies Velvet into <code>%LOCALAPPDATA%\Velvet</code>, adds Start menu and Desktop shortcuts, and lists Velvet in Windows apps. Uninstall from Apps removes the program. Saved games stay in that folder.</p>
+      <p>Download VelvetSetup.exe and run it. It copies Velvet into <code>%LOCALAPPDATA%\Velvet</code>, adds Start menu and Desktop shortcuts, lists Velvet in Windows apps, opens the app, and closes. Uninstall from Apps closes Velvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
       <p>After that, a newer build is a pink bar inside the app. That replaces Velvet.exe. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
       <p>Bug reports and feedback go from Settings. <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>.</p>
       <figure>
