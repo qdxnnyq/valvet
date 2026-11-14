@@ -71,18 +71,18 @@
 
     <section>
       <h2>Live match</h2>
-      <p>Agent select and in-game show both sides: agent, KDA, headshot percent, ADR, rank icon, rank, and RR. Each side header is the average competitive tier on that side. If the current act has no rank and Riot still has a peak, the row is labeled Peak. Peak is not current RR. It still counts in the average. Enemy groups of two or more are marked as a stack.</p>
+      <p>Agent select and in-game show both sides: agent, KDA, headshot percent, ADR, rank icon, rank, and RR. Each side header is the average competitive tier on that side. If the current act has no rank and Riot still has a peak, the row is labeled Peak and marked Not active. Peak is not current RR. It still counts in the average. Enemy groups of two or more are marked as a stack.</p>
       <p>The phase line includes the server, the party average, the enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.</p>
       <figure>
         <img src="shots/live.png" alt="Live competitive match on Ascent with ranks, RR, peak ranks, and team averages" />
-        <figcaption>Live board. Current rank and RR, Peak when the act rank is missing, average on each side.</figcaption>
+        <figcaption>Live board. Current rank and RR. Peak is marked Not active when the act rank is missing. Average on each side.</figcaption>
       </figure>
     </section>
 
     <section>
       <h2>Match history</h2>
       <p>Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games.</p>
-      <p>History uses the same MMR result as the live board, including the Peak label and the side average. A late name stays on the row it was already drawn into. A finished match can be copied as an image.</p>
+      <p>History uses the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A late name stays on the row it was already drawn into. A finished match can be copied as an image.</p>
       <figure>
         <img src="shots/history.png" alt="Match history with KDA order, MVP, SVP, ranks, and peak ranks" />
         <figcaption>History. KDA order, MVP and SVP, ranks, and the average for each side.</figcaption>
@@ -96,7 +96,7 @@
         <li>Friend win rate counts Riot friends only, after two decided games together. Random teammates are excluded.</li>
         <li>A rival is an enemy faced at least twice.</li>
         <li>Each weapon shows finishing kills and headshot percent. Each map shows its win rate.</li>
-        <li>A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 on this PC.</li>
+        <li>A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC.</li>
       </ul>
       <figure>
         <img src="shots/profile.png" alt="Profile with player card, saved record, and rival" />
@@ -110,7 +110,7 @@
         <div><b>Watch list</b> Any Name#Tag. In your lobby or match, the row is marked and a separate notification can play. If they finish a match you were not in, that new match id is reported once.</div>
         <div><b>Unfriends and renames</b> A Riot friend missing on the next read is listed. A Riot ID change keeps the old name and the new one.</div>
         <div><b>Wallet</b> VP, Kingdom Credits, and Radianite. Velvet stores the time when the balance changes.</div>
-        <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
+        <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. Open the picture to see it larger. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
         <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules, equipped collection, agents, battle pass, missions, patch notes.</div>
         <div><b>Esports</b> Events in a grid, largest prize first. Open a capsule for the items inside.</div>
         <div><b>Pass</b> Current battle pass. A free pass shows on the same page when Riot ships one.</div>
@@ -123,8 +123,9 @@
 
     <section>
       <h2>Find Duo</h2>
-      <p>Set roles, modes, rank range, and server, then press <b>Start looking for duo</b>. That posts this PC to the shared list. Stop looking removes the post. Discord is included only if Share Discord is on.</p>
-      <p>Settings can also create a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public list.</p>
+      <p>Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and a short note. Age and gender are optional. Filters cover server, queue, mode, age, and gender. Discord is included only if Share Discord is on. Do not post if you are under 16.</p>
+      <p>After you play with someone, rate them from 1 to 5. The leaderboard is people on the board with a 4 or 5 average, sorted by saved games on their PC. A post stays up for about 12 hours.</p>
+      <p>Settings can also create a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public board.</p>
     </section>
 
     <section>
@@ -137,7 +138,7 @@
       <h2>Install</h2>
       <p>Download VelvetSetup.exe and run it. It copies Velvet into <code>%LOCALAPPDATA%\Velvet</code>, adds Start menu and Desktop shortcuts, and lists Velvet in Windows apps. Uninstall from Apps removes the program. Saved games stay in that folder.</p>
       <p>After that, a newer build is a pink bar inside the app. That replaces Velvet.exe. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
-      <p>Bug reports go from Settings. The address is not shown. <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>.</p>
+      <p>Bug reports and feedback go from Settings. <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>.</p>
       <figure>
         <img src="shots/settings.png" alt="Settings with sound controls and a feedback box" />
         <figcaption>Settings. Sounds, Discord, and a feedback box.</figcaption>
