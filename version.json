@@ -1,6 +1,6 @@
 {
-  "version": 70,
-  "name": "1.5.6",
-  "notes": "Liquid glass without the white line. The installer asks for a folder.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v70/Velvet.exe"
+  "version": 71,
+  "name": "1.5.7",
+  "notes": "None on every sound. Quiet hours mute win and loss. Seen uses local time. The cat waits for a live game.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v71/Velvet.exe"
 }
