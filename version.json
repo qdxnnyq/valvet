@@ -1,6 +1,6 @@
 {
-  "version": 74,
-  "name": "1.6.0",
-  "notes": "Round scrubber. Death heat. The update bar shows the real newest version.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v74/Velvet.exe"
+  "version": 75,
+  "name": "1.6.1",
+  "notes": "Smooth kill and death heat. Tabs stay cached when nothing changed.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v75/Velvet.exe"
 }
