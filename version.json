@@ -1,6 +1,6 @@
 {
-  "version": 96,
-  "name": "1.7.20",
-  "notes": "The win gif matches the loss gif without cropping. Sounds has its own win and loss volume slider.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v96/Valvet.exe"
+  "version": 97,
+  "name": "1.7.21",
+  "notes": "Click a day on the session chart to see that day's matches. Seen ignores only Riot Mobile.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v97/Valvet.exe"
 }
