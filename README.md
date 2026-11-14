@@ -63,15 +63,15 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 ## Locker
 
-Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports events are a grid, largest prize first, then the smaller ones. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs reads the profile Valorant is using on this PC when that config is there, and still imports or exports a code.
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs reads the profile Valorant is using on this PC when that config is there, and still imports or exports a code.
 
-The Game page reads the graphics and sensitivity Valorant is using on this PC. Copy puts that list on the clipboard.
+The Game page reads the graphics and sensitivity Valorant is using on this PC. Sensitivity is the slider from RiotUserSettings, not the Unreal default. Copy puts that list on the clipboard.
 
-A background image can recolor the app from the picture. The optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the rest. Discord can take a channel webhook for the map, a found game, the final score, a watched player, or an unfriend.
+A background image can recolor the app from the picture. The optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the rest.
 
 ## Find Duo
 
-Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and an optional note. Age and gender are optional. The board can be filtered by server, queue, mode, age, and gender. Discord is on the post only when Share Discord is on. Do not post if you are under 16.
+Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and an optional note. Age and gender are optional. The board can be filtered by server, queue, mode, age, and gender. Do not post if you are under 16.
 
 After you play with someone, you can rate them from 1 to 5. The leaderboard lists people on the board who have a 4 or 5 average, sorted by the saved games on their PC. A post stays on the board for about 12 hours.
 
@@ -89,7 +89,4 @@ VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop, th
 
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
-Bug reports and feedback go from Settings. [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`.
-
-![Settings](docs/shots/settings.png)
-
+Bug reports and feedback go from Settings. [Twitter](https://x.com/qdxnnyq).
