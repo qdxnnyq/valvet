@@ -1,6 +1,6 @@
 {
-  "version": 48,
-  "name": "1.0.8",
-  "notes": "Clearer liquid glass. Grain, gun rim, rank streak, and cursor light.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v48/Velvet.exe"
+  "version": 49,
+  "name": "1.0.9",
+  "notes": "Discord and Find Duo settings survive updates. Finer grain. No white circle on the glass.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v49/Velvet.exe"
 }
