@@ -3,80 +3,140 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Velvet — Valorant, on your PC</title>
-  <meta name="description" content="Velvet is a pink Windows companion that reads the Riot Client on your PC. Live match, watch list, store, and Find Duo. It never asks for your password." />
+  <title>Velvet — local Valorant companion for Windows</title>
+  <meta name="description" content="Velvet reads the Riot Client lockfile on your PC. Live match, match history with ranks, profile archive, Trace, store, and Find Duo. No Riot password. Not made by Riot." />
   <meta property="og:title" content="Velvet" />
-  <meta property="og:description" content="Live Valorant on your own PC. Win and loss sounds only after the match. Watch list, wishlist, Find Duo." />
-  <meta property="og:image" content="https://qdxnnyq.github.io/velvet/og.jpg" />
+  <meta property="og:description" content="Local Windows companion for the Valorant client already running on that PC. Lockfile session, no password, no injection." />
+  <meta property="og:image" content="https://qdxnnyq.github.io/velvet/shots/live.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://qdxnnyq.github.io/velvet/og.jpg" />
+  <meta name="twitter:image" content="https://qdxnnyq.github.io/velvet/shots/live.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23140c11'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' font-family='sans-serif' fill='%23ff5fa2'%3EV%3C/text%3E%3C/svg%3E" />
   <style>
-    :root { color-scheme: dark; --accent: #ff5fa2; --ink: #fff4f8; --muted: #c9a8b6; --line: rgba(255,255,255,.1); }
+    :root { color-scheme: dark; --accent: #ff5fa2; --ink: #fff4f8; --muted: #c9a8b6; --line: rgba(255,255,255,.1); --card: #140c11; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Segoe UI", sans-serif; color: var(--ink); background: #0c070a; }
     a { color: inherit; }
-    .hero { min-height: 420px; display: grid; align-items: end; background: #0c070a url("banner.jpg") center/cover no-repeat; }
+    .hero { min-height: 380px; display: grid; align-items: end; background: #0c070a url("banner.jpg") center/cover no-repeat; }
     .hero-inner { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 64px 0 36px; }
     .mark { font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 750; }
     h1 { margin: 8px 0 0; font-size: clamp(48px, 8vw, 92px); letter-spacing: -.06em; line-height: .9; }
     h1 span { color: var(--accent); }
-    .lead { max-width: 560px; color: var(--muted); font-size: 18px; line-height: 1.45; }
+    .lead { max-width: 640px; color: var(--muted); font-size: 18px; line-height: 1.5; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
     .btn { display: inline-flex; align-items: center; height: 46px; padding: 0 18px; border-radius: 999px; text-decoration: none; font-weight: 750; }
     .btn.solid { background: var(--accent); color: #1a0610; }
     .btn.ghost { border: 1px solid var(--line); background: rgba(12,7,10,.55); }
-    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 72px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
-    article, aside { background: #140c11; border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
-    h2 { margin: 22px 0 10px; font-size: 28px; letter-spacing: -.04em; }
-    article h2:first-child, aside h2:first-child { margin-top: 0; }
-    p, li { color: var(--muted); line-height: 1.5; }
-    ul { padding-left: 18px; }
-    .grid { display: grid; gap: 10px; margin-top: 8px; }
+    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 80px; }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; margin-top: 14px; }
+    h2 { margin: 0 0 10px; font-size: 28px; letter-spacing: -.04em; }
+    h3 { margin: 18px 0 6px; font-size: 16px; letter-spacing: -.02em; }
+    p, li { color: var(--muted); line-height: 1.55; }
+    ul { padding-left: 18px; margin: 8px 0; }
+    code { color: var(--ink); font-size: 0.92em; }
+    .shots { display: grid; gap: 14px; }
+    figure { margin: 14px 0 0; }
+    figure img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); display: block; background: #10080d; }
+    figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
     .grid div { border-top: 1px solid var(--line); padding-top: 10px; }
     .grid b { display: block; color: var(--ink); margin-bottom: 2px; }
     .note { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; }
-    @media (max-width: 800px) { main { grid-template-columns: 1fr; } .hero { min-height: 320px; } }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .hero { min-height: 300px; } }
   </style>
 </head>
 <body>
   <header class="hero">
     <div class="hero-inner">
-      <div class="mark">Windows · on your PC</div>
+      <div class="mark">Windows · local client</div>
       <h1>VEL<span>VET</span></h1>
-      <p class="lead">The match, the store, and the people you keep an eye on. Pink, local, and it never asks for your Riot password. A friend who installs it sees their own account.</p>
+      <p class="lead">A companion for the Valorant session already open on this PC. It uses the Riot Client lockfile. It does not ask for a password, and it does not inject into the game.</p>
       <div class="actions">
-        <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe">Install Velvet</a>
-        <a class="btn ghost" href="https://github.com/qdxnnyq/velvet">What's inside</a>
+        <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe">Download VelvetSetup.exe</a>
+        <a class="btn ghost" href="https://github.com/qdxnnyq/velvet">Source and releases</a>
       </div>
     </div>
   </header>
   <main>
-    <article>
-      <h2>It waits for the real result</h2>
-      <p>Win and loss sounds play after the whole match, from the outcome. A round only flashes the edge. GG, easy and Sad are built in. Your own files work too.</p>
+    <section>
+      <h2>What it is</h2>
+      <p>Velvet is one Windows app. On launch it finds the Riot Client lockfile, reads the local port and the token the client already created, and polls that session for phase, map, mode, score, and the roster. Rank is a separate MMR lookup per player. The binary is not tied to an account. It can only see whoever is signed into the Riot Client on that machine.</p>
+      <p>Settings, custom audio, and a match archive of up to 100 games are stored in <code>%LOCALAPPDATA%\Velvet</code>. They are not inside the downloaded file.</p>
       <div class="grid">
-        <div><b>Watch list</b> Add a Name#Tag, friend or not. In your lobby or game they glow and play the watch sound. If they finish a match you were not in, Velvet says so.</div>
-        <div><b>Wishlist</b> Pin a skin. When it hits the daily store or the night market it sits at the top and plays a bell. That is not the match-end sound.</div>
-        <div><b>History</b> Best KDA on top. Hover a player and the same row lights up below. MVP on the winning side, SVP on the losing side. Their past games show MVP too.</div>
-        <div><b>Profile</b> Saved games on this PC. Win rate with real friends only, after two games together. Weapons, maps, best kills, best ACS, and the enemy you meet most.</div>
-        <div><b>Trace</b> Unfriends, name changes, and a timed log of VP, Kingdom Credits, and Radianite.</div>
-        <div><b>Find Duo</b> Pick roles, modes, rank, and server. Then press Start looking for duo. The page says you are looking. Stop looking takes you off. There is no switch.</div>
+        <div><b>Install once</b> VelvetSetup.exe copies Velvet.exe into LocalAppData, then adds Start menu and Desktop shortcuts.</div>
+        <div><b>Update in the app</b> A newer build is a pink bar. That download replaces Velvet.exe from the GitHub release and restarts. It is not the installer.</div>
+        <div><b>Unsigned build</b> SmartScreen can warn the first time. The file to trust is the release asset on this repository.</div>
+        <div><b>Not Riot</b> Velvet is not made by Riot Games. No process injection. No password field for Riot.</div>
       </div>
-      <h2>The locker</h2>
-      <p>Store, featured bundle, esports capsules you can open, collection, agents, battle pass, patch notes, and crosshairs you import yourself. Upload a background and Velvet picks the colours from the picture. Liquid glass, shaders, a small always-on-top overlay, and a live-only mode that loads nothing else.</p>
-      <p class="note">Velvet is not made by Riot Games. It does not inject into Valorant. It talks to the local Riot Client the same way the client talks to itself. Your password is not in the download.</p>
-    </article>
-    <aside>
-      <h2>A friend installs their own</h2>
-      <p>Open the Riot Client, then open Velvet. The installer puts it in the Start menu. The first launch walks through the real controls, including an example end-of-game card and the colour and sound rows in Settings. Their matches and their store come from the client on their PC. Nothing in the file is tied to one account. A new install starts at 15% volume. If Windows is in dark mode, the window frame is dark too.</p>
-      <p>Windows may warn on an unsigned build. That warning is SmartScreen, not a virus hit. The file is the release attached to this GitHub repo.</p>
-      <h2>Updates</h2>
-      <p>Run VelvetSetup once. After that, Velvet checks this repo. A newer build is a pink bar at the top. One click replaces the app and restarts. You do not download the installer again.</p>
-      <h2>Two ways to find people</h2>
-      <p>Find Duo is a public list. You choose what to share, then start. Discord is included only if you turn Share Discord on. Stop looking and the posts stop.</p>
-      <p>Share Velvet with a friend is private. Settings makes a random id. Only someone you send that id to can follow your queue, map, score, wishes, and watch-list pings.</p>
-    </aside>
+    </section>
+
+    <section>
+      <h2>Live match</h2>
+      <p>Agent select and in-game show both sides: agent, KDA, headshot percent, ADR, rank icon, rank, and RR. Each side header is the average competitive tier on that side. If the current act has no rank and Riot still has a peak, the row is labeled Peak. Peak is not current RR. It still counts in the average. Enemy groups of two or more are marked as a stack.</p>
+      <p>The phase line includes the server, the party average, the enemy average, and this PC's record on the current map. The daily challenge is one line from recent games. It stays on the live page.</p>
+      <figure>
+        <img src="shots/live.png" alt="Live competitive match on Ascent with ranks, RR, peak ranks, and team averages" />
+        <figcaption>Live board. Current rank and RR, Peak when the act rank is missing, average on each side.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>Match history</h2>
+      <p>Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games.</p>
+      <p>History uses the same MMR result as the live board, including the Peak label and the side average. A late name stays on the row it was already drawn into. A finished match can be copied as an image.</p>
+      <figure>
+        <img src="shots/history.png" alt="Match history with KDA order, MVP, SVP, ranks, and peak ranks" />
+        <figcaption>History. KDA order, MVP and SVP, ranks, and the average for each side.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>Profile</h2>
+      <p>The player card, title, level, and agent mastery come from the local account. The stats under the card come from the on-disk archive, not from the last few matches only.</p>
+      <ul>
+        <li>Friend win rate counts Riot friends only, after two decided games together. Random teammates are excluded.</li>
+        <li>A rival is an enemy faced at least twice.</li>
+        <li>Weapons, maps, best kills, best ACS, and headshot rate are computed from the saved games.</li>
+      </ul>
+      <figure>
+        <img src="shots/profile.png" alt="Profile with player card, saved record, and rival" />
+        <figcaption>Profile. Local card, saved record, and rival from the archive.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>Trace, store, locker</h2>
+      <div class="grid">
+        <div><b>Watch list</b> Any Name#Tag. In your lobby or match, the row is marked and a separate notification can play. If they finish a match you were not in, that new match id is reported once.</div>
+        <div><b>Unfriends and renames</b> A Riot friend missing on the next read is listed. A Riot ID change keeps the old name and the new one.</div>
+        <div><b>Wallet</b> VP, Kingdom Credits, and Radianite. Velvet stores the time when the balance changes.</div>
+        <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
+        <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules and their contents, equipped collection, agents, battle pass, missions, patch notes.</div>
+        <div><b>Crosshairs</b> Import and export a code and draw a preview. The crosshair is not read from the game config.</div>
+      </div>
+      <p>An optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the other pages. A background image can recolor the app from the picture.</p>
+    </section>
+
+    <section>
+      <h2>Find Duo</h2>
+      <p>Set roles, modes, rank range, and server, then press <b>Start looking for duo</b>. That posts this PC to the shared list. Stop looking removes the post. Discord is included only if Share Discord is on.</p>
+      <p>Settings can also create a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public list.</p>
+    </section>
+
+    <section>
+      <h2>Sounds</h2>
+      <p>These are separate controls: alert, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.</p>
+      <p>Quiet hours mute the alerts. They do not mute the post-match win or loss. Any control can use a local file. Preview plays that file immediately. A new install with no saved volume starts at 15%.</p>
+    </section>
+
+    <section>
+      <h2>Feedback</h2>
+      <p>The first launch, when no tutorial flag is stored, shows a short thank-you and two contacts: <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>. Settings has the same contacts, plus a text box. Send posts the note from the app. The destination address is not shown in the interface.</p>
+      <figure>
+        <img src="shots/settings.png" alt="Settings with sound controls and the feedback box" />
+        <figcaption>Settings. Separate sound controls, and a feedback box that does not show an address.</figcaption>
+      </figure>
+      <p class="note">If Windows is in dark mode, the title bar and border use the same dark color as the app so a white line does not sit under the frame. Switching tabs animates the selection. Velvet 1.3.1.</p>
+    </section>
   </main>
 </body>
 </html>
