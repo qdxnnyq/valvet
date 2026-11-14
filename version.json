@@ -1,6 +1,6 @@
 {
-  "version": 53,
-  "name": "1.0.13",
-  "notes": "Fixes Velvet closing as soon as it starts.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v53/Velvet.exe"
+  "version": 54,
+  "name": "1.1.0",
+  "notes": "Scoreboard names, esports contents, wallet log, overlay, and app notes.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v54/Velvet.exe"
 }
