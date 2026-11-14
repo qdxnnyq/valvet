@@ -1,31 +1,29 @@
-<p align="center">
-  <img src="docs/banner.jpg" alt="Velvet" width="100%" />
-</p>
-
 # Velvet
 
-A Windows app for your own Valorant client. Live lobby, history, store, collection, and an opt-in Find Duo list.
-
-**[Download Velvet.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/Velvet.exe)** · [Release notes](https://github.com/qdxnnyq/velvet/releases/latest)
-
-Windows SmartScreen can warn on an unsigned test build. The file is this release, not a random download.
+A pink Valorant companion that stays on your PC and reads the Riot Client already open there. It never asks for your password. A friend who installs it sees their own account.
 
 ## What it does
 
-Open the Riot Client, then open Velvet. The first launch is a short tour of every tab. The app reads the client on that PC. A friend who installs the same file sees their account, not yours.
+**Live match.** Names, agents, ranks, parties, and the server while you load in and while you play. The waiting animation stays under your lobby until a game is found. Hover a player on the top of a finished scoreboard and the same row lights up below. Best KDA is at the top. MVP is the best player on the winning side. SVP is the best on the losing side.
 
-## Updates
+**Watch list.** Add a Name#Tag. If they land in your game they glow, a sound that is not the normal alert plays, and the overlay writes their name on the score.
 
-They only download from this page once. The app checks this repo about every 10 seconds. A newer build shows a pink bar at the top. One click replaces the exe and restarts. If Velvet is closed, the bar shows the next time it opens.
+**Wishlist.** Pin a skin. When it shows up in the daily store or night market it sits at the top and plays its own chime. That is not the match-end sound.
 
-## Find Duo
+**After the match.** Win and loss sounds play only when the whole game is over, from the final result. Never on a round. GG, easy and Sad are included. You can upload your own. Copy card makes a picture of the result.
 
-People who are not friends appear only if they turn on **Show me in Find Duo**. That posts a small card to a public list every Velvet app reads: Riot ID, rank, server, roles, and modes. Discord is on the card only if they also turn on Share Discord. Turn it off and the posts stop.
+**Trace.** Watch list, people who unfriended you, friend name changes, and a timed log of VP, Kingdom Credits, and Radianite.
 
-A private share is separate. In Settings, **Share Velvet with a friend** is a random id. Only someone you send that id to can see your queue, map, score, wishes, and watch-list pings.
+**Profile.** Your card, best kills, best ACS, the enemy you meet most, and your win rate with friends. A daily challenge is built from last night’s games.
 
-Your Riot password stays on the PC. Velvet is not made by Riot Games and it does not inject into the game.
+**Find Duo.** Pick roles, modes, rank, and server. Then press Start looking for duo. Stop looking takes you off the list. The id you share is random and stays on this PC.
 
-<p align="center">
-  <img src="docs/og.jpg" alt="Velvet preview" width="640" />
-</p>
+**Collection, store, battle pass, agents, esports, patch notes, crosshairs.** The locker, with colours equipped, a background that picks the app colours from a picture you upload, and crosshairs you import yourself.
+
+**Settings.** Volume, separate sounds for alerts, watch list, wishlist, wins, and losses. Liquid glass, shaders, live only, and a small always-on-top overlay. Backup to a file or a Gmail draft. Velvet never asks for the Gmail password.
+
+## Install
+
+Download [Velvet.exe](https://github.com/qdxnnyq/velvet/releases/latest) and open it. The Riot Client should be open on the same PC. A pink bar inside the app is an update. One click downloads it and restarts.
+
+Your settings stay in `%LOCALAPPDATA%\Velvet`. They are not baked into the file you send a friend.
