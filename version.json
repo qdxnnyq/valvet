@@ -1,6 +1,6 @@
 {
-  "version": 56,
-  "name": "1.1.2",
-  "notes": "Stable KDA history, MVP and SVP, custom sounds, and backgrounds.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v56/Velvet.exe"
+  "version": 57,
+  "name": "1.2.0",
+  "notes": "Match-end sounds only, watch and wishlist sounds, profile records, and Find Duo starts with a button.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v57/Velvet.exe"
 }
