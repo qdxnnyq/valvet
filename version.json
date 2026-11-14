@@ -1,6 +1,6 @@
 {
-  "version": 90,
-  "name": "1.7.14",
-  "notes": "Live sides are full rows. KDA, rank, party, and the team average each have room.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v90/Valvet.exe"
+  "version": 91,
+  "name": "1.7.15",
+  "notes": "Live parties stay after agent select. If that is missing, people who just queued together still get a party mark.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v91/Valvet.exe"
 }
