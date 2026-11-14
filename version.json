@@ -1,6 +1,6 @@
 {
-  "version": 47,
-  "name": "1.0.7",
-  "notes": "Depth on the live board, history, collection, and store. Liquid glass in Settings. Player games open the full match.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v47/Velvet.exe"
+  "version": 48,
+  "name": "1.0.8",
+  "notes": "Clearer liquid glass. Grain, gun rim, rank streak, and cursor light.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v48/Velvet.exe"
 }
