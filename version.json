@@ -1,6 +1,6 @@
 {
-  "version": 49,
-  "name": "1.0.9",
-  "notes": "Discord and Find Duo settings survive updates. Finer grain. No white circle on the glass.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v49/Velvet.exe"
+  "version": 50,
+  "name": "1.0.10",
+  "notes": "Velvet icon on the window. Player matches open as a wide scoreboard.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v50/Velvet.exe"
 }
