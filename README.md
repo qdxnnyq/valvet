@@ -1,53 +1,92 @@
 # Velvet
 
-A pink Valorant companion that lives on your PC. It reads the Riot Client already open there. It never asks for your password. A friend who installs it sees their own account, their own store, their own friends.
+Velvet is a local Windows companion for the Valorant session already running on that PC. It reads the Riot Client lockfile, then uses the local port and token the client already created. It does not ask for a Riot password, it does not inject into the Valorant process, and it is not made by Riot Games.
 
-Windows may warn the first time. That is SmartScreen on an unsigned build, not a virus hit. The file is the release on this repo.
+The file is not bound to an account. Velvet can only see the account signed into the Riot Client on that machine.
+
+![Live match, ranks, and team averages](docs/shots/live.png)
 
 ## Install
 
-Download [VelvetSetup.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe) and open it. It puts Velvet in the Start menu and on the desktop, then opens it. The Riot Client should be open on the same PC.
+1. Download [VelvetSetup.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe).
+2. Run it. The installer copies `Velvet.exe` to `%LOCALAPPDATA%\Velvet`, creates Start menu and Desktop shortcuts, and launches the app.
+3. Keep the Riot Client open on the same PC.
 
-The window title follows Windows. If the PC is in dark mode, the frame around Velvet is dark too.
+Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the `VelvetSetup.exe` asset attached to the GitHub release.
 
-The next time there is a build, a pink bar shows up inside the app. One click downloads the new app and restarts. You do not have to run the installer again.
+Settings, the saved match archive, and custom audio live in `%LOCALAPPDATA%\Velvet`. They are not compiled into the exe. A new install with no saved volume starts at 15%.
 
-Settings stay in `%LOCALAPPDATA%\Velvet`. They are not baked into the file you send a friend. Backup opens a Gmail draft. Velvet never asks for the Gmail password. A new install starts at 15% volume.
+## Updates
 
-## After the match
+The installer is for the first setup. After that, Velvet reads `version.json` in this repository. A newer build is a pink bar inside the app. That action downloads the `Velvet.exe` asset from the matching release, replaces the installed binary, and restarts. It does not download the installer again.
 
-Win and loss sounds play when the **whole match** is over, from the final result. Not when a round ends. A round only flashes the edge of the window. Changing tabs does not play a sound.
+## How a read works
 
-GG, easy and Sad ship with the app. Cheer, fanfare, and a few quieter losses are in Settings too. You can drop in your own files. Preview plays them without waiting for a game.
+Startup finds the Riot Client lockfile and keeps a short-lived session from it. Live state is polled from that session: phase, map, mode, server, score, and the current roster.
 
-## Sounds that are not the match
+Competitive rank is a separate MMR request per player. A known rank is cached for several hours. An unknown rank is retried sooner. If the current act has no competitive tier and Riot still returns a peak tier, the UI labels that peak and does not treat it as current RR.
 
-They each have their own setting.
+Match history uses the same session and the same rank fields as the live board. A name that arrives late stays on the row it was already drawn into, so identities do not swap while the request is in flight.
 
-- **Alert.** A friend joins the lobby, or the queue pops.
-- **Friend in your game.** The sound when a friend is in your match. It can match the alert, or be its own pack or file.
-- **Watch list in your game.** When someone on the watch list walks into your lobby or your game. The row glows. The overlay writes their name.
-- **Watch list finishes a game.** When someone you watch, who does not have to be a friend, ends a match you were not in.
-- **Wishlist.** A bell when a skin you pinned shows up in the daily store or the night market.
+## Live
 
-Quiet hours mute those. Win and loss still play after the match. Preview ignores quiet hours.
+During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak and still counts toward that average. Enemy groups of two or more are marked as a stack.
 
-## What you actually open it for
+The phase line shows server, party average, enemy average, and this PC's record on the current map. The daily challenge is one line computed from recent games. It stays on the live page. It is not a separate panel.
 
-**Live.** Names, agents, ranks, parties, and the server while you load in and while you play. The waiting animation stays under the lobby until a game is found. Today's challenge is one small line.
+## Match history
 
-**History.** Best KDA on top, and it stays there while names load. Hover a player on the top of a finished scoreboard and the same row lights up below. MVP is the best player on the winning side. SVP is the best on the losing side. Open someone and their games show MVP too. Copy card turns the result into a picture.
+![Match history with ranks, peak ranks, MVP, and side averages](docs/shots/history.png)
 
-**Profile.** Saved games on this PC, not the last handful. Win rate with Riot friends only, after two games together. Random teammates are not counted. Best kills, best ACS, the enemy you have met the most, your weapons, and your maps.
+Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games as well.
 
-**Trace.** Not match history. Watch list, people who unfriended you, friend name changes (old name, new name), and a timed log of VP, Kingdom Credits, and Radianite.
+History ranks are the same MMR result as the live board, including the Peak label and the side average. A finished match can be copied as an image.
 
-**Find Duo.** Pick roles, modes, rank, and server first. Then press **Start looking for duo**. The page says you are looking. Stop looking takes you off. The id you share with one friend is random and stays on this PC. Discord is optional and never required.
+## Profile
 
-**Store, bundle, esports, collection, agents, battle pass, patches, crosshairs.** The locker. Esports bundles open so you can see what is inside. Events slide across the top. Crosshairs are import and export, not read out of the game config. A background picture recolors the whole app from the photo.
+![Profile card and saved-game stats](docs/shots/profile.png)
 
-**Overlay.** Optional, small, always on top. Score, and the watch-list names if any of them are in the lobby or the game.
+The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps an on-disk archive of up to 100 decided games.
 
-**Live only.** A switch that loads nothing except the live match.
+Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Weapons, maps, best kills, best ACS, and headshot rate come from the archive.
 
-Velvet is not made by Riot Games. It does not inject into Valorant. It talks to the local Riot Client the same way the client talks to itself.
+## Trace
+
+Trace is not match history.
+
+- **Watch list.** Any `Name#Tag`, friend or not. If they are in your lobby or your match, the row is marked and the watch-list notification can play. If they finish a match you were not in, Velvet reports that new match id once.
+- **Unfriends.** Riot friends present on one read and missing on the next.
+- **Name changes.** The previous Riot ID and the new one.
+- **Wallet.** Timestamped deltas for VP, Kingdom Credits, and Radianite when the store balance changes.
+
+The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. If a pinned item is in the daily store or the night market, it is sorted to the top of Store.
+
+## Locker
+
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports capsules open to the items inside. Crosshairs are import and export of a code. Velvet does not read the crosshair from the game config.
+
+A background image can recolor the app from the picture. The optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the rest.
+
+## Find Duo
+
+Roles, modes, rank range, and server are set first. **Start looking for duo** posts this PC to the shared list. **Stop looking** removes the post. Discord is included only when Share Discord is on.
+
+Settings also creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public Find Duo list.
+
+## Sounds
+
+Alerts, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss are separate controls. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.
+
+Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of those sounds can be replaced with a local file. Preview plays the selected file immediately.
+
+## Feedback and first launch
+
+The first launch, when no tutorial flag is stored, shows a short thank-you with [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`. Settings has the same contacts.
+
+![Settings, sound controls, and the feedback box](docs/shots/settings.png)
+
+The feedback box sends the note from the app. The destination address is not shown in the interface.
+
+## Window
+
+If Windows is in dark mode, the title bar, caption, and border are painted to the same dark color as the app, so a white line does not sit under the frame. Switching tabs animates the selected item and the incoming page.
