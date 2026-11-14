@@ -1,5 +1,5 @@
 {
-  "version": 28,
-  "notes": "Seen is live-only and covers the last 24 hours.",
-  "url": "https://github.com/pennerd18-a11y/velvet/releases/download/v28/Velvet.exe"
+  "version": 29,
+  "notes": "League tab, plus an optional room so Velvet users can find each other.",
+  "url": "https://github.com/pennerd18-a11y/velvet/releases/download/v29/Velvet.exe"
 }
