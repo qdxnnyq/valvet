@@ -1,6 +1,6 @@
 {
-  "version": 46,
-  "name": "1.0.6",
-  "notes": "Player cards show games. The score line no longer says You.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v46/Velvet.exe"
+  "version": 47,
+  "name": "1.0.7",
+  "notes": "Depth on the live board, history, collection, and store. Liquid glass in Settings. Player games open the full match.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v47/Velvet.exe"
 }
