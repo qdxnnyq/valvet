@@ -1,6 +1,6 @@
 {
-  "version": 43,
-  "name": "1.0.3",
-  "notes": "Find Duo test name removed. History shows rank and peak.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v43/Velvet.exe"
+  "version": 44,
+  "name": "1.0.4",
+  "notes": "Faster history ranks. Player cards show rank, peak, and games. Find Duo no longer calls out while off.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v44/Velvet.exe"
 }
