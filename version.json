@@ -1,6 +1,6 @@
 {
-  "version": 40,
-  "name": "1.0.0",
-  "notes": "Velvet 1.0.0",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v40/Velvet.exe"
+  "version": 41,
+  "name": "1.0.1",
+  "notes": "Owned items are marked in the store. Wishlist can hide them.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v41/Velvet.exe"
 }
