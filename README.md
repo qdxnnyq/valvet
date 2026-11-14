@@ -63,7 +63,9 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 ## Locker
 
-Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs reads the profile Valorant is using on this PC when that config is there, and still imports or exports a code.
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Velvet does not read a crosshair off the PC.
+
+The Book pages are records, maps, death spots, clutches, duos, session time, last seen, and a custom roster. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
 
 The Game page reads the graphics and sensitivity Valorant is using on this PC. Sensitivity is the slider from RiotUserSettings, not the Unreal default. Copy puts that list on the clipboard.
 
@@ -90,3 +92,4 @@ VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop, th
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
 Bug reports and feedback go from Settings. [Twitter](https://x.com/qdxnnyq).
+
