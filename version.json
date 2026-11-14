@@ -1,6 +1,6 @@
 {
-  "version": 61,
-  "name": "1.3.2",
-  "notes": "Esports event grid, profile weapon HS and daily chart, cached pages, free pass slot, in-game settings, Windows apps entry.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v61/Velvet.exe"
+  "version": 62,
+  "name": "1.4.0",
+  "notes": "Find Duo beta board with filters and ratings. Peak ranks marked when there is no active rank. Wishlist pictures open larger.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v62/Velvet.exe"
 }
