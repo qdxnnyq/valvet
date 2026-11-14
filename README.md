@@ -32,7 +32,7 @@ Match history uses the same session and the same rank fields as the live board. 
 
 During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak and still counts toward that average. Enemy groups of two or more are marked as a stack.
 
-The phase line shows server, party average, enemy average, and this PC's record on the current map. The daily challenge is one line computed from recent games. It stays on the live page. It is not a separate panel.
+The phase line shows server, party average, enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.
 
 ## Match history
 
@@ -48,7 +48,7 @@ History ranks are the same MMR result as the live board, including the Peak labe
 
 The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps an on-disk archive of up to 100 decided games.
 
-Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Weapons, maps, best kills, best ACS, and headshot rate come from the archive.
+Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 on this PC.
 
 ## Trace
 
@@ -63,9 +63,11 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 ## Locker
 
-Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports capsules open to the items inside. Crosshairs are import and export of a code. Velvet does not read the crosshair from the game config.
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports events are a grid, largest prize first, then the smaller ones. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs are import and export of a code. Velvet does not read the crosshair from the game config.
 
-A background image can recolor the app from the picture. The optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the rest.
+The Game page reads the graphics and sensitivity Valorant is using on this PC. Copy puts that list on the clipboard.
+
+A background image can recolor the app from the picture. The optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the rest. Discord can take a channel webhook for the map, a found game, the final score, a watched player, or an unfriend.
 
 ## Find Duo
 
@@ -79,14 +81,13 @@ Alerts, a friend appearing in your match, a watched player appearing in your lob
 
 Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of those sounds can be replaced with a local file. Preview plays the selected file immediately.
 
-## Feedback and first launch
+## Install notes
 
-The first launch, when no tutorial flag is stored, shows a short thank-you with [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`. Settings has the same contacts.
+VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop. Uninstall from Apps removes the program and the shortcuts. Saved games stay in `%LOCALAPPDATA%\Velvet`.
 
-![Settings, sound controls, and the feedback box](docs/shots/settings.png)
+Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
-The feedback box sends the note from the app. The destination address is not shown in the interface.
+Bug reports go from Settings. The address is not shown. [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`.
 
-## Window
+![Settings](docs/shots/settings.png)
 
-If Windows is in dark mode, the title bar, caption, and border are painted to the same dark color as the app, so a white line does not sit under the frame. Switching tabs animates the selected item and the incoming page.
