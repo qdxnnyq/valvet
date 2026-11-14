@@ -1,6 +1,6 @@
 {
-  "version": 87,
-  "name": "1.7.11",
-  "notes": "Live board shows team average, rank, KDA, and party.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v87/Valvet.exe"
+  "version": 88,
+  "name": "1.7.12",
+  "notes": "Live rank and KDA stay on the row. Peak shows when there is no rank this act. Win and loss are quieter.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v88/Valvet.exe"
 }
