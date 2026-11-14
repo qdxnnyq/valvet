@@ -46,7 +46,7 @@ History ranks are the same MMR result as the live board, including the Peak labe
 
 ![Profile card and saved-game stats](docs/shots/profile.png)
 
-The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps an on-disk archive of up to 100 decided games.
+The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps an on-disk archive of up to 60 decided games.
 
 Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC.
 
