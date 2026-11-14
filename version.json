@@ -1,5 +1,5 @@
 {
-  "version": 29,
-  "notes": "League tab, plus an optional room so Velvet users can find each other.",
-  "url": "https://github.com/pennerd18-a11y/velvet/releases/download/v29/Velvet.exe"
+  "version": 30,
+  "notes": "League tab removed. Together uses a random id per PC, not a password.",
+  "url": "https://github.com/pennerd18-a11y/velvet/releases/download/v30/Velvet.exe"
 }
