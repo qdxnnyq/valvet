@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Velvet — local Valorant companion for Windows</title>
-  <meta name="description" content="Velvet reads the Riot Client lockfile on your PC. Live match, match history with ranks, profile archive, Trace, store, and Find Duo. No Riot password. Not made by Riot." />
-  <meta property="og:title" content="Velvet" />
+  <title>Valvet — local Valorant companion for Windows</title>
+  <meta name="description" content="Valvet reads the Riot Client lockfile on your PC. Live match, match history with ranks, profile archive, Trace, store, and Find Duo. No Riot password. Not made by Riot." />
+  <meta property="og:title" content="Valvet" />
   <meta property="og:description" content="Local Windows companion for the Valorant client already running on that PC. Lockfile session, no password, no injection." />
   <meta property="og:image" content="https://qdxnnyq.github.io/velvet/shots/live.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -48,10 +48,10 @@
   <header class="hero">
     <div class="hero-inner">
       <div class="mark">Windows · local client</div>
-      <h1>VEL<span>VET</span></h1>
+      <h1>VAL<span>VET</span></h1>
       <p class="lead">A companion for the Valorant session already open on this PC. It uses the Riot Client lockfile. It does not ask for a password, and it does not inject into the game.</p>
       <div class="actions">
-        <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe">Download VelvetSetup.exe</a>
+        <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe">Download Valvet</a>
         <a class="btn ghost" href="https://github.com/qdxnnyq/velvet">Source and releases</a>
       </div>
     </div>
@@ -59,13 +59,13 @@
   <main>
     <section>
       <h2>What it is</h2>
-      <p>Velvet is one Windows app. On launch it finds the Riot Client lockfile, reads the local port and the token the client already created, and polls that session for phase, map, mode, score, and the roster. Rank is a separate MMR lookup per player. The binary is not tied to an account. It can only see whoever is signed into the Riot Client on that machine.</p>
+      <p>Valvet is one Windows app. On launch it finds the Riot Client lockfile, reads the local port and the token the client already created, and polls that session for phase, map, mode, score, and the roster. Rank is a separate MMR lookup per player. The binary is not tied to an account. It can only see whoever is signed into the Riot Client on that machine.</p>
       <p>Settings, custom audio, and the match archive for the current act are stored in <code>%LOCALAPPDATA%\Velvet</code>. They are not inside the downloaded file. When the next act starts, games from the act before it drop off. History, duos, clutches, heat, and records all use that same act.</p>
       <div class="grid">
-        <div><b>Install once</b> VelvetSetup.exe copies Velvet.exe into LocalAppData, then adds Start menu and Desktop shortcuts.</div>
-        <div><b>Update in the app</b> A newer build is a pink bar. That download replaces Velvet.exe from the GitHub release and restarts. It is not the installer.</div>
+        <div><b>Install once</b> The installer copies the app into the folder you pick, then adds Start menu and Desktop shortcuts named Valvet.</div>
+        <div><b>Update in the app</b> A newer build is a pink bar. That download replaces the installed app and restarts. It is not the installer.</div>
         <div><b>Unsigned build</b> SmartScreen can warn the first time. The file to trust is the release asset on this repository.</div>
-        <div><b>Not Riot</b> Velvet is not made by Riot Games. No process injection. No password field for Riot.</div>
+        <div><b>Not Riot</b> Valvet is not made by Riot Games. No process injection. No password field for Riot.</div>
       </div>
     </section>
 
@@ -109,13 +109,13 @@
       <div class="grid">
         <div><b>Watch list</b> Any Name#Tag. In your lobby or match, the row is marked and a separate notification can play. If they finish a match you were not in, that new match id is reported once.</div>
         <div><b>Unfriends and renames</b> A Riot friend missing on the next read is listed. A Riot ID change keeps the old name and the new one.</div>
-        <div><b>Wallet</b> VP, Kingdom Credits, and Radianite. Velvet stores the time when the balance changes.</div>
+        <div><b>Wallet</b> VP, Kingdom Credits, and Radianite. Valvet stores the time when the balance changes.</div>
         <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. Open the picture to see it larger. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
         <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules, equipped collection, agents, battle pass, missions, patch notes.</div>
         <div><b>Esports</b> Active and upcoming events in a row. Previous and Next move it. A card opens the event page. Open a capsule for the items inside.</div>
         <div><b>Pass</b> Current battle pass. The clock is days, hours, and minutes left in the act. Reward tiles stay square. A free pass shows on the same page when Riot ships one.</div>
         <div><b>Game</b> The graphics and sensitivity Valorant is using on this PC. Copy sends the list to someone else.</div>
-        <div><b>Crosshairs</b> Paste a code, name it, and export the saved set. Velvet does not read a crosshair off the PC.</div>
+        <div><b>Crosshairs</b> Paste a code, name it, and export the saved set. Valvet does not read a crosshair off the PC.</div>
       </div>
       <figure>
         <img src="shots/pass.png" alt="Battle pass with a days hours minutes clock and square reward tiles" />
@@ -157,10 +157,10 @@
 
     <section>
       <h2>Install</h2>
-      <p>Download VelvetSetup.exe and run it. It asks where to install, then copies Velvet there, adds Start menu and Desktop shortcuts, lists Velvet in Windows apps, opens the app, and closes. Leaving the folder as suggested uses <code>%LOCALAPPDATA%\Velvet</code>. Uninstall from Apps closes Velvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
-      <p>After that, a newer build is a pink bar inside the app. That replaces Velvet.exe. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
+      <p>Download the installer and run it. It asks where to install, then copies Valvet there, adds Start menu and Desktop shortcuts, lists Valvet in Windows apps, opens the app, and closes. Leaving the folder as suggested uses <code>%LOCALAPPDATA%\Velvet</code>. Uninstall from Apps closes Valvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
+      <p>After that, a newer build is a pink bar inside the app. That replaces the installed app. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
       <p>Bug reports and feedback go from Settings. <a href="https://x.com/qdxnnyq">Twitter</a>.</p>
-      <p class="note">Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the release on this repository. Velvet is not made by Riot Games.</p>
+      <p class="note">Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the release on this repository. Valvet is not made by Riot Games.</p>
     </section>
   </main>
 </body>

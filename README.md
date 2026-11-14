@@ -1,24 +1,26 @@
-# Velvet
+# Valvet
 
-Velvet is a local Windows companion for the Valorant session already running on that PC. It reads the Riot Client lockfile, then uses the local port and token the client already created. It does not ask for a Riot password, it does not inject into the Valorant process, and it is not made by Riot Games.
+Valvet is a local Windows companion for the Valorant session already running on that PC. It reads the Riot Client lockfile, then uses the local port and token the client already created. It does not ask for a Riot password, it does not inject into the Valorant process, and it is not made by Riot Games.
 
-The file is not bound to an account. Velvet can only see the account signed into the Riot Client on that machine.
+The file is not bound to an account. Valvet can only see the account signed into the Riot Client on that machine.
+
+The file is not bound to an account. Valvet can only see the account signed into the Riot Client on that machine.
 
 ![Live match, ranks, and team averages](docs/shots/live.png)
 
 ## Install
 
-1. Download [VelvetSetup.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe).
-2. Run it. The installer copies `Velvet.exe` to `%LOCALAPPDATA%\Velvet`, creates Start menu and Desktop shortcuts, and launches the app.
+1. Download [Valvet](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe).
+2. Run it. The installer copies the app to `%LOCALAPPDATA%\Velvet`, creates Start menu and Desktop shortcuts named Valvet, and launches the app.
 3. Keep the Riot Client open on the same PC.
 
-Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the `VelvetSetup.exe` asset attached to the GitHub release.
+Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the installer attached to the GitHub release.
 
 Settings, the saved match archive, and custom audio live in `%LOCALAPPDATA%\Velvet`. They are not compiled into the exe. A new install with no saved volume starts at 15%.
 
 ## Updates
 
-The installer is for the first setup. It asks which folder to use. After that, Velvet reads `version.json` in this repository. A newer build is a pink bar inside the app. That action downloads the `Velvet.exe` asset from the matching release, replaces the installed binary, and restarts. It does not download the installer again.
+The installer is for the first setup. It asks which folder to use. After that, Valvet reads `version.json` in this repository. A newer build is a pink bar inside the app. That action downloads the app from the matching release, replaces the installed binary, and restarts. It does not download the installer again.
 
 ## How a read works
 
@@ -46,7 +48,7 @@ History ranks are the same MMR result as the live board, including the Peak labe
 
 ![Profile card and saved-game stats](docs/shots/profile.png)
 
-The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps every decided game from the current act. History, duos, clutches, heat, and records use that same act. When the next act starts, the previous one drops off.
+The player card, title, level, and agent mastery come from the local account. Under that, Valvet keeps every decided game from the current act. History, duos, clutches, heat, and records use that same act. When the next act starts, the previous one drops off.
 
 Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC. History, duos, clutches, heat, and records all use the current act.
 
@@ -54,7 +56,7 @@ Friend win rate counts only Riot friends, and only after two decided games toget
 
 Trace is not match history.
 
-- **Watch list.** Any `Name#Tag`, friend or not. If they are in your lobby or your match, the row is marked and the watch-list notification can play. If they finish a match you were not in, Velvet reports that new match id once.
+- **Watch list.** Any `Name#Tag`, friend or not. If they are in your lobby or your match, the row is marked and the watch-list notification can play. If they finish a match you were not in, Valvet reports that new match id once.
 - **Unfriends.** Riot friends present on one read and missing on the next.
 - **Name changes.** The previous Riot ID and the new one.
 - **Wallet.** Timestamped deltas for VP, Kingdom Credits, and Radianite when the store balance changes.
@@ -63,7 +65,7 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 ## Locker
 
-Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Velvet does not read a crosshair off the PC.
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Valvet does not read a crosshair off the PC.
 
 The Book pages are records, maps, death spots, clutches, duos, session time, last seen, and a custom roster. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
 
@@ -87,7 +89,7 @@ Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of
 
 ## Install notes
 
-VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop, then opens Velvet and closes. Uninstall from Apps closes Velvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings. If you keep them, they stay in `%LOCALAPPDATA%\Velvet`.
+The installer adds Valvet to Windows apps, the Start menu, and the Desktop, then opens Valvet and closes. Uninstall from Apps closes Valvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings. If you keep them, they stay in `%LOCALAPPDATA%\Velvet`.
 
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
