@@ -1,6 +1,6 @@
 {
-  "version": 65,
-  "name": "1.5.1",
-  "notes": "Tabs no longer scroll. Maps and deaths use the full minimap, and Plummet is Summit. The rank coin flips to your peak.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v65/Velvet.exe"
+  "version": 66,
+  "name": "1.5.2",
+  "notes": "Session time stays still. Clutches and duos are cleaner. Bigger keeps the map pins, and the map is larger.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v66/Velvet.exe"
 }
