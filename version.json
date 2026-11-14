@@ -1,6 +1,6 @@
 {
-  "version": 91,
-  "name": "1.7.15",
-  "notes": "Live parties stay after agent select. If that is missing, people who just queued together still get a party mark.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v91/Valvet.exe"
+  "version": 92,
+  "name": "1.7.16",
+  "notes": "Your side is on the left and the enemy is on the right. Every player stays on screen. Pink is back.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v92/Valvet.exe"
 }
