@@ -72,7 +72,7 @@
     <section>
       <h2>Live match</h2>
       <p>Agent select and in-game show both sides: agent, KDA, headshot percent, ADR, rank icon, rank, and RR. Each side header is the average competitive tier on that side. If the current act has no rank and Riot still has a peak, the row is labeled Peak. Peak is not current RR. It still counts in the average. Enemy groups of two or more are marked as a stack.</p>
-      <p>The phase line includes the server, the party average, the enemy average, and this PC's record on the current map. The daily challenge is one line from recent games. It stays on the live page.</p>
+      <p>The phase line includes the server, the party average, the enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.</p>
       <figure>
         <img src="shots/live.png" alt="Live competitive match on Ascent with ranks, RR, peak ranks, and team averages" />
         <figcaption>Live board. Current rank and RR, Peak when the act rank is missing, average on each side.</figcaption>
@@ -95,7 +95,8 @@
       <ul>
         <li>Friend win rate counts Riot friends only, after two decided games together. Random teammates are excluded.</li>
         <li>A rival is an enemy faced at least twice.</li>
-        <li>Weapons, maps, best kills, best ACS, and headshot rate are computed from the saved games.</li>
+        <li>Each weapon shows finishing kills and headshot percent. Each map shows its win rate.</li>
+        <li>A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 on this PC.</li>
       </ul>
       <figure>
         <img src="shots/profile.png" alt="Profile with player card, saved record, and rival" />
@@ -110,8 +111,12 @@
         <div><b>Unfriends and renames</b> A Riot friend missing on the next read is listed. A Riot ID change keeps the old name and the new one.</div>
         <div><b>Wallet</b> VP, Kingdom Credits, and Radianite. Velvet stores the time when the balance changes.</div>
         <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
-        <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules and their contents, equipped collection, agents, battle pass, missions, patch notes.</div>
+        <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules, equipped collection, agents, battle pass, missions, patch notes.</div>
+        <div><b>Esports</b> Events in a grid, largest prize first. Open a capsule for the items inside.</div>
+        <div><b>Pass</b> Current battle pass. A free pass shows on the same page when Riot ships one.</div>
+        <div><b>Game</b> The graphics and sensitivity Valorant is using on this PC. Copy sends the list to someone else.</div>
         <div><b>Crosshairs</b> Import and export a code and draw a preview. The crosshair is not read from the game config.</div>
+        <div><b>Discord</b> Optional channel webhook for the map, a found game, the final score, a watched player, or an unfriend.</div>
       </div>
       <p>An optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the other pages. A background image can recolor the app from the picture.</p>
     </section>
@@ -129,13 +134,15 @@
     </section>
 
     <section>
-      <h2>Feedback</h2>
-      <p>The first launch, when no tutorial flag is stored, shows a short thank-you and two contacts: <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>. Settings has the same contacts, plus a text box. Send posts the note from the app. The destination address is not shown in the interface.</p>
+      <h2>Install</h2>
+      <p>Download VelvetSetup.exe and run it. It copies Velvet into <code>%LOCALAPPDATA%\Velvet</code>, adds Start menu and Desktop shortcuts, and lists Velvet in Windows apps. Uninstall from Apps removes the program. Saved games stay in that folder.</p>
+      <p>After that, a newer build is a pink bar inside the app. That replaces Velvet.exe. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
+      <p>Bug reports go from Settings. The address is not shown. <a href="https://x.com/qdxnnyq">Twitter</a> and Discord <code>_dxnny</code>.</p>
       <figure>
-        <img src="shots/settings.png" alt="Settings with sound controls and the feedback box" />
-        <figcaption>Settings. Separate sound controls, and a feedback box that does not show an address.</figcaption>
+        <img src="shots/settings.png" alt="Settings with sound controls and a feedback box" />
+        <figcaption>Settings. Sounds, Discord, and a feedback box.</figcaption>
       </figure>
-      <p class="note">If Windows is in dark mode, the title bar and border use the same dark color as the app so a white line does not sit under the frame. Switching tabs animates the selection. Velvet 1.3.1.</p>
+      <p class="note">Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the release on this repository. Velvet is not made by Riot Games.</p>
     </section>
   </main>
 </body>
