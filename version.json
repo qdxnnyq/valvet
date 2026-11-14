@@ -1,6 +1,6 @@
 {
-  "version": 86,
-  "name": "1.7.10",
-  "notes": "Someone in your party shows under Valorant friends. The waiting ring stays still.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v86/Valvet.exe"
+  "version": 87,
+  "name": "1.7.11",
+  "notes": "Live board shows team average, rank, KDA, and party.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v87/Valvet.exe"
 }
