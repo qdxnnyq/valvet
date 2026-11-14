@@ -1,6 +1,6 @@
 {
-  "version": 52,
-  "name": "1.0.12",
-  "notes": "Patch notes tab and an esports store for the bundles you can buy.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v52/Velvet.exe"
+  "version": 53,
+  "name": "1.0.13",
+  "notes": "Fixes Velvet closing as soon as it starts.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v53/Velvet.exe"
 }
