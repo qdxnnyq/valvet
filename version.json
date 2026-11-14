@@ -1,6 +1,6 @@
 {
-  "version": 92,
-  "name": "1.7.16",
-  "notes": "Your side is on the left and the enemy is on the right. Every player stays on screen. Pink is back.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v92/Valvet.exe"
+  "version": 93,
+  "name": "1.7.17",
+  "notes": "Both sides stay on screen. A duo and a three-stack keep their party mark.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v93/Valvet.exe"
 }
