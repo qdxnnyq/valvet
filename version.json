@@ -1,6 +1,6 @@
 {
-  "version": 84,
-  "name": "1.7.8",
-  "notes": "The download is ValvetSetup.exe. The app is Valvet.exe. GitHub is qdxnnyq/valvet.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v84/Valvet.exe"
+  "version": 85,
+  "name": "1.7.9",
+  "notes": "The name in the sidebar is Valvet.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v85/Valvet.exe"
 }
