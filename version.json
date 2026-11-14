@@ -1,6 +1,6 @@
 {
-  "version": 45,
-  "name": "1.0.5",
-  "notes": "Match history loads again. Update bar stays at the top.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v45/Velvet.exe"
+  "version": 46,
+  "name": "1.0.6",
+  "notes": "Player cards show games. The score line no longer says You.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v46/Velvet.exe"
 }
