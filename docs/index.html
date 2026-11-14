@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Velvet — Valorant, on your PC</title>
-  <meta name="description" content="Velvet is a Windows app that reads the Riot Client on your PC. Live match, store, collection, and an opt-in Find Duo list." />
+  <meta name="description" content="Velvet is a pink Windows companion that reads the Riot Client on your PC. Live match, watch list, store, and Find Duo. It never asks for your password." />
   <meta property="og:title" content="Velvet" />
-  <meta property="og:description" content="Live Valorant on your own PC. Download the test build." />
+  <meta property="og:description" content="Live Valorant on your own PC. Win and loss sounds only after the match. Watch list, wishlist, Find Duo." />
   <meta property="og:image" content="https://qdxnnyq.github.io/velvet/og.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://qdxnnyq.github.io/velvet/og.jpg" />
@@ -21,16 +21,20 @@
     .mark { font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 750; }
     h1 { margin: 8px 0 0; font-size: clamp(48px, 8vw, 92px); letter-spacing: -.06em; line-height: .9; }
     h1 span { color: var(--accent); }
-    .lead { max-width: 520px; color: var(--muted); font-size: 18px; line-height: 1.45; }
+    .lead { max-width: 560px; color: var(--muted); font-size: 18px; line-height: 1.45; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
     .btn { display: inline-flex; align-items: center; height: 46px; padding: 0 18px; border-radius: 999px; text-decoration: none; font-weight: 750; }
     .btn.solid { background: var(--accent); color: #1a0610; }
     .btn.ghost { border: 1px solid var(--line); background: rgba(12,7,10,.55); }
-    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 72px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; }
+    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 72px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
     article, aside { background: #140c11; border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
-    h2 { margin: 0 0 10px; font-size: 28px; letter-spacing: -.04em; }
+    h2 { margin: 22px 0 10px; font-size: 28px; letter-spacing: -.04em; }
+    article h2:first-child, aside h2:first-child { margin-top: 0; }
     p, li { color: var(--muted); line-height: 1.5; }
     ul { padding-left: 18px; }
+    .grid { display: grid; gap: 10px; margin-top: 8px; }
+    .grid div { border-top: 1px solid var(--line); padding-top: 10px; }
+    .grid b { display: block; color: var(--ink); margin-bottom: 2px; }
     .note { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; }
     @media (max-width: 800px) { main { grid-template-columns: 1fr; } .hero { min-height: 320px; } }
   </style>
@@ -38,34 +42,40 @@
 <body>
   <header class="hero">
     <div class="hero-inner">
-      <div class="mark">Windows test</div>
+      <div class="mark">Windows · on your PC</div>
       <h1>VEL<span>VET</span></h1>
-      <p class="lead">A Valorant companion for your own PC. Live lobby, store, collection, and an opt-in list of people looking for a duo.</p>
+      <p class="lead">The match, the store, and the people you keep an eye on. Pink, local, and it never asks for your Riot password. A friend who installs it sees their own account.</p>
       <div class="actions">
         <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/Velvet.exe">Download Velvet.exe</a>
-        <a class="btn ghost" href="https://github.com/qdxnnyq/velvet/releases/latest">Release notes</a>
+        <a class="btn ghost" href="https://github.com/qdxnnyq/velvet">What's inside</a>
       </div>
     </div>
   </header>
   <main>
     <article>
-      <h2>What a friend gets</h2>
-      <p>Install the exe, open the Riot Client, then open Velvet. The first launch walks through every tab. Their matches, store, and friends are read from the client on their PC. Nothing in the download is tied to one account.</p>
-      <ul>
-        <li>Live score, both teams, and names once Valorant has them.</li>
-        <li>History, store, Kingdom Credits, collection, agents, battle pass, crosshairs.</li>
-        <li>Find Duo only if they turn it on. It is not their Riot friend list.</li>
-      </ul>
-      <p>Windows may warn on an unsigned test build. That warning is SmartScreen, not a virus hit. The file is the release attached to this GitHub repo.</p>
-      <h2>Updates</h2>
-      <p>After this install, they do not download again from this page. Velvet checks this repo about every 10 seconds. When a newer build is published, a pink bar appears at the top of the app. One click downloads it, replaces the exe, and restarts. If the app is closed, the bar shows the next time they open it.</p>
-      <p class="note">Velvet is not made by Riot Games. It does not inject into Valorant. It talks to the local Riot Client the same way the client talks to itself. Your Riot password is not in the download and is not sent to this page.</p>
+      <h2>It waits for the real result</h2>
+      <p>Win and loss sounds play after the whole match, from the outcome. A round only flashes the edge. GG, easy and Sad are built in. Your own files work too.</p>
+      <div class="grid">
+        <div><b>Watch list</b> Add a Name#Tag. If they walk into your lobby or your game they glow, a sting that is not the normal alert plays, and the overlay writes their name.</div>
+        <div><b>Wishlist</b> Pin a skin. When it hits the daily store or the night market it sits at the top and plays a bell. That is not the match-end sound.</div>
+        <div><b>History</b> Best KDA on top. Hover a player and the same row lights up below. MVP on the winning side, SVP on the losing side. Copy card makes a picture.</div>
+        <div><b>Profile</b> Best kills, best ACS, the enemy you meet most, and your win rate with friends. A daily challenge comes from last night.</div>
+        <div><b>Trace</b> Unfriends, name changes, and a timed log of VP, Kingdom Credits, and Radianite.</div>
+        <div><b>Find Duo</b> Pick roles, modes, rank, and server. Then press Start looking for duo. The page says you are looking. Stop looking takes you off. There is no switch.</div>
+      </div>
+      <h2>The locker</h2>
+      <p>Store, featured bundle, esports capsules you can open, collection, agents, battle pass, patch notes, and crosshairs you import yourself. Upload a background and Velvet picks the colours from the picture. Liquid glass, shaders, a small always-on-top overlay, and a live-only mode that loads nothing else.</p>
+      <p class="note">Velvet is not made by Riot Games. It does not inject into Valorant. It talks to the local Riot Client the same way the client talks to itself. Your password is not in the download.</p>
     </article>
     <aside>
-      <h2>Find Duo</h2>
-      <p>People who are not your friends show up only when they switch on <b>Show me in Find Duo</b>. Their app posts a small card every few seconds to a public list named velvet-lfg. Your app reads that same list.</p>
-      <p>The card can include Riot ID, rank, server, roles, modes, and whether they are ready. Discord is included only if they also turn on Share Discord. Turn the switch off and the posts stop. Messages older than about a minute are dropped.</p>
-      <p>A private share is different. Settings, <b>Share Velvet with a friend</b>, makes a random id. Only someone you send that id to can follow your queue, map, score, wishes, and watch-list pings.</p>
+      <h2>A friend installs their own</h2>
+      <p>Open the Riot Client, then open Velvet. The first launch walks through the tabs, the sounds, and the looks. Their matches and their store come from the client on their PC. Nothing in the file is tied to one account.</p>
+      <p>Windows may warn on an unsigned build. That warning is SmartScreen, not a virus hit. The file is the release attached to this GitHub repo.</p>
+      <h2>Updates</h2>
+      <p>After this install they do not download from this page again. Velvet checks this repo. A newer build is a pink bar at the top. One click replaces the exe and restarts. If the app is closed, the bar shows the next time they open it.</p>
+      <h2>Two ways to find people</h2>
+      <p>Find Duo is a public list. You choose what to share, then start. Discord is included only if you turn Share Discord on. Stop looking and the posts stop.</p>
+      <p>Share Velvet with a friend is private. Settings makes a random id. Only someone you send that id to can follow your queue, map, score, wishes, and watch-list pings.</p>
     </aside>
   </main>
 </body>
