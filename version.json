@@ -1,6 +1,6 @@
 {
-  "version": 83,
-  "name": "1.7.7",
-  "notes": "Win and loss are half as loud. Queue pop and match start stay silent until you turn them on.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v83/Velvet.exe"
+  "version": 84,
+  "name": "1.7.8",
+  "notes": "The download is ValvetSetup.exe. The app is Valvet.exe. GitHub is qdxnnyq/valvet.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v84/Valvet.exe"
 }

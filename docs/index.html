@@ -7,9 +7,9 @@
   <meta name="description" content="Valvet reads the Riot Client lockfile on your PC. Live match, match history with ranks, profile archive, Trace, store, and Find Duo. No Riot password. Not made by Riot." />
   <meta property="og:title" content="Valvet" />
   <meta property="og:description" content="Local Windows companion for the Valorant client already running on that PC. Lockfile session, no password, no injection." />
-  <meta property="og:image" content="https://qdxnnyq.github.io/velvet/shots/live.png" />
+  <meta property="og:image" content="https://qdxnnyq.github.io/valvet/shots/live.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://qdxnnyq.github.io/velvet/shots/live.png" />
+  <meta name="twitter:image" content="https://qdxnnyq.github.io/valvet/shots/live.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23140c11'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' font-family='sans-serif' fill='%23ff5fa2'%3EV%3C/text%3E%3C/svg%3E" />
   <style>
     :root { color-scheme: dark; --accent: #ff5fa2; --ink: #fff4f8; --muted: #c9a8b6; --line: rgba(255,255,255,.1); --card: #140c11; }
@@ -51,8 +51,8 @@
       <h1>VAL<span>VET</span></h1>
       <p class="lead">A companion for the Valorant session already open on this PC. It uses the Riot Client lockfile. It does not ask for a password, and it does not inject into the game.</p>
       <div class="actions">
-        <a class="btn solid" href="https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe">Download Valvet</a>
-        <a class="btn ghost" href="https://github.com/qdxnnyq/velvet">Source and releases</a>
+        <a class="btn solid" href="https://github.com/qdxnnyq/valvet/releases/latest/download/ValvetSetup.exe">Download Valvet</a>
+        <a class="btn ghost" href="https://github.com/qdxnnyq/valvet">Source and releases</a>
       </div>
     </div>
   </header>
@@ -60,7 +60,7 @@
     <section>
       <h2>What it is</h2>
       <p>Valvet is one Windows app. On launch it finds the Riot Client lockfile, reads the local port and the token the client already created, and polls that session for phase, map, mode, score, and the roster. Rank is a separate MMR lookup per player. The binary is not tied to an account. It can only see whoever is signed into the Riot Client on that machine.</p>
-      <p>Settings, custom audio, and the match archive for the current act are stored in <code>%LOCALAPPDATA%\Velvet</code>. They are not inside the downloaded file. When the next act starts, games from the act before it drop off. History, duos, clutches, heat, and records all use that same act.</p>
+      <p>Settings, custom audio, and the match archive for the current act stay on this PC. A new install uses <code>%LOCALAPPDATA%\Valvet</code>. A PC that already has games keeps them. They are not inside the downloaded file. When the next act starts, games from the act before it drop off. History, duos, clutches, heat, and records all use that same act.</p>
       <div class="grid">
         <div><b>Install once</b> The installer copies the app into the folder you pick, then adds Start menu and Desktop shortcuts named Valvet.</div>
         <div><b>Update in the app</b> A newer build is a pink bar. That download replaces the installed app and restarts. It is not the installer.</div>
@@ -157,7 +157,7 @@
 
     <section>
       <h2>Install</h2>
-      <p>Download the installer and run it. It asks where to install, then copies Valvet there, adds Start menu and Desktop shortcuts, lists Valvet in Windows apps, opens the app, and closes. Leaving the folder as suggested uses <code>%LOCALAPPDATA%\Velvet</code>. Uninstall from Apps closes Valvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
+      <p>Download ValvetSetup.exe and run it. It asks where to install, then copies Valvet.exe there, adds Start menu and Desktop shortcuts, lists Valvet in Windows apps, opens the app, and closes. Leaving the folder as suggested uses <code>%LOCALAPPDATA%\Valvet</code>. Uninstall from Apps closes Valvet if it is still open, removes the program, and asks before deleting saved games and settings.</p>
       <p>After that, a newer build is a pink bar inside the app. That replaces the installed app. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
       <p>Bug reports and feedback go from Settings. <a href="https://x.com/qdxnnyq">Twitter</a>.</p>
       <p class="note">Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the release on this repository. Valvet is not made by Riot Games.</p>

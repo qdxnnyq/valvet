@@ -10,13 +10,13 @@ The file is not bound to an account. Valvet can only see the account signed into
 
 ## Install
 
-1. Download [Valvet](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe).
-2. Run it. The installer copies the app to `%LOCALAPPDATA%\Velvet`, creates Start menu and Desktop shortcuts named Valvet, and launches the app.
+1. Download [ValvetSetup.exe](https://github.com/qdxnnyq/valvet/releases/latest/download/ValvetSetup.exe).
+2. Run it. The installer copies `Valvet.exe` into the folder you pick. The suggested folder is `%LOCALAPPDATA%\Valvet`. It adds Start menu and Desktop shortcuts named Valvet, then opens the app.
 3. Keep the Riot Client open on the same PC.
 
 Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the installer attached to the GitHub release.
 
-Settings, the saved match archive, and custom audio live in `%LOCALAPPDATA%\Velvet`. They are not compiled into the exe. A new install with no saved volume starts at 15%.
+Settings, the saved match archive, and custom audio live on this PC. A new install uses `%LOCALAPPDATA%\Valvet`. A PC that already has games keeps that folder. They are not compiled into the exe. A new install with no saved volume starts at 15%.
 
 ## Updates
 
@@ -89,7 +89,7 @@ Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of
 
 ## Install notes
 
-The installer adds Valvet to Windows apps, the Start menu, and the Desktop, then opens Valvet and closes. Uninstall from Apps closes Valvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings. If you keep them, they stay in `%LOCALAPPDATA%\Velvet`.
+The installer adds Valvet to Windows apps, the Start menu, and the Desktop, then opens Valvet and closes. Uninstall from Apps closes Valvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings.
 
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
