@@ -24,13 +24,13 @@ The installer is for the first setup. After that, Velvet reads `version.json` in
 
 Startup finds the Riot Client lockfile and keeps a short-lived session from it. Live state is polled from that session: phase, map, mode, server, score, and the current roster.
 
-Competitive rank is a separate MMR request per player. A known rank is cached for several hours. An unknown rank is retried sooner. If the current act has no competitive tier and Riot still returns a peak tier, the UI labels that peak and does not treat it as current RR.
+Competitive rank is a separate MMR request per player. A known rank is cached for several hours. An unknown rank is retried sooner. If the current act has no competitive tier and Riot still returns a peak tier, the row shows that peak with a Not active mark. Peak is not current RR.
 
 Match history uses the same session and the same rank fields as the live board. A name that arrives late stays on the row it was already drawn into, so identities do not swap while the request is in flight.
 
 ## Live
 
-During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak and still counts toward that average. Enemy groups of two or more are marked as a stack.
+During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak, with a Not active mark, and still counts toward that average. Enemy groups of two or more are marked as a stack.
 
 The phase line shows server, party average, enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.
 
@@ -40,7 +40,7 @@ The phase line shows server, party average, enemy average, and this PC's record 
 
 Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games as well.
 
-History ranks are the same MMR result as the live board, including the Peak label and the side average. A finished match can be copied as an image.
+History ranks are the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A finished match can be copied as an image.
 
 ## Profile
 
@@ -48,7 +48,7 @@ History ranks are the same MMR result as the live board, including the Peak labe
 
 The player card, title, level, and agent mastery come from the local account. Under that, Velvet keeps an on-disk archive of up to 100 decided games.
 
-Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 on this PC.
+Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC.
 
 ## Trace
 
@@ -59,7 +59,7 @@ Trace is not match history.
 - **Name changes.** The previous Riot ID and the new one.
 - **Wallet.** Timestamped deltas for VP, Kingdom Credits, and Radianite when the store balance changes.
 
-The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. If a pinned item is in the daily store or the night market, it is sorted to the top of Store.
+The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. Open a picture to see it larger. If a pinned item is in the daily store or the night market, it is sorted to the top of Store.
 
 ## Locker
 
@@ -71,9 +71,11 @@ A background image can recolor the app from the picture. The optional overlay is
 
 ## Find Duo
 
-Roles, modes, rank range, and server are set first. **Start looking for duo** posts this PC to the shared list. **Stop looking** removes the post. Discord is included only when Share Discord is on.
+Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and an optional note. Age and gender are optional. The board can be filtered by server, queue, mode, age, and gender. Discord is on the post only when Share Discord is on. Do not post if you are under 16.
 
-Settings also creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public Find Duo list.
+After you play with someone, you can rate them from 1 to 5. The leaderboard lists people on the board who have a 4 or 5 average, sorted by the saved games on their PC. A post stays on the board for about 12 hours.
+
+Settings also creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public board.
 
 ## Sounds
 
@@ -87,7 +89,7 @@ VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop. Un
 
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
-Bug reports go from Settings. The address is not shown. [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`.
+Bug reports and feedback go from Settings. [Twitter](https://x.com/qdxnnyq) and Discord `_dxnny`.
 
 ![Settings](docs/shots/settings.png)
 
