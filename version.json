@@ -1,6 +1,6 @@
 {
-  "version": 51,
-  "name": "1.0.11",
-  "notes": "Player matches use the History layout. Stats stay on one line.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v51/Velvet.exe"
+  "version": 52,
+  "name": "1.0.12",
+  "notes": "Patch notes tab and an esports store for the bundles you can buy.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v52/Velvet.exe"
 }
