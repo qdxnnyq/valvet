@@ -1,6 +1,6 @@
 {
-  "version": 73,
-  "name": "1.5.9",
-  "notes": "Visible win cat. Records board and agent duel. Motion, corners, and new palettes.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v73/Velvet.exe"
+  "version": 74,
+  "name": "1.6.0",
+  "notes": "Round scrubber. Death heat. The update bar shows the real newest version.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v74/Velvet.exe"
 }
