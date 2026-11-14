@@ -40,7 +40,7 @@ The phase line shows server, party average, enemy average, and this PC's record 
 
 Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games as well.
 
-History ranks are the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A finished match can be copied as an image.
+History ranks are the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A finished match shows each round: whether you won it, how it ended, and which side you were on. A finished match can be copied as an image.
 
 ## Profile
 
@@ -63,7 +63,7 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 ## Locker
 
-Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports events are a grid, largest prize first, then the smaller ones. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs are import and export of a code. Velvet does not read the crosshair from the game config.
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, and patch notes are separate pages. Esports events are a grid, largest prize first, then the smaller ones. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one. Crosshairs reads the profile Valorant is using on this PC when that config is there, and still imports or exports a code.
 
 The Game page reads the graphics and sensitivity Valorant is using on this PC. Copy puts that list on the clipboard.
 
@@ -85,7 +85,7 @@ Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of
 
 ## Install notes
 
-VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop. Uninstall from Apps removes the program and the shortcuts. Saved games stay in `%LOCALAPPDATA%\Velvet`.
+VelvetSetup.exe adds Velvet to Windows apps, the Start menu, and the Desktop, then opens Velvet and closes. Uninstall from Apps closes Velvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings. If you keep them, they stay in `%LOCALAPPDATA%\Velvet`.
 
 Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
