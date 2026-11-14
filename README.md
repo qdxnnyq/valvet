@@ -9,7 +9,7 @@ The file is not bound to an account. Velvet can only see the account signed into
 ## Install
 
 1. Download [VelvetSetup.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/VelvetSetup.exe).
-2. Run it. The installer copies `Velvet.exe` to `%LOCALAPPDATA%\Velvet`, creates Start menu and Desktop shortcuts, and launches the app.
+2. Run it. It asks where to put Velvet, then creates Start menu and Desktop shortcuts and launches the app. Leaving the folder as suggested uses `%LOCALAPPDATA%\Velvet`.
 3. Keep the Riot Client open on the same PC.
 
 Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the `VelvetSetup.exe` asset attached to the GitHub release.
@@ -18,7 +18,7 @@ Settings, the saved match archive, and custom audio live in `%LOCALAPPDATA%\Velv
 
 ## Updates
 
-The installer is for the first setup. After that, Velvet reads `version.json` in this repository. A newer build is a pink bar inside the app. That action downloads the `Velvet.exe` asset from the matching release, replaces the installed binary, and restarts. It does not download the installer again.
+The installer is for the first setup. After that, Velvet reads `version.json` in this repository. A newer build shows on the version chip in the sidebar and on the pink bar. That action downloads the `Velvet.exe` asset from the matching release, replaces the installed binary, and restarts. It does not download the installer again. The check uses `version.json`, not the GitHub API.
 
 ## How a read works
 
@@ -65,7 +65,7 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Velvet does not read a crosshair off the PC.
 
-The Book pages are records, maps, death spots, clutches, duos, session time, last seen, and a custom roster. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
+The Book pages are records, maps, heat, clutches, duos, session time, last seen, and a custom roster. Heat can be saved as a picture into Pictures\Velvet. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
 
 The Game page reads the graphics and sensitivity Valorant is using on this PC. Sensitivity is the slider from RiotUserSettings, not the Unreal default. Copy puts that list on the clipboard.
 
@@ -83,7 +83,7 @@ Settings also creates a private id. That id is a second channel between two inst
 
 Alerts, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss are separate controls. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.
 
-Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of those sounds can be replaced with a local file. Preview plays the selected file immediately.
+Quiet hours mute the alerts, including the post-match win or loss. Any of those sounds can be None, or replaced with a local file. Preview plays the selected file immediately.
 
 ## Install notes
 
