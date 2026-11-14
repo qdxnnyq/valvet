@@ -1,6 +1,6 @@
 {
-  "version": 82,
-  "name": "1.7.6",
-  "notes": "The map splash is behind the match again. Ranks and KDA are full size.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v82/Velvet.exe"
+  "version": 83,
+  "name": "1.7.7",
+  "notes": "Win and loss are half as loud. Queue pop and match start stay silent until you turn them on.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v83/Velvet.exe"
 }
