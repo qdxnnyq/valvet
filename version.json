@@ -1,6 +1,6 @@
 {
-  "version": 95,
-  "name": "1.7.19",
-  "notes": "Wallet currencies stay closed until you open one. Filter by VP, KC, or Radianite. The featured bundle is a poster.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v95/Valvet.exe"
+  "version": 96,
+  "name": "1.7.20",
+  "notes": "The win gif matches the loss gif without cropping. Sounds has its own win and loss volume slider.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v96/Valvet.exe"
 }
