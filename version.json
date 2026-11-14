@@ -1,6 +1,6 @@
 {
-  "version": 69,
-  "name": "1.5.5",
-  "notes": "30-day play chart. Duo time. Installer icon and tray icon.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v69/Velvet.exe"
+  "version": 70,
+  "name": "1.5.6",
+  "notes": "Liquid glass without the white line. The installer asks for a folder.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v70/Velvet.exe"
 }
