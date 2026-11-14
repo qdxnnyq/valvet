@@ -1,6 +1,6 @@
 {
-  "version": 62,
-  "name": "1.4.0",
-  "notes": "Find Duo beta board with filters and ratings. Peak ranks marked when there is no active rank. Wishlist pictures open larger.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v62/Velvet.exe"
+  "version": 63,
+  "name": "1.4.1",
+  "notes": "Uninstall closes an open Velvet and can delete saved data. Finished matches show each round. Crosshairs can be read from this PC.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v63/Velvet.exe"
 }
