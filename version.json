@@ -1,6 +1,6 @@
 {
-  "version": 63,
-  "name": "1.4.1",
-  "notes": "Uninstall closes an open Velvet and can delete saved data. Finished matches show each round. Crosshairs can be read from this PC.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v63/Velvet.exe"
+  "version": 64,
+  "name": "1.5.0",
+  "notes": "Sensitivity reads the in-game slider. Agent kits open in a panel. Events are active and upcoming only. Records, maps, deaths, clutches, and session are in the sidebar.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v64/Velvet.exe"
 }
