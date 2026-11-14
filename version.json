@@ -1,6 +1,6 @@
 {
-  "version": 64,
-  "name": "1.5.0",
-  "notes": "Sensitivity reads the in-game slider. Agent kits open in a panel. Events are active and upcoming only. Records, maps, deaths, clutches, and session are in the sidebar.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v64/Velvet.exe"
+  "version": 65,
+  "name": "1.5.1",
+  "notes": "Tabs no longer scroll. Maps and deaths use the full minimap, and Plummet is Summit. The rank coin flips to your peak.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v65/Velvet.exe"
 }
