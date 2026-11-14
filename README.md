@@ -6,7 +6,7 @@
 
 A Windows app for your own Valorant client. Live lobby, history, store, collection, and an opt-in Find Duo list.
 
-**[Download Velvet.exe](https://github.com/pennerd18-a11y/velvet/releases/latest/download/Velvet.exe)** · [Release notes](https://github.com/pennerd18-a11y/velvet/releases/latest)
+**[Download Velvet.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/Velvet.exe)** · [Release notes](https://github.com/qdxnnyq/velvet/releases/latest)
 
 Windows SmartScreen can warn on an unsigned test build. The file is this release, not a random download.
 
