@@ -1,6 +1,6 @@
 {
-  "version": 42,
-  "name": "1.0.2",
-  "notes": "Owned Kingdom items stay marked. Find Duo lists everyone looking.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v42/Velvet.exe"
+  "version": 43,
+  "name": "1.0.3",
+  "notes": "Find Duo test name removed. History shows rank and peak.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v43/Velvet.exe"
 }
