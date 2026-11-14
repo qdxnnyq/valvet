@@ -1,6 +1,6 @@
 {
-  "version": 41,
-  "name": "1.0.1",
-  "notes": "Owned items are marked in the store. Wishlist can hide them.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v41/Velvet.exe"
+  "version": 42,
+  "name": "1.0.2",
+  "notes": "Owned Kingdom items stay marked. Find Duo lists everyone looking.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v42/Velvet.exe"
 }
