@@ -1,6 +1,6 @@
 {
-  "version": 98,
-  "name": "1.7.22",
-  "notes": "Today on Live starts at 6:00 am. Headshot percent comes back when the match has the shots. Update checks GitHub releases so a new build shows up without the old 5 minute cache.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v98/Valvet.exe"
+  "version": 99,
+  "name": "1.7.23",
+  "notes": "Profile keeps 7 days under the chart until View more. Clutches keeps 8 until View more.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v99/Valvet.exe"
 }
