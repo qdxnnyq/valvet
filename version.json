@@ -1,6 +1,6 @@
 {
-  "version": 44,
-  "name": "1.0.4",
-  "notes": "Faster history ranks. Player cards show rank, peak, and games. Find Duo no longer calls out while off.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v44/Velvet.exe"
+  "version": 45,
+  "name": "1.0.5",
+  "notes": "Match history loads again. Update bar stays at the top.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v45/Velvet.exe"
 }
