@@ -1,6 +1,6 @@
 {
-  "version": 88,
-  "name": "1.7.12",
-  "notes": "Live rank and KDA stay on the row. Peak shows when there is no rank this act. Win and loss are quieter.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v88/Valvet.exe"
+  "version": 89,
+  "name": "1.7.13",
+  "notes": "Pages share one layout. The installer is its own window.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v89/Valvet.exe"
 }
