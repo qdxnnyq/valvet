@@ -1,6 +1,6 @@
 {
-  "version": 57,
-  "name": "1.2.0",
-  "notes": "Match-end sounds only, watch and wishlist sounds, profile records, and Find Duo starts with a button.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v57/Velvet.exe"
+  "version": 58,
+  "name": "1.2.1",
+  "notes": "Same-size tabs, watch sting in the lobby, wishlist chime. Win and loss still only after the match.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v58/Velvet.exe"
 }
