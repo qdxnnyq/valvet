@@ -60,7 +60,7 @@
     <section>
       <h2>What it is</h2>
       <p>Velvet is one Windows app. On launch it finds the Riot Client lockfile, reads the local port and the token the client already created, and polls that session for phase, map, mode, score, and the roster. Rank is a separate MMR lookup per player. The binary is not tied to an account. It can only see whoever is signed into the Riot Client on that machine.</p>
-      <p>Settings, custom audio, and a match archive of up to 100 games are stored in <code>%LOCALAPPDATA%\Velvet</code>. They are not inside the downloaded file.</p>
+      <p>Settings, custom audio, and the match archive for the current act are stored in <code>%LOCALAPPDATA%\Velvet</code>. They are not inside the downloaded file. When the next act starts, games from the act before it drop off. History, duos, clutches, heat, and records all use that same act.</p>
       <div class="grid">
         <div><b>Install once</b> VelvetSetup.exe copies Velvet.exe into LocalAppData, then adds Start menu and Desktop shortcuts.</div>
         <div><b>Update in the app</b> A newer build is a pink bar. That download replaces Velvet.exe from the GitHub release and restarts. It is not the installer.</div>
@@ -113,20 +113,24 @@
         <div><b>Wishlist</b> Pin a skin or a Kingdom Credits item. Open the picture to see it larger. If it is in the daily store or the night market, it is sorted to the top of Store.</div>
         <div><b>Locker</b> Daily store, night market, featured bundle, esports capsules, equipped collection, agents, battle pass, missions, patch notes.</div>
         <div><b>Esports</b> Active and upcoming events in a row. Previous and Next move it. A card opens the event page. Open a capsule for the items inside.</div>
-        <div><b>Pass</b> Current battle pass. A free pass shows on the same page when Riot ships one.</div>
+        <div><b>Pass</b> Current battle pass. The clock is days, hours, and minutes left in the act. Reward tiles stay square. A free pass shows on the same page when Riot ships one.</div>
         <div><b>Game</b> The graphics and sensitivity Valorant is using on this PC. Copy sends the list to someone else.</div>
         <div><b>Crosshairs</b> Paste a code, name it, and export the saved set. Velvet does not read a crosshair off the PC.</div>
       </div>
-      <p>An optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the other pages. A background image can recolor the app from the picture.</p>
+      <figure>
+        <img src="shots/pass.png" alt="Battle pass with a days hours minutes clock and square reward tiles" />
+        <figcaption>Pass. Time left in the act, and square reward tiles.</figcaption>
+      </figure>
+      <p>Friends is Valorant, League, and Riot groups. There is no lobby block on that page. An optional overlay is a small always-on-top window with the score and any watch-list names in the current lobby or match. It is not click-through. Live-only mode loads Live and Settings and skips the other pages. A background image can recolor the app from the picture.</p>
     </section>
 
     <section>
       <h2>Book</h2>
       <div class="grid">
-        <div><b>Records</b> Agent results from games saved on this PC.</div>
+        <div><b>Records</b> Agent results from this act, saved on this PC.</div>
         <div><b>Maps and deaths</b> The minimap, not the splash. Bigger fits the whole map. Esc or Close leaves it.</div>
         <div><b>Clutches</b> Rounds where you were last alive, with the map, side, and whether you held.</div>
-        <div><b>Duos</b> Riot friends you queued with. Random teammates are not listed.</div>
+        <div><b>Duos</b> Riot friends you queued with this act. Random teammates are not listed.</div>
         <div><b>Session</b> How long you played today. The day starts at 6:00 am on this PC.</div>
         <div><b>Seen</b> When a friend came online in the Riot client or a game. Riot Mobile is ignored. A long name wraps onto a second line instead of being cut off.</div>
         <div><b>News</b> Official posts from the last few weeks. A card opens the article.</div>
@@ -148,12 +152,12 @@
     <section>
       <h2>Sounds</h2>
       <p>These are separate controls: alert, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.</p>
-      <p>Quiet hours mute the alerts. They do not mute the post-match win or loss. Any control can use a local file. Preview plays that file immediately. A new install with no saved volume starts at 15%.</p>
+      <p>Quiet hours mute the alerts, including the post-match win or loss. Any control can be None, or a local file. Preview plays that file immediately. A new install with no saved volume starts at 15%.</p>
     </section>
 
     <section>
       <h2>Install</h2>
-      <p>Download VelvetSetup.exe and run it. It copies Velvet into <code>%LOCALAPPDATA%\Velvet</code>, adds Start menu and Desktop shortcuts, lists Velvet in Windows apps, opens the app, and closes. Uninstall from Apps closes Velvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
+      <p>Download VelvetSetup.exe and run it. It asks where to install, then copies Velvet there, adds Start menu and Desktop shortcuts, lists Velvet in Windows apps, opens the app, and closes. Leaving the folder as suggested uses <code>%LOCALAPPDATA%\Velvet</code>. Uninstall from Apps closes Velvet if it is still open, removes the program, and asks before deleting saved games and settings. If you keep them, they stay in that folder.</p>
       <p>After that, a newer build is a pink bar inside the app. That replaces Velvet.exe. It is not the installer again. Agents, the battle pass, patches, and the esports list open from a copy saved on the PC and refresh when the source changes.</p>
       <p>Bug reports and feedback go from Settings. <a href="https://x.com/qdxnnyq">Twitter</a>.</p>
       <p class="note">Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the release on this repository. Velvet is not made by Riot Games.</p>

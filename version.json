@@ -1,6 +1,6 @@
 {
-  "version": 78,
-  "name": "1.7.2",
-  "notes": "History keeps the last 60 games on this PC. Search is a normal field. Esports pages bundles. Battle pass rewards stay square. Mouse light stays off until you pick a colour.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v78/Velvet.exe"
+  "version": 79,
+  "name": "1.7.3",
+  "notes": "History, duos, clutches, heat, and records keep this act. The pass shows days, hours, and minutes left. Friends drops the lobby block.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v79/Velvet.exe"
 }
