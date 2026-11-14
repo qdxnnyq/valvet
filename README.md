@@ -1,29 +1,49 @@
 # Velvet
 
-A pink Valorant companion that stays on your PC and reads the Riot Client already open there. It never asks for your password. A friend who installs it sees their own account.
+A pink Valorant companion that lives on your PC. It reads the Riot Client already open there. It never asks for your password. A friend who installs it sees their own account, their own store, their own friends.
 
-## What it does
+Windows may warn the first time. That is SmartScreen on an unsigned build, not a virus hit. The file is the release on this repo.
 
-**Live match.** Names, agents, ranks, parties, and the server while you load in and while you play. The waiting animation stays under your lobby until a game is found. Hover a player on the top of a finished scoreboard and the same row lights up below. Best KDA is at the top. MVP is the best player on the winning side. SVP is the best on the losing side.
+## After the match
 
-**Watch list.** Add a Name#Tag. If they land in your game they glow, a sound that is not the normal alert plays, and the overlay writes their name on the score.
+Win and loss sounds play when the **whole match** is over, from the final result. Not when a round ends. A round only flashes the edge of the window.
 
-**Wishlist.** Pin a skin. When it shows up in the daily store or night market it sits at the top and plays its own chime. That is not the match-end sound.
+GG, easy and Sad ship with the app. Cheer, fanfare, and a few quieter losses are in Settings too. You can drop in your own files. Preview plays them without waiting for a game.
 
-**After the match.** Win and loss sounds play only when the whole game is over, from the final result. Never on a round. GG, easy and Sad are included. You can upload your own. Copy card makes a picture of the result.
+## Sounds that are not the match
 
-**Trace.** Watch list, people who unfriended you, friend name changes, and a timed log of VP, Kingdom Credits, and Radianite.
+They do not share a noise.
 
-**Profile.** Your card, best kills, best ACS, the enemy you meet most, and your win rate with friends. A daily challenge is built from last night’s games.
+- **Alert.** A friend joins the lobby, or the queue pops. Pick the pack, or a file.
+- **Watch list.** A short square sting when someone you added walks into your lobby or your game. The row glows. The overlay writes their name across the top.
+- **Wishlist.** A bell when a skin you pinned shows up in the daily store or the night market. Once per reset, not every time you open the tab.
 
-**Find Duo.** Pick roles, modes, rank, and server. Then press Start looking for duo. Stop looking takes you off the list. The id you share is random and stays on this PC.
+Quiet hours mute those three. Win and loss still play after the match. Preview ignores quiet hours.
 
-**Collection, store, battle pass, agents, esports, patch notes, crosshairs.** The locker, with colours equipped, a background that picks the app colours from a picture you upload, and crosshairs you import yourself.
+## What you actually open it for
 
-**Settings.** Volume, separate sounds for alerts, watch list, wishlist, wins, and losses. Liquid glass, shaders, live only, and a small always-on-top overlay. Backup to a file or a Gmail draft. Velvet never asks for the Gmail password.
+**Live.** Names, agents, ranks, parties, and the server while you load in and while you play. The waiting animation stays under the lobby until a game is found. A daily challenge is built from last night’s games.
+
+**History.** Best KDA on top, and it stays there while names load. Hover a player on the top of a finished scoreboard and the same row lights up below. MVP is the best player on the winning side. SVP is the best on the losing side. Copy card turns the result into a picture.
+
+**Profile.** Your card, best kills, best ACS, the enemy you have met the most (with the W–L), and your win rate with friends.
+
+**Trace.** Not match history. Watch list, people who unfriended you, friend name changes (old name, new name), and a timed log of VP, Kingdom Credits, and Radianite.
+
+**Find Duo.** Pick roles, modes, rank, and server first. Then press **Start looking for duo**. The page says you are looking. Stop looking takes you off. The id you share with one friend is random and stays on this PC. Discord is optional and never required.
+
+**Store, bundle, esports, collection, agents, battle pass, patches, crosshairs.** The locker. Esports bundles open so you can see what is inside. Events slide across the top. Crosshairs are import and export, not read out of the game config. A background picture recolors the whole app from the photo.
+
+**Overlay.** Optional, small, always on top. Score, and the watch-list names if any of them are in the lobby or the game.
+
+**Live only.** A switch that loads nothing except the live match.
 
 ## Install
 
-Download [Velvet.exe](https://github.com/qdxnnyq/velvet/releases/latest) and open it. The Riot Client should be open on the same PC. A pink bar inside the app is an update. One click downloads it and restarts.
+Download [Velvet.exe](https://github.com/qdxnnyq/velvet/releases/latest/download/Velvet.exe) and open it. The Riot Client should be open on the same PC.
 
-Your settings stay in `%LOCALAPPDATA%\Velvet`. They are not baked into the file you send a friend.
+The next time there is a build, a pink bar shows up inside the app. One click downloads it and restarts. You do not have to come back to this page.
+
+Settings stay in `%LOCALAPPDATA%\Velvet`. They are not baked into the file you send a friend. Backup opens a Gmail draft. Velvet never asks for the Gmail password.
+
+Velvet is not made by Riot Games. It does not inject into Valorant. It talks to the local Riot Client the same way the client talks to itself.
