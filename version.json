@@ -1,6 +1,6 @@
 {
-  "version": 100,
-  "name": "1.7.24",
-  "notes": "Seen ignores Riot Mobile even when Riot marks the product as Valorant or League. Phone presences are not shown as online.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v100/Valvet.exe"
+  "version": 101,
+  "name": "1.7.25",
+  "notes": "Seen splits Right now from Last seen. Online people show Now and where they are. Everyone else shows the time and the place.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v101/Valvet.exe"
 }
