@@ -1,6 +1,6 @@
 {
-  "version": 58,
-  "name": "1.2.1",
-  "notes": "Same-size tabs, watch sting in the lobby, wishlist chime. Win and loss still only after the match.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v58/Velvet.exe"
+  "version": 59,
+  "name": "1.3.0",
+  "notes": "Saved-game profile, installer, dark window, quieter tabs.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v59/Velvet.exe"
 }
