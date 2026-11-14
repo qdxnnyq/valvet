@@ -1,6 +1,6 @@
 {
-  "version": 50,
-  "name": "1.0.10",
-  "notes": "Velvet icon on the window. Player matches open as a wide scoreboard.",
-  "url": "https://github.com/qdxnnyq/velvet/releases/download/v50/Velvet.exe"
+  "version": 51,
+  "name": "1.0.11",
+  "notes": "Player matches use the History layout. Stats stay on one line.",
+  "url": "https://github.com/qdxnnyq/velvet/releases/download/v51/Velvet.exe"
 }
