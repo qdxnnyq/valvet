@@ -1,6 +1,6 @@
 {
-  "version": 104,
-  "name": "1.7.28",
-  "notes": "A new install walks through Valvet. An update shows what changed, and does not start the tutorial again.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v104/Valvet.exe"
+  "version": 105,
+  "name": "1.7.29",
+  "notes": "Friend cards and the boxes around them are smaller.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v105/Valvet.exe"
 }
