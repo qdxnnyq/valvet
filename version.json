@@ -1,6 +1,6 @@
 {
-  "version": 122,
-  "name": "1.7.46",
-  "notes": "Other stacks in the lobby use the same party history as the history page.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v122/Valvet.exe"
+  "version": 123,
+  "name": "1.7.47",
+  "notes": "The logo, your name, the map title, and the score stay pink during a live game.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v123/Valvet.exe"
 }
