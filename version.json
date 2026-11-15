@@ -1,6 +1,6 @@
 {
-  "version": 129,
-  "name": "1.8.4",
-  "notes": "Your profile card shows right away and refreshes behind it. Pause lookups in a game is off until you turn it on. The tray menu can turn it on too.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v129/Valvet.exe"
+  "version": 130,
+  "name": "1.8.5",
+  "notes": "Your party line stays pink. Other parties keep their own colours.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v130/Valvet.exe"
 }
