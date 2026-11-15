@@ -1,6 +1,6 @@
 {
-  "version": 106,
-  "name": "1.7.30",
-  "notes": "Last together stays on the friend card. The boxes stay small.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v106/Valvet.exe"
+  "version": 107,
+  "name": "1.7.31",
+  "notes": "Ranks and the team average show as soon as the lobby is up.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v107/Valvet.exe"
 }
