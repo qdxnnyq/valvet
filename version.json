@@ -1,6 +1,6 @@
 {
-  "version": 118,
-  "name": "1.7.42",
-  "notes": "A live game keeps the pink theme. Parties are read from the match on this PC.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v118/Valvet.exe"
+  "version": 119,
+  "name": "1.7.43",
+  "notes": "Every stack in the lobby gets a colored bar, including randoms. The map stays.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v119/Valvet.exe"
 }
