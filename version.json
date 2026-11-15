@@ -1,6 +1,6 @@
 {
-  "version": 111,
-  "name": "1.7.35",
-  "notes": "Titles, borders, the score, and the selected tab are pink again.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v111/Valvet.exe"
+  "version": 112,
+  "name": "1.7.36",
+  "notes": "The name and update line are pink. Live party colors stay visible. Ranks and levels show from the client first.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v112/Valvet.exe"
 }
