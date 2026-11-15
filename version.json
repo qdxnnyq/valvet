@@ -1,6 +1,6 @@
 {
-  "version": 125,
-  "name": "1.8",
-  "notes": "What's new closes on any click. Page text is shorter. Earned battle pass rewards stay visible. Pick your agents on Patches. Win and loss start at 1% volume.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v125/Valvet.exe"
+  "version": 126,
+  "name": "1.8.1",
+  "notes": "Friend match history in Valorant is left alone. Right click the tray icon to open, open settings, or close.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v126/Valvet.exe"
 }
