@@ -1,6 +1,6 @@
 {
-  "version": 124,
-  "name": "1.7.48",
-  "notes": "Your party stays pink. Other stacks each get their own color, and two duos are not merged into one.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v124/Valvet.exe"
+  "version": 125,
+  "name": "1.8",
+  "notes": "What's new closes on any click. Page text is shorter. Earned battle pass rewards stay visible. Pick your agents on Patches. Win and loss start at 1% volume.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v125/Valvet.exe"
 }
