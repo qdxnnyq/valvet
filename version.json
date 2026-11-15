@@ -1,6 +1,6 @@
 {
-  "version": 101,
-  "name": "1.7.25",
-  "notes": "Seen splits Right now from Last seen. Online people show Now and where they are. Everyone else shows the time and the place.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v101/Valvet.exe"
+  "version": 102,
+  "name": "1.7.26",
+  "notes": "AFK is yellow. In game only counts when a match is actually running. Someone who leaves drops out of Right now.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v102/Valvet.exe"
 }
