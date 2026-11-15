@@ -1,6 +1,6 @@
 {
-  "version": 137,
-  "name": "1.8.12",
-  "notes": "Live, queue, and lobby stay quick. Friends and profile still check in. Find Duo stays offline until you look or open that page. A new daily skin is marked New. The session chart draws its line, and Seen only spins in a real game.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v137/Valvet.exe"
+  "version": 138,
+  "name": "1.8.13",
+  "notes": "The headshot card on Profile is just the number. Settings can open the saved folder on this PC. Changing tabs fades the page in.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v138/Valvet.exe"
 }
