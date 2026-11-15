@@ -1,6 +1,6 @@
 {
-  "version": 141,
-  "name": "1.8.16",
-  "notes": "Play the round shows the map again. Pause, speed, and full screen stay on screen. You are labeled, and everyone else uses their name or their agent.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v141/Valvet.exe"
+  "version": 142,
+  "name": "1.8.17",
+  "notes": "Settings has Check for update. It looks at GitHub right away.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v142/Valvet.exe"
 }
