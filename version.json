@@ -1,6 +1,6 @@
 {
-  "version": 102,
-  "name": "1.7.26",
-  "notes": "AFK is yellow. In game only counts when a match is actually running. Someone who leaves drops out of Right now.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v102/Valvet.exe"
+  "version": 103,
+  "name": "1.7.27",
+  "notes": "Sensitivity comes from the newest Riot profile, not the Unreal default. The game page has an eDPI calculator.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v103/Valvet.exe"
 }
