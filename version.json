@@ -1,6 +1,6 @@
 {
-  "version": 132,
-  "name": "1.8.7",
-  "notes": "Stats fill in faster. Gauntlet marks the duo you are fighting. Saved games move to the Valvet folder. A second window cannot open. The uninstaller matches the installer.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v132/Valvet.exe"
+  "version": 133,
+  "name": "1.8.8",
+  "notes": "Notes sit on the right, next to the version.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v133/Valvet.exe"
 }
