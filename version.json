@@ -1,6 +1,6 @@
 {
-  "version": 109,
-  "name": "1.7.33",
-  "notes": "Last game shows headshot percent. The overlay setting is gone. Valvet asks the client less during a match.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v109/Valvet.exe"
+  "version": 110,
+  "name": "1.7.34",
+  "notes": "Ranks and parties show with the lobby. A party is a colored bar. Agent portraits are no longer cropped.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v110/Valvet.exe"
 }
