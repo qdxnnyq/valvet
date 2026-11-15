@@ -1,6 +1,6 @@
 {
-  "version": 131,
-  "name": "1.8.6",
-  "notes": "Gauntlet shows all eight duos in cards of the same size.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v131/Valvet.exe"
+  "version": 132,
+  "name": "1.8.7",
+  "notes": "Stats fill in faster. Gauntlet marks the duo you are fighting. Saved games move to the Valvet folder. A second window cannot open. The uninstaller matches the installer.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v132/Valvet.exe"
 }
