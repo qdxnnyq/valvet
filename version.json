@@ -1,6 +1,6 @@
 {
-  "version": 117,
-  "name": "1.7.41",
-  "notes": "Party colors stay on the players who queued together. Valvet asks the client less often during a match.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v117/Valvet.exe"
+  "version": 118,
+  "name": "1.7.42",
+  "notes": "A live game keeps the pink theme. Parties are read from the match on this PC.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v118/Valvet.exe"
 }
