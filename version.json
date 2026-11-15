@@ -1,6 +1,6 @@
 {
-  "version": 110,
-  "name": "1.7.34",
-  "notes": "Ranks and parties show with the lobby. A party is a colored bar. Agent portraits are no longer cropped.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v110/Valvet.exe"
+  "version": 111,
+  "name": "1.7.35",
+  "notes": "Titles, borders, the score, and the selected tab are pink again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v111/Valvet.exe"
 }
