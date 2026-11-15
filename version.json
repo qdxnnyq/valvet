@@ -1,6 +1,6 @@
 {
-  "version": 120,
-  "name": "1.7.44",
-  "notes": "A random who queued with you stays on your party bar, not just your friend.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v120/Valvet.exe"
+  "version": 121,
+  "name": "1.7.45",
+  "notes": "Your stack and every other stack in the lobby show at the same time.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v121/Valvet.exe"
 }
