@@ -1,6 +1,6 @@
 {
-  "version": 138,
-  "name": "1.8.13",
-  "notes": "The headshot card on Profile is just the number. Settings can open the saved folder on this PC. Changing tabs fades the page in.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v138/Valvet.exe"
+  "version": 139,
+  "name": "1.8.14",
+  "notes": "Playing a round no longer opens a folder. You are marked on the map. Slow, previous, and next sit on the player. A round says if you got a kill, died, or both.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v139/Valvet.exe"
 }
