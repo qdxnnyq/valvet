@@ -1,6 +1,6 @@
 {
-  "version": 121,
-  "name": "1.7.45",
-  "notes": "Your stack and every other stack in the lobby show at the same time.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v121/Valvet.exe"
+  "version": 122,
+  "name": "1.7.46",
+  "notes": "Other stacks in the lobby use the same party history as the history page.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v122/Valvet.exe"
 }
