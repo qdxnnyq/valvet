@@ -1,6 +1,6 @@
 {
-  "version": 107,
-  "name": "1.7.31",
-  "notes": "Ranks and the team average show as soon as the lobby is up.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v107/Valvet.exe"
+  "version": 108,
+  "name": "1.7.32",
+  "notes": "The live board fills the window. The round score updates during the match.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v108/Valvet.exe"
 }
