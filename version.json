@@ -1,6 +1,6 @@
 {
-  "version": 139,
-  "name": "1.8.14",
-  "notes": "Playing a round no longer opens a folder. You are marked on the map. Slow, previous, and next sit on the player. A round says if you got a kill, died, or both.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v139/Valvet.exe"
+  "version": 140,
+  "name": "1.8.15",
+  "notes": "Settings has Storage, with space used, the folder, and a way to delete the cache. Play the round names both players and can pause or go full screen. The window opens on the same monitor after an update.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v140/Valvet.exe"
 }
