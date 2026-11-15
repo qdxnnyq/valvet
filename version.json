@@ -1,6 +1,6 @@
 {
-  "version": 123,
-  "name": "1.7.47",
-  "notes": "The logo, your name, the map title, and the score stay pink during a live game.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v123/Valvet.exe"
+  "version": 124,
+  "name": "1.7.48",
+  "notes": "Your party stays pink. Other stacks each get their own color, and two duos are not merged into one.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v124/Valvet.exe"
 }
