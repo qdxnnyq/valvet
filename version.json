@@ -1,6 +1,6 @@
 {
-  "version": 114,
-  "name": "1.7.38",
-  "notes": "Team average uses the ranks already showing. Live rows show HS, ADR, and ACS. The logo is white and pink again.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v114/Valvet.exe"
+  "version": 115,
+  "name": "1.7.39",
+  "notes": "A 5v5 card is only as tall as the five players. Ranks load on their own connection and stay saved on this PC.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v115/Valvet.exe"
 }
