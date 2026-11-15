@@ -1,6 +1,6 @@
 {
-  "version": 113,
-  "name": "1.7.37",
-  "notes": "Deathmatch fits everyone. Skirmish is a 2v2 board. Gauntlet keeps each duo. Store, Bundle, and Patches glow when something new is there.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v113/Valvet.exe"
+  "version": 114,
+  "name": "1.7.38",
+  "notes": "Team average uses the ranks already showing. Live rows show HS, ADR, and ACS. The logo is white and pink again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v114/Valvet.exe"
 }
