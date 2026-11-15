@@ -1,6 +1,6 @@
 {
-  "version": 135,
-  "name": "1.8.10",
-  "notes": "Alert sounds are only in the menu. Picking one plays it, even if it was already selected. The startup meow is quieter.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v135/Valvet.exe"
+  "version": 136,
+  "name": "1.8.11",
+  "notes": "The sound you already picked plays again. Wishlist items can raise a Windows notice. Shaders stay off until you turn them on. Tabs move when you change page.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v136/Valvet.exe"
 }
