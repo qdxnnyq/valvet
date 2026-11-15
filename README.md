@@ -106,7 +106,7 @@ Quiet hours mute the alerts, including win and loss. Preview plays the sound you
 
 Settings has colour presets. You can also upload a picture and Valvet takes the colours from it. Clear goes back to the preset.
 
-Live only keeps the match and leaves the other pages off. The overlay is a small window that stays on top, with the score and any watch-list names in the current lobby or match.
+Live only keeps the match and leaves the other pages off.
 
 ## Contact
 

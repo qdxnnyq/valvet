@@ -1,6 +1,6 @@
 {
-  "version": 108,
-  "name": "1.7.32",
-  "notes": "The live board fills the window. The round score updates during the match.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v108/Valvet.exe"
+  "version": 109,
+  "name": "1.7.33",
+  "notes": "Last game shows headshot percent. The overlay setting is gone. Valvet asks the client less during a match.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v109/Valvet.exe"
 }
