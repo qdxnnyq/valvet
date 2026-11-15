@@ -1,6 +1,6 @@
 {
-  "version": 133,
-  "name": "1.8.8",
-  "notes": "Notes sit on the right, next to the version.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v133/Valvet.exe"
+  "version": 134,
+  "name": "1.8.9",
+  "notes": "One update control. Meow is a sound, and it plays once when Valvet opens. App notes are easier to read.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v134/Valvet.exe"
 }
