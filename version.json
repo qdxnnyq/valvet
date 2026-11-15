@@ -1,6 +1,6 @@
 {
-  "version": 103,
-  "name": "1.7.27",
-  "notes": "Sensitivity comes from the newest Riot profile, not the Unreal default. The game page has an eDPI calculator.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v103/Valvet.exe"
+  "version": 104,
+  "name": "1.7.28",
+  "notes": "A new install walks through Valvet. An update shows what changed, and does not start the tutorial again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v104/Valvet.exe"
 }
