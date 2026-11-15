@@ -1,6 +1,6 @@
 {
-  "version": 127,
-  "name": "1.8.2",
-  "notes": "Headshot, damage, and combat score load again for the people in your game.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v127/Valvet.exe"
+  "version": 128,
+  "name": "1.8.3",
+  "notes": "Your profile card loads again. Riot Mobile has its own section on Friends. Crosshair previews use one flat background.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v128/Valvet.exe"
 }
