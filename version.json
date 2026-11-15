@@ -1,6 +1,6 @@
 {
-  "version": 134,
-  "name": "1.8.9",
-  "notes": "One update control. Meow is a sound, and it plays once when Valvet opens. App notes are easier to read.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v134/Valvet.exe"
+  "version": 135,
+  "name": "1.8.10",
+  "notes": "Alert sounds are only in the menu. Picking one plays it, even if it was already selected. The startup meow is quieter.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v135/Valvet.exe"
 }
