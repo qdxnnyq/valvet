@@ -1,6 +1,6 @@
 {
-  "version": 150,
-  "name": "1.8.25",
-  "notes": "The battle pass does not load when Valvet opens. Online Valorant and League friends are back on Live, with their state. The waiting cat is bigger again.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v150/Valvet.exe"
+  "version": 151,
+  "name": "1.8.26",
+  "notes": "On Live, a friend shows the mode they are in, not only the party size. Pass, patches, news, esports, and the other saved pages open from the last save. They only check again when that save is old.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v151/Valvet.exe"
 }
