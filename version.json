@@ -1,6 +1,6 @@
 {
-  "version": 156,
-  "name": "1.8.31",
-  "notes": "Val stays white and vet stays pink. A player card fits watchlist, games together, copy, and avoid. Play the round keeps the place name on the map and fades it under a name. Live drops the line across the waiting card.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v156/Valvet.exe"
+  "version": 157,
+  "name": "1.8.32",
+  "notes": "The name is VALVET again. Play the round saves an mp4 and leaves the folder closed. Storage opens that folder. A profile shows the rank and the agent picture right away.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v157/Valvet.exe"
 }
