@@ -1,6 +1,6 @@
 {
-  "version": 157,
-  "name": "1.8.32",
-  "notes": "The name is VALVET again. Play the round saves an mp4 and leaves the folder closed. Storage opens that folder. A profile shows the rank and the agent picture right away.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v157/Valvet.exe"
+  "version": 159,
+  "name": "1.8.34",
+  "notes": "The live board is the same as before. No KDA on the rows. Window title matches the sidebar. Check for update is under Backup and feedback. A rank on live opens the Valvet card.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v159/Valvet.exe"
 }
