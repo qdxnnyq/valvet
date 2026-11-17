@@ -1,6 +1,6 @@
 {
-  "version": 146,
-  "name": "1.8.21",
-  "notes": "Other parties stay on the live board, and a restart keeps ranks and parties. History filters, watchlist, friend notes, time in game, aim, and expected win.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v146/Valvet.exe"
+  "version": 147,
+  "name": "1.8.22",
+  "notes": "A friend note opens in the app. History filters sit on one line. Today's games are a short strip. The settings sample has the look controls.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v147/Valvet.exe"
 }
