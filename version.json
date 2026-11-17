@@ -1,6 +1,6 @@
 {
-  "version": 154,
-  "name": "1.8.29",
-  "notes": "Friend names stay readable on Live. The window uses the same colours as the look. Play the round shows the plant, the defuse, the buy, first blood, trades, and ultimates. A round stays on this PC after a patch. Valorant replay files are kept, and Valorant only plays one on the patch that made it. A penalty, a friend rank board, and an avoid list are on Live. Hidden pages and a minimized window do less work.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v154/Valvet.exe"
+  "version": 155,
+  "name": "1.8.30",
+  "notes": "An update stays on screen. The sidebar button, the version chip, and the pink bar all show when a newer build is out, including during a live match.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v155/Valvet.exe"
 }
