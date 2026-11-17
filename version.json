@@ -1,6 +1,6 @@
 {
-  "version": 148,
-  "name": "1.8.23",
-  "notes": "Seen shows the details in a Valvet card when you hover someone, not a Windows tooltip.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v148/Valvet.exe"
+  "version": 149,
+  "name": "1.8.24",
+  "notes": "Seen, ranks, and the session chart use a Valvet card. Today's game opens that match. Ranked games show RR. This week, friend search, and the played count are in. Find Duo is gone.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v149/Valvet.exe"
 }
