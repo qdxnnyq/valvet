@@ -1,6 +1,6 @@
 {
-  "version": 153,
-  "name": "1.8.28",
-  "notes": "Setup asks for a shortcut, starting with Windows, and opening Valvet when it finishes. A closed Riot Client gets a short card. Friend cards copy a Riot ID, Profile compares this act with the last, and the last game can be saved as an image. Settings is split up, pages can be hidden, and saved pages show when they were saved. Discord status can show party size without a webhook. Maps and ranks work offline.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v153/Valvet.exe"
+  "version": 154,
+  "name": "1.8.29",
+  "notes": "Friend names stay readable on Live. The window uses the same colours as the look. Play the round shows the plant, the defuse, the buy, first blood, trades, and ultimates. A round stays on this PC after a patch. Valorant replay files are kept, and Valorant only plays one on the patch that made it. A penalty, a friend rank board, and an avoid list are on Live. Hidden pages and a minimized window do less work.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v154/Valvet.exe"
 }
