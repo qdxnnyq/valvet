@@ -1,6 +1,6 @@
 {
-  "version": 147,
-  "name": "1.8.22",
-  "notes": "A friend note opens in the app. History filters sit on one line. Today's games are a short strip. The settings sample has the look controls.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v147/Valvet.exe"
+  "version": 148,
+  "name": "1.8.23",
+  "notes": "Seen shows the details in a Valvet card when you hover someone, not a Windows tooltip.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v148/Valvet.exe"
 }
