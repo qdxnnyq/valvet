@@ -54,7 +54,7 @@
       body[data-corners="round"] .game, body[data-corners="round"] .block, body[data-corners="round"] .set-card, body[data-corners="round"] .duo-card, body[data-corners="round"] .session-row, body[data-corners="round"] .month, body[data-corners="round"] .rec-stat, body[data-corners="round"] .rec-pick, body[data-corners="round"] .rec-row, body[data-corners="round"] .clutch-card, body[data-corners="round"] .duel, body[data-corners="round"] #pane-live > .wait { border-radius: 28px; }
       body[data-motion="calm"] .wait-scan, body[data-motion="calm"] .wait-cat, body[data-motion="calm"] .wait-cat::before, body[data-motion="calm"] .wait-cat::after, body[data-motion="calm"] .wait-pips i, body[data-motion="calm"] .seen-orb.ingame .halo, body[data-motion="calm"] .credit::after, body[data-motion="calm"] .today-bar, body[data-motion="calm"] .sample-agent { animation: none; }
       body[data-motion="still"] *, body[data-motion="still"] *::before, body[data-motion="still"] *::after { animation: none !important; transition: none !important; }
-      body.no-cats .mood { display: none; }
+      body.no-cats .mood-box { display: none; }
       .record-card b, .clutch-card b { display: block; font-size: 16px; letter-spacing: -0.03em; }
       .record-card .stamp, .game .wl { }
       .clutch-board { display: grid; grid-template-columns: minmax(140px, 180px) minmax(0, 1fr); gap: 12px; margin: 0 0 14px; }

@@ -1,4 +1,7 @@
-      .mood.win, .mood.loss { width: 52px; height: 52px; display: block; object-fit: contain; background: #fff7fa; border-radius: 12px; flex: none; }
+      .mood-box { width: 96px; height: 96px; min-width: 96px; min-height: 96px; overflow: hidden; border-radius: 14px; flex: none; background: #fff7fa; }
+      .mood-box img { width: 96px !important; height: 96px !important; max-width: none; display: block !important; object-fit: cover; border-radius: 0; }
+      .mood-box.win img { object-view-box: inset(38% 4% 0 4%); object-position: center 70%; }
+      .mood-box.loss img { object-fit: cover; object-position: center 32%; }
       .wl { display: inline-grid; place-items: center; min-width: 52px; height: 26px; font-size: 11px; font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
       .wl.w { color: #9dffc3; border-color: rgba(61,206,134,.45); background: rgba(61,206,134,.1); }
       .wl.l { color: #ffb3c4; border-color: rgba(255,77,109,.4); background: rgba(255,77,109,.1); }
@@ -112,7 +115,7 @@
       .pmatch .sub { margin-top: 2px; }
       .pmatch.win { box-shadow: inset 3px 0 0 #3dce86; }
       .pmatch.loss { box-shadow: inset 3px 0 0 #ff4d6d; }
-      .pscore { text-align: right; min-width: 72px; }
+      .pscore { text-align: right; min-width: 72px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
       .pscore b { display: block; font-variant-numeric: tabular-nums; font-size: 18px; }
       .pscore span { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 760; }
       .pmatch.win .pscore span { color: #7dffa8; }

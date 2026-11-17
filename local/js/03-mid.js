@@ -883,7 +883,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.8.39", title: "Valvet", lines: ["The win cat and the loss cat show on the last game and on each history row.", "Win and loss sounds play out loud. If the file cannot start, a tone plays instead."] },
+        { ver: "1.8.40", title: "Valvet", lines: ["The win cat and the loss cat are the ones you sent.", "They sit at the same size on each history row, on a player card, and on the last game."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },
         { ver: "1.8.32", title: "Valvet", lines: ["The name is VALVET again. VAL is white, VET is pink, and the window title is pink.", "Play the round saves an mp4. The folder stays closed.", "Storage opens the round videos folder.", "A profile shows the rank and the agent picture without waiting on every game."] },

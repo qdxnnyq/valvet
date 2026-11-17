@@ -236,15 +236,7 @@
           const yours = match.side === "Attack" ? "Attackers" : match.side === "Defense" ? "Defenders" : "";
           const result = el("div", "result");
           result.append(el("div", "wl" + (match.won == null ? "" : match.won ? " w" : " l"), match.won == null ? "—" : match.won ? "Win" : "Loss"));
-          if (match.won === true || match.won === false) {
-            const mood = document.createElement("img");
-            mood.className = "mood " + (match.won ? "win" : "loss");
-            mood.src = (match.won ? "/yippee.gif" : "/cry.gif") + "?v=39";
-            mood.width = 52;
-            mood.height = 52;
-            mood.alt = "";
-            result.append(mood);
-          }
+          if (match.won === true || match.won === false) result.append(catFace(match.won === true));
           button.append(result, grow, tally(match.score1, match.score2, match.team1, match.team2, yours));
           const sides = el("div", "sides");
           const colors = partyColors(match.players);
@@ -1665,6 +1657,7 @@
         const kda = match.kills != null && match.kills !== "" ? match.kills + "/" + (match.deaths || "0") + (match.assists != null && match.assists !== "" ? "/" + match.assists : "") : "";
         left.append(el("div", "sub", [match.mode, match.agent, kda, match.hs ? match.hs + " HS" : ""].filter(Boolean).join(" · ")));
         const right = el("div", "pscore");
+        if (match.won === true || match.won === false) right.append(catFace(match.won === true));
         right.append(el("b", null, score(match.score1) + "–" + score(match.score2)));
         if (match.won === true) right.append(el("span", null, "Win"));
         else if (match.won === false) right.append(el("span", null, "Loss"));

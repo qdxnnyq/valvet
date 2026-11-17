@@ -617,6 +617,16 @@
           rounds: match && match.rounds,
         };
       }
+      function catFace(won) {
+        const box = document.createElement("div");
+        box.className = "mood-box " + (won ? "win" : "loss");
+        const img = document.createElement("img");
+        img.className = "mood";
+        img.alt = "";
+        img.src = won ? "/yippee.gif" : "/cry.gif";
+        box.append(img);
+        return box;
+      }
       function paintPostStats(card) {
         const host = document.getElementById("post-stats");
         const score = document.getElementById("post-score");
@@ -634,9 +644,19 @@
         }
         const cat = document.getElementById("post-cat");
         if (cat) {
-          const showCat = card && (card.won === true || card.won === false) && !document.body.classList.contains("no-cats");
+          const showCat = !!(card && (card.won === true || card.won === false));
           cat.hidden = !showCat;
-          if (showCat) cat.src = (card.won ? "/yippee.gif" : "/cry.gif") + "?v=39";
+          cat.className = "mood-box post-cat " + (card && card.won ? "win" : "loss");
+          if (showCat) {
+            let img = cat.querySelector("img");
+            if (!img) {
+              img = document.createElement("img");
+              img.alt = "";
+              cat.append(img);
+            }
+            const src = card.won ? "/yippee.gif" : "/cry.gif";
+            if (img.getAttribute("src") !== src) img.src = src;
+          }
         }
         if (!host) return;
         host.replaceChildren();

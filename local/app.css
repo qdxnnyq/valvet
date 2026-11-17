@@ -97,7 +97,7 @@
       .seen { margin-left: 6px; color: #ffd27a; font-size: 11px; font-weight: 750; letter-spacing: 0.04em; }
       .post { margin: 0 0 10px; padding: 16px 18px 14px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, #140c11), #12080d 55%); }
       .post-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
-      .post-cat { width: 84px; height: 84px; object-fit: contain; border-radius: 16px; background: #fff7fa; flex: none; }
+      .post-cat, #post-cat.mood-box { width: 96px; height: 96px; }
       .post-score { font-size: 40px; letter-spacing: -0.05em; line-height: .9; font-weight: 760; }
       .post-score span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 750; }
       .post.win { border-color: color-mix(in srgb, #3dce86 70%, var(--line)); }
