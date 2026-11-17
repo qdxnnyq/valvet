@@ -1,6 +1,6 @@
 {
-  "version": 161,
-  "name": "1.8.36",
-  "notes": "Ranks and peaks load again. History and player cards use the saved games. Party marks stay.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v161/Valvet.exe"
+  "version": 162,
+  "name": "1.8.37",
+  "notes": "Player cards load that person's own games. Live ranks and parties read the Riot presence again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v162/Valvet.exe"
 }
