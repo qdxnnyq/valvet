@@ -1,6 +1,6 @@
 {
-  "version": 144,
-  "name": "1.8.19",
-  "notes": "Play the round uses the official map callouts. Friend history from Live stays on top. Setup and uninstall use the Valvet icon and the dark window.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v144/Valvet.exe"
+  "version": 145,
+  "name": "1.8.20",
+  "notes": "Enemy ranks stay on the board. Other parties stay marked. Play the round opens in front, and Maps uses the official callouts.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v145/Valvet.exe"
 }
