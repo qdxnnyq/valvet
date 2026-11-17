@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"strings"
 	"testing"
 	"time"
@@ -272,6 +273,18 @@ func TestStoreHelpers(t *testing.T) {
 	}
 	if vpCost(map[string]any{"85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741": 1775}) != 1775 {
 		t.Fatal("vp")
+	}
+}
+
+func TestDecodePrivateReadsPresenceToken(t *testing.T) {
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"partyId":"11111111-1111-1111-1111-111111111111","competitiveTier":21,"partySize":3}`))
+	got := decodePrivate("header." + payload + ".sign")
+	if num(got["competitiveTier"]) != 21 {
+		t.Fatal(got)
+	}
+	id, size := findParty(got)
+	if id != "11111111-1111-1111-1111-111111111111" || size != 3 {
+		t.Fatalf("party %s %d", id, size)
 	}
 }
 

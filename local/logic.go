@@ -877,15 +877,48 @@ func decodePrivate(raw string) map[string]any {
 			return out
 		}
 	}
+	if strings.Count(raw, ".") >= 2 {
+		parts := strings.Split(raw, ".")
+		order := []int{}
+		if len(parts) > 1 {
+			order = append(order, 1)
+		}
+		for i := range parts {
+			if i != 1 {
+				order = append(order, i)
+			}
+		}
+		for _, i := range order {
+			if m := decodeB64JSON(parts[i]); m != nil {
+				return m
+			}
+		}
+	}
+	return decodeB64JSON(raw)
+}
+
+func decodeB64JSON(raw string) map[string]any {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
 	var data []byte
 	var err error
-	for _, dec := range []*base64.Encoding{base64.StdEncoding, base64.RawStdEncoding, base64.URLEncoding, base64.RawURLEncoding} {
+	padded := raw
+	if m := len(padded) % 4; m != 0 {
+		padded += strings.Repeat("=", 4-m)
+	}
+	for _, dec := range []*base64.Encoding{base64.RawURLEncoding, base64.URLEncoding, base64.RawStdEncoding, base64.StdEncoding} {
 		data, err = dec.DecodeString(raw)
 		if err == nil {
 			break
 		}
+		data, err = dec.DecodeString(padded)
+		if err == nil {
+			break
+		}
 	}
-	if err != nil {
+	if err != nil || len(data) == 0 || data[0] != '{' {
 		return nil
 	}
 	var out map[string]any

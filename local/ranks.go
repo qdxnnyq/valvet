@@ -41,13 +41,14 @@ func (c *riotClient) ranksMissing(players []player) bool {
 	defer c.mu.Unlock()
 	for _, p := range players {
 		id := strings.ToLower(p.PUUID)
-		if id == "" || p.Tier >= 3 {
+		if id == "" {
 			continue
 		}
 		hit, ok := c.rankCache[id]
-		if !rankHitFresh(hit, ok, now) {
-			return true
+		if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3 || p.Tier >= 3) {
+			continue
 		}
+		return true
 	}
 	return false
 }
@@ -63,10 +64,14 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 	for _, group := range groups {
 		for _, p := range group {
 			id := strings.ToLower(p.PUUID)
-			if id == "" || seen[id] || p.Tier >= 3 {
+			if id == "" || seen[id] {
 				continue
 			}
-			if hit, ok := c.rankCache[id]; rankHitFresh(hit, ok, now) {
+			hit, ok := c.rankCache[id]
+			if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3) {
+				continue
+			}
+			if p.Tier >= 3 && rankHitFresh(hit, ok, now) {
 				continue
 			}
 			seen[id] = true
@@ -144,14 +149,15 @@ func (c *riotClient) kickRanks(sess riotSession, players []player) {
 	need := false
 	for _, p := range players {
 		id := strings.ToLower(p.PUUID)
-		if id == "" || p.Tier >= 3 {
+		if id == "" {
 			continue
 		}
 		hit, ok := c.rankCache[id]
-		if !rankHitFresh(hit, ok, now) {
-			need = true
-			break
+		if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3 || p.Tier >= 3) {
+			continue
 		}
+		need = true
+		break
 	}
 	if !need || c.rankBusy {
 		if need && c.rankBusy {
@@ -521,11 +527,8 @@ func (c *riotClient) profile(ctx context.Context, id string) profileView {
 		}
 		return profileView{Error: "Open Valorant first, then click the name again."}
 	}
-	if len(view.Matches) > 0 && view.Name != "" {
-		if view.Rank != "" || view.Peak != "" {
-			return view
-		}
-	}
+	shared := append([]profileMatch(nil), view.Matches...)
+	view.Matches = nil
 	if view.Name == "" {
 		type named struct{ name, tag string }
 		namesCh := make(chan named, 1)
@@ -564,18 +567,17 @@ func (c *riotClient) profile(ctx context.Context, id string) profileView {
 			}
 		}
 	}
-	if len(view.Matches) > 0 {
-		return view
-	}
-	status, payload, err := c.remoteCall(ctx, sess, "GET", "https://pd."+sess.shard+".a.pvp.net/match-history/v1/history/"+id+"?startIndex=0&endIndex=8", nil)
+	status, payload, err := c.remoteCall(ctx, sess, "GET", "https://pd."+sess.shard+".a.pvp.net/match-history/v1/history/"+id+"?startIndex=0&endIndex=10", nil)
 	if err != nil || status >= 400 {
-		if view.Name == "" && view.Rank == "" {
+		view.Matches = shared
+		if view.Name == "" && view.Rank == "" && len(view.Matches) == 0 {
 			view.Error = "Couldn't open that player."
 		}
 		return view
 	}
 	var body map[string]any
 	if json.Unmarshal(payload, &body) != nil {
+		view.Matches = shared
 		return view
 	}
 	ids := []string{}
@@ -585,8 +587,8 @@ func (c *riotClient) profile(ctx context.Context, id string) profileView {
 			ids = append(ids, mid)
 		}
 	}
-	if len(ids) > 8 {
-		ids = ids[:8]
+	if len(ids) > 10 {
+		ids = ids[:10]
 	}
 	type part struct {
 		row  *recentMatch
@@ -662,6 +664,9 @@ func (c *riotClient) profile(ctx context.Context, id string) profileView {
 			}
 		}
 		view.Matches = append(view.Matches, item)
+	}
+	if len(view.Matches) == 0 {
+		view.Matches = shared
 	}
 	view.Was = withoutCurrent(strings.Join(seen, ", "), view.Name, view.Tag)
 	return view
