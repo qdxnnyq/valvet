@@ -1,6 +1,6 @@
 {
-  "version": 152,
-  "name": "1.8.27",
-  "notes": "Friends still shows Valorant friends and League friends, even when Live shows them too.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v152/Valvet.exe"
+  "version": 153,
+  "name": "1.8.28",
+  "notes": "Setup asks for a shortcut, starting with Windows, and opening Valvet when it finishes. A closed Riot Client gets a short card. Friend cards copy a Riot ID, Profile compares this act with the last, and the last game can be saved as an image. Settings is split up, pages can be hidden, and saved pages show when they were saved. Discord status can show party size without a webhook. Maps and ranks work offline.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v153/Valvet.exe"
 }
