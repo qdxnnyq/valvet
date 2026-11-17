@@ -1,6 +1,6 @@
 {
-  "version": 145,
-  "name": "1.8.20",
-  "notes": "Enemy ranks stay on the board. Other parties stay marked. Play the round opens in front, and Maps uses the official callouts.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v145/Valvet.exe"
+  "version": 146,
+  "name": "1.8.21",
+  "notes": "Other parties stay on the live board, and a restart keeps ranks and parties. History filters, watchlist, friend notes, time in game, aim, and expected win.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v146/Valvet.exe"
 }
