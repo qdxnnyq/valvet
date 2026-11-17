@@ -1,6 +1,6 @@
 {
-  "version": 155,
-  "name": "1.8.30",
-  "notes": "An update stays on screen. The sidebar button, the version chip, and the pink bar all show when a newer build is out, including during a live match.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v155/Valvet.exe"
+  "version": 156,
+  "name": "1.8.31",
+  "notes": "Val stays white and vet stays pink. A player card fits watchlist, games together, copy, and avoid. Play the round keeps the place name on the map and fades it under a name. Live drops the line across the waiting card.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v156/Valvet.exe"
 }
