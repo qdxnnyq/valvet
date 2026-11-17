@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
-	"time"
 )
 
 func mediaDir() string {
@@ -46,12 +45,15 @@ func saveMedia(kind string, r io.Reader, limit int64) error {
 	return err
 }
 
-func writeBytes(w http.ResponseWriter, r *http.Request, name, contentType string, body []byte) {
-	if contentType != "" {
-		w.Header().Set("Content-Type", contentType)
+func writeBytes(w http.ResponseWriter, r *http.Request, _ string, contentType string, body []byte) {
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(body)))
+	w.Header().Set("Cache-Control", "no-store")
+	if r.Method == http.MethodHead {
+		return
 	}
-	w.Header().Set("Accept-Ranges", "bytes")
-	http.ServeContent(w, r, name, time.Time{}, bytes.NewReader(body))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(body)
 }
 
 func writeMedia(w http.ResponseWriter, r *http.Request, kind string) bool {

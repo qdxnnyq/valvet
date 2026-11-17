@@ -326,9 +326,13 @@
         return Math.pow(t, 2.15);
       }
       function resultVolume() {
-        const raw = Number(localStorage.getItem("velvet-result-volume"));
-        const pct = Number.isFinite(raw) ? raw : 40;
-        return Math.max(0, Math.min(100, pct)) / 100;
+        let stored = localStorage.getItem("velvet-result-volume");
+        if (stored == null || stored === "1") {
+          stored = "40";
+          localStorage.setItem("velvet-result-volume", stored);
+        }
+        const pct = Number(stored);
+        return Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 40)) / 100;
       }
       function waveSample(wave, phase, t, freq) {
         if (wave === "square") return Math.sin(phase) >= 0 ? 0.62 : -0.62;
@@ -399,31 +403,42 @@
           for (let i = 0; i < count; i++) samples[i] *= scale;
         }
         const url = URL.createObjectURL(wavBlob(samples, rate));
-        const audio = new Audio(url);
+        const audio = document.createElement("audio");
+        audio.src = url;
         audio.volume = 1;
-        if (clipAudio) { try { clipAudio.pause(); } catch {} }
+        document.body.append(audio);
+        if (clipAudio && clipAudio !== audio) { try { clipAudio.pause(); clipAudio.remove(); } catch {} }
         clipAudio = audio;
-        const finish = () => setTimeout(() => URL.revokeObjectURL(url), 5000);
+        const cleanup = () => { URL.revokeObjectURL(url); if (audio.parentNode) audio.remove(); };
+        audio.onended = cleanup;
         const played = audio.play();
         if (played && typeof played.then === "function") {
-          return played.then(() => { finish(); return true; }).catch(() => { finish(); return false; });
+          return played.then(() => true).catch(() => { cleanup(); return false; });
         }
-        finish();
         return Promise.resolve(true);
       }
       function tone(freq, dur) {
         playNotes([freq], "sine", Math.max(0.06, dur || 0.08), false, { step: 0, dur: dur || 0.08, decay: 8 });
       }
       function playFile(url, force, gain, absolute) {
-        if (!force && localStorage.getItem("velvet-sound") === "off") return;
+        if (!force && localStorage.getItem("velvet-sound") === "off") return Promise.resolve(false);
         const pct = Number(localStorage.getItem("velvet-volume"));
         const scale = gain == null ? 1 : gain;
         const base = absolute ? 1 : ((Number.isFinite(pct) ? pct : 15) / 100);
-        const audio = new Audio(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now());
-        audio.volume = Math.max(0, Math.min(1, base * scale));
-        if (clipAudio) { try { clipAudio.pause(); } catch {} }
+        const audio = document.createElement("audio");
+        audio.setAttribute("playsinline", "");
+        audio.preload = "auto";
+        audio.src = url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
+        const levelRaw = Math.max(0, Math.min(1, base * scale));
+        audio.volume = levelRaw > 0 && levelRaw < 0.08 ? 0.45 : levelRaw;
+        document.body.append(audio);
+        if (clipAudio && clipAudio !== audio) { try { clipAudio.pause(); clipAudio.remove(); } catch {} }
         clipAudio = audio;
-        audio.play().catch(() => {});
+        const drop = () => { if (audio.parentNode) audio.remove(); };
+        audio.onended = drop;
+        const played = audio.play();
+        if (played && typeof played.then === "function") return played.then(() => true).catch(() => { drop(); return false; });
+        return Promise.resolve(true);
       }
       function playPack(force) {
         if ((localStorage.getItem("velvet-soundpack") || "") === "none") return Promise.resolve(false);
@@ -466,8 +481,16 @@
           return;
         }
         const sound = RESULT_SOUNDS[pick] || RESULT_SOUNDS[kind === "loss" ? "sad" : "gg"];
-        if (sound.file) playFile(sound.file, !!force, vol, true);
-        else playNotes(sound.notes, sound.wave, sound.dur || 0.18, !!force, { ...sound, gain: 1, volume: vol });
+        const backup = () => {
+          const tone = kind === "loss" ? RESULT_SOUNDS.low : RESULT_SOUNDS.cheer;
+          playNotes(tone.notes, tone.wave, tone.dur || 0.18, true, { ...tone, gain: 1, volume: Math.max(vol, 0.4) });
+        };
+        if (sound.file) {
+          const ran = playFile(sound.file, !!force, vol, true);
+          if (ran && typeof ran.then === "function") ran.then((ok) => { if (!ok) backup(); });
+          return;
+        }
+        playNotes(sound.notes, sound.wave, sound.dur || 0.18, !!force, { ...sound, gain: 1, volume: vol < 0.08 ? 0.45 : vol });
       }
       function playJoin() {
         return playNotes([494, 659, 880], "triangle", 0.12, false, { step: 0.07, decay: 5 });
@@ -571,7 +594,7 @@
           postCard = buildPost(heldLive, match && match.id !== beforeMatch ? match : null);
           postUntil = Date.now() + 45000;
           fillPostRR();
-          resultWait = Date.now() + 25000;
+          resultWait = Date.now() + 90000;
           sawLiveGame = false;
         }
         wasLive = false;
@@ -608,6 +631,12 @@
             tag.textContent = card.won === true ? "Win" : card.won === false ? "Loss" : (card.mode || "Score");
             score.append(tag);
           }
+        }
+        const cat = document.getElementById("post-cat");
+        if (cat) {
+          const showCat = card && (card.won === true || card.won === false) && !document.body.classList.contains("no-cats");
+          cat.hidden = !showCat;
+          if (showCat) cat.src = (card.won ? "/yippee.gif" : "/cry.gif") + "?v=39";
         }
         if (!host) return;
         host.replaceChildren();

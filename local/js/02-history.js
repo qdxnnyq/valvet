@@ -239,7 +239,9 @@
           if (match.won === true || match.won === false) {
             const mood = document.createElement("img");
             mood.className = "mood " + (match.won ? "win" : "loss");
-            mood.src = match.won ? "/yippee.gif" : "/cry.gif";
+            mood.src = (match.won ? "/yippee.gif" : "/cry.gif") + "?v=39";
+            mood.width = 52;
+            mood.height = 52;
             mood.alt = "";
             result.append(mood);
           }

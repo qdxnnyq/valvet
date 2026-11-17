@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -330,5 +334,21 @@ func TestBuyAndTrades(t *testing.T) {
 	}
 	if penaltyLine([]byte(`{"Penalties":[{"Expiry":"2020-01-01T00:00:00Z"}]}`), when) != "" {
 		t.Fatal("expired")
+	}
+}
+
+func TestCatsAndSoundsServeWhole(t *testing.T) {
+	if !bytes.HasPrefix(yippeeGif, []byte("GIF89a")) || !bytes.HasPrefix(cryGif, []byte("GIF89a")) || len(winClip) < 1000 || len(lossClip) < 1000 {
+		t.Fatal("missing cat or sound")
+	}
+	rr := httptest.NewRecorder()
+	writeBytes(rr, httptest.NewRequest(http.MethodGet, "/yippee.gif", nil), "yippee.gif", "image/gif", yippeeGif)
+	if rr.Code != 200 || rr.Body.Len() != len(yippeeGif) || rr.Header().Get("Content-Length") != strconv.Itoa(len(yippeeGif)) {
+		t.Fatalf("gif %d %d %s", rr.Code, rr.Body.Len(), rr.Header().Get("Content-Length"))
+	}
+	rr = httptest.NewRecorder()
+	writeBytes(rr, httptest.NewRequest(http.MethodGet, "/sounds/gg", nil), "win.mp3", "audio/mpeg", winClip)
+	if rr.Code != 200 || rr.Header().Get("Content-Type") != "audio/mpeg" || rr.Body.Len() != len(winClip) {
+		t.Fatalf("sound %d %s %d", rr.Code, rr.Header().Get("Content-Type"), rr.Body.Len())
 	}
 }
