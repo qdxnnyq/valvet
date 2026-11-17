@@ -1,6 +1,6 @@
 {
-  "version": 163,
-  "name": "1.8.38",
-  "notes": "Map names are the real names. The cats and sounds load again.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v163/Valvet.exe"
+  "version": 164,
+  "name": "1.8.39",
+  "notes": "Win and loss cats show. Win and loss sounds play.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v164/Valvet.exe"
 }
