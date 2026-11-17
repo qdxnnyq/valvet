@@ -225,7 +225,6 @@
       @keyframes tabpick { from { opacity: .4; } to { opacity: 1; } }
       .pcard, .skin, .today article, .hero-card { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
       .pcard:hover, .skin:hover, .hero-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
-      .game { content-visibility: auto; contain-intrinsic-size: auto 168px; }
       @media (prefers-reduced-motion: reduce) {
         .credit::after, .credit i, .wait h1, .ring, .ring::after, .logo span, .today-bar, .row.tracked, .wait-scan, .wait-cat, .wait-cat::before, .wait-cat::after, .wait-pips i { animation: none; }
         main > section.enter, .pcard, .skin, .hero-card, .nav button { transition: none; animation: none; }

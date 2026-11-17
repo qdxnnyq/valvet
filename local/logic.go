@@ -442,29 +442,48 @@ func prettyServer(raw string) string {
 }
 
 func prettyMap(path string) string {
-	text := strings.TrimSpace(path)
+	text := strings.Trim(strings.TrimSpace(path), "/")
 	if text == "" {
 		return ""
 	}
 	parts := strings.Split(strings.ReplaceAll(text, "\\", "/"), "/")
-	name := parts[len(parts)-1]
-	if name == "" && len(parts) > 1 {
-		name = parts[len(parts)-2]
+	clean := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part != "" {
+			clean = append(clean, part)
+		}
 	}
+	if len(clean) == 0 {
+		return ""
+	}
+	if nice, ok := mapLabel(clean[len(clean)-1]); ok {
+		return nice
+	}
+	if len(clean) >= 2 {
+		if nice, ok := mapLabel(clean[len(clean)-2]); ok {
+			return nice
+		}
+	}
+	name := clean[len(clean)-1]
+	return strings.ToUpper(name[:1]) + name[1:]
+}
+
+func mapLabel(name string) (string, bool) {
 	known := map[string]string{
 		"ascent": "Ascent", "bind": "Bind", "haven": "Haven", "split": "Split", "icebox": "Icebox",
 		"breeze": "Breeze", "fracture": "Fracture", "pearl": "Pearl", "lotus": "Lotus", "sunset": "Sunset",
-		"abyss": "Abyss", "corrode": "Corrode", "pitt": "Pearl", "foxtrot": "Breeze", "canyon": "Fracture",
-		"duality": "Bind", "triad": "Haven", "port": "Icebox", "jam": "Lotus", "juliett": "Sunset",
-		"infinity": "Abyss", "rook": "Corrode", "range": "The Range", "basictraining": "The Range",
+		"abyss": "Abyss", "corrode": "Corrode", "summit": "Summit",
+		"bonsai": "Split", "canyon": "Fracture", "duality": "Bind", "foxtrot": "Breeze",
+		"infinity": "Abyss", "jam": "Lotus", "juliett": "Sunset", "pitt": "Pearl", "port": "Icebox",
+		"triad": "Haven", "rook": "Corrode", "plummet": "Summit",
+		"range": "Range", "poveglia": "The Range", "povegliav2": "The Range", "rangev2": "The Range",
+		"basictraining": "The Range", "npev2": "Basic Training",
+		"hurm_alley": "District", "hurm_bowl": "Kasbah", "hurm_helix": "Drift",
+		"hurm_hightide": "Glitch", "hurm_yard": "Piazza",
+		"district": "District", "kasbah": "Kasbah", "drift": "Drift", "glitch": "Glitch", "piazza": "Piazza",
 	}
-	if nice, ok := known[strings.ToLower(name)]; ok {
-		return nice
-	}
-	if name == "" {
-		return "Unknown map"
-	}
-	return strings.ToUpper(name[:1]) + name[1:]
+	nice, ok := known[strings.ToLower(name)]
+	return nice, ok
 }
 
 func stacksFromArchive(rows []recentMatch, players []player) map[string]partyHint {

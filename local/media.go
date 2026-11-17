@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func mediaDir() string {
@@ -44,37 +46,41 @@ func saveMedia(kind string, r io.Reader, limit int64) error {
 	return err
 }
 
+func writeBytes(w http.ResponseWriter, r *http.Request, name, contentType string, body []byte) {
+	if contentType != "" {
+		w.Header().Set("Content-Type", contentType)
+	}
+	w.Header().Set("Accept-Ranges", "bytes")
+	http.ServeContent(w, r, name, time.Time{}, bytes.NewReader(body))
+}
+
 func writeMedia(w http.ResponseWriter, r *http.Request, kind string) bool {
-	if r.Method == http.MethodPost {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		return false
 	}
 	if kind == "gg" {
-		w.Header().Set("Content-Type", "audio/mpeg")
-		_, _ = w.Write(winClip)
+		writeBytes(w, r, "win.mp3", "audio/mpeg", winClip)
 		return true
 	}
 	if kind == "sad" {
-		w.Header().Set("Content-Type", "audio/mpeg")
-		_, _ = w.Write(lossClip)
+		writeBytes(w, r, "loss.mp3", "audio/mpeg", lossClip)
 		return true
 	}
 	if kind == "meow" {
-		w.Header().Set("Content-Type", "audio/mpeg")
-		_, _ = w.Write(meowClip)
+		writeBytes(w, r, "meow.mp3", "audio/mpeg", meowClip)
 		return true
 	}
 	if kind == "knock" || kind == "bloom" || kind == "pulse" || kind == "clutch" {
-		w.Header().Set("Content-Type", "audio/wav")
+		clip := clutchClip
 		switch kind {
 		case "knock":
-			_, _ = w.Write(knockClip)
+			clip = knockClip
 		case "bloom":
-			_, _ = w.Write(bloomClip)
+			clip = bloomClip
 		case "pulse":
-			_, _ = w.Write(pulseClip)
-		default:
-			_, _ = w.Write(clutchClip)
+			clip = pulseClip
 		}
+		writeBytes(w, r, kind+".wav", "audio/wav", clip)
 		return true
 	}
 	path := mediaPath(kind)
@@ -85,11 +91,10 @@ func writeMedia(w http.ResponseWriter, r *http.Request, kind string) bool {
 	if err != nil || len(raw) < 32 {
 		return false
 	}
+	kindType := "application/octet-stream"
 	if kind == "background" {
-		w.Header().Set("Content-Type", "image/jpeg")
-	} else {
-		w.Header().Set("Content-Type", "application/octet-stream")
+		kindType = "image/jpeg"
 	}
-	_, _ = w.Write(raw)
+	writeBytes(w, r, kind, kindType, raw)
 	return true
 }

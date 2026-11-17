@@ -412,6 +412,7 @@
       function draw(data) {
         if (new URLSearchParams(location.search).has("demo")) return;
         latestState = data;
+        if (data && data.map) data.map = mapName(data.map);
         const pauseBox = document.getElementById("set-pause-lookups");
         if (pauseBox && document.activeElement !== pauseBox && pauseBox.checked !== !!data.pauseLookups) {
           pauseBox.checked = !!data.pauseLookups;
@@ -1655,7 +1656,7 @@
         row.type = "button";
         const left = el("div");
         const title = el("div");
-        title.append(el("b", null, match.map || "Match"));
+        title.append(el("b", null, mapName(match.map) || "Match"));
         if (you && you.mvp) title.append(document.createTextNode(" "), el("span", "badge mvp", "MVP"));
         else if (you && you.svp) title.append(document.createTextNode(" "), el("span", "badge svp", "SVP"));
         left.append(title);

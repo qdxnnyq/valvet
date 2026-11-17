@@ -79,19 +79,13 @@ func main() {
 		}
 	})
 	mux.HandleFunc("/wait.gif", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/gif")
-		w.Header().Set("Cache-Control", "public, max-age=86400")
-		_, _ = w.Write(waitGif)
+		writeBytes(w, r, "wait.gif", "image/gif", waitGif)
 	})
 	mux.HandleFunc("/yippee.gif", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/gif")
-		w.Header().Set("Cache-Control", "public, max-age=86400")
-		_, _ = w.Write(yippeeGif)
+		writeBytes(w, r, "yippee.gif", "image/gif", yippeeGif)
 	})
 	mux.HandleFunc("/cry.gif", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/gif")
-		w.Header().Set("Cache-Control", "public, max-age=86400")
-		_, _ = w.Write(cryGif)
+		writeBytes(w, r, "cry.gif", "image/gif", cryGif)
 	})
 	mux.HandleFunc("/api/media", func(w http.ResponseWriter, r *http.Request) {
 		kind := mediaKind(r.URL.Query().Get("kind"))

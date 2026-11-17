@@ -883,7 +883,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.8.37", title: "Valvet", lines: ["A player card loads that person's own recent games, not only the one you shared.", "Live ranks, peaks, and party marks come from the Riot presence again."] },
+        { ver: "1.8.38", title: "Valvet", lines: ["Map names use the real names. Plummet is Summit, and Bonsai is Split.", "The loading cat, the win and loss cats, and the sounds load again. Win and loss are audible."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },
         { ver: "1.8.32", title: "Valvet", lines: ["The name is VALVET again. VAL is white, VET is pink, and the window title is pink.", "Play the round saves an mp4. The folder stays closed.", "Storage opens the round videos folder.", "A profile shows the rank and the agent picture without waiting on every game."] },
@@ -954,8 +954,22 @@
       ];
       function mapName(name) {
         const raw = String(name || "").trim();
-        if (/^plummet$/i.test(raw)) return "Summit";
-        return raw;
+        if (!raw) return "";
+        const bit = raw.split(/[\\/]/).filter(Boolean).pop() || raw;
+        const known = {
+          ascent: "Ascent", bind: "Bind", haven: "Haven", split: "Split", icebox: "Icebox",
+          breeze: "Breeze", fracture: "Fracture", pearl: "Pearl", lotus: "Lotus", sunset: "Sunset",
+          abyss: "Abyss", corrode: "Corrode", summit: "Summit",
+          bonsai: "Split", canyon: "Fracture", duality: "Bind", foxtrot: "Breeze",
+          infinity: "Abyss", jam: "Lotus", juliett: "Sunset", pitt: "Pearl", port: "Icebox",
+          triad: "Haven", rook: "Corrode", plummet: "Summit",
+          range: "Range", poveglia: "The Range", povegliav2: "The Range", rangev2: "The Range",
+          basictraining: "The Range", npev2: "Basic Training",
+          hurm_alley: "District", hurm_bowl: "Kasbah", hurm_helix: "Drift",
+          hurm_hightide: "Glitch", hurm_yard: "Piazza",
+          district: "District", kasbah: "Kasbah", drift: "Drift", glitch: "Glitch", piazza: "Piazza",
+        };
+        return known[bit.toLowerCase()] || raw;
       }
       function actParts(iso) {
         const end = Date.parse(iso || "");

@@ -2041,7 +2041,7 @@
         volume.value = localStorage.getItem("velvet-volume") || "15";
         volumeN.textContent = volume.value + "%";
         if (resultVolumeInput && resultVolumeN) {
-          resultVolumeInput.value = localStorage.getItem("velvet-result-volume") || "1";
+          resultVolumeInput.value = localStorage.getItem("velvet-result-volume") || "40";
           resultVolumeN.textContent = resultVolumeInput.value + "%";
         }
         const savedPack = localStorage.getItem("velvet-soundpack") || "soft";

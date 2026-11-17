@@ -254,6 +254,7 @@
         for (const row of history) if (row && row.id) by.set(String(row.id).toLowerCase(), row);
         for (const row of keepNames(rows)) {
           if (!row || !row.id) continue;
+          if (row.map) row.map = mapName(row.map);
           const id = String(row.id).toLowerCase();
           const prev = by.get(id);
           if (!prev || weight(row) >= weight(prev)) by.set(id, row);
@@ -326,7 +327,7 @@
       }
       function resultVolume() {
         const raw = Number(localStorage.getItem("velvet-result-volume"));
-        const pct = Number.isFinite(raw) ? raw : 1;
+        const pct = Number.isFinite(raw) ? raw : 40;
         return Math.max(0, Math.min(100, pct)) / 100;
       }
       function waveSample(wave, phase, t, freq) {

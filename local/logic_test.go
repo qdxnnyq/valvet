@@ -165,6 +165,9 @@ func TestEnemyOnSelect(t *testing.T) {
 	if prettyMap("/Game/Maps/Ascent/Ascent") != "Ascent" {
 		t.Fatal(prettyMap("/Game/Maps/Ascent/Ascent"))
 	}
+	if prettyMap("/Game/Maps/Bonsai/Bonsai") != "Split" || prettyMap("Plummet") != "Summit" || prettyMap("/Game/Maps/HURM/HURM_Alley/HURM_Alley") != "District" {
+		t.Fatal(prettyMap("Plummet"), prettyMap("/Game/Maps/Bonsai/Bonsai"), prettyMap("/Game/Maps/HURM/HURM_Alley/HURM_Alley"))
+	}
 	id, size := findParty(map[string]any{
 		"isValid":            true,
 		"partyPresenceData":  map[string]any{"partyId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "partySize": float64(3)},
