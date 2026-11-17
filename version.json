@@ -1,6 +1,6 @@
 {
-  "version": 142,
-  "name": "1.8.17",
-  "notes": "Settings has Check for update. It looks at GitHub right away.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v142/Valvet.exe"
+  "version": 143,
+  "name": "1.8.18",
+  "notes": "Play the round kills are green. One line can stand alone, and callouts are on the map. Friends has Offline. Other parties stay marked, and ranks fill in as they arrive.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v143/Valvet.exe"
 }
