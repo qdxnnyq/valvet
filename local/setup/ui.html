@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Valvet Setup</title>
+<style>
+  :root { color-scheme: dark; --accent: #ff5fa2; --ink: #fff7fa; --muted: #b89aaa; --line: rgba(255,247,250,.1); }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: #10080d; color: var(--ink); font: 14px/1.45 "Segoe UI Variable Text", "Segoe UI", sans-serif; }
+  body { display: flex; flex-direction: column; padding: 28px 32px 22px; background:
+    radial-gradient(520px 220px at 0% 0%, rgba(255,95,162,.28), transparent 70%),
+    #10080d; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .marksvg { width: 44px; height: 44px; flex: none; }
+  .mark { font-size: 22px; font-weight: 780; letter-spacing: .22em; }
+  .mark span { color: var(--accent); }
+  h1 { margin: 18px 0 6px; font-size: 32px; letter-spacing: -0.045em; font-weight: 740; }
+  p { margin: 0; color: var(--muted); max-width: 440px; }
+  label.field { display: block; margin-top: 22px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 750; }
+  .path { display: flex; gap: 8px; margin-top: 8px; }
+  input[type="text"] { flex: 1; min-width: 0; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: #1b1218; color: var(--ink); padding: 0 12px; font: inherit; }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  button { font: inherit; cursor: pointer; }
+  .ghost, .solid { height: 42px; border-radius: 12px; padding: 0 16px; font-weight: 740; }
+  .ghost { border: 1px solid var(--line); background: transparent; color: var(--ink); }
+  .solid { border: 0; background: var(--accent); color: #1a0610; }
+  .solid:disabled { opacity: .55; cursor: default; }
+  .checks { margin-top: 16px; display: grid; gap: 8px; }
+  .checks label { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+  .bar { height: 4px; margin-top: 22px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+  .status { min-height: 20px; margin-top: 10px; color: var(--muted); }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 18px; }
+  .foot span { color: var(--muted); font-size: 12px; }
+  .actions { display: flex; gap: 8px; }
+  #done { display: none; }
+  #done h1 { margin-top: 28px; }
+</style>
+</head>
+<body>
+  <div class="brand"><svg class="marksvg" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#10080d"/><path d="M16 18 L32 48 L48 18" fill="none" stroke="#ff5fa2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="mark">VAL<span>VET</span></div></div>
+  <div id="ask">
+    <h1>Install Valvet</h1>
+    <p>A local companion for the Valorant client already open on this PC. No Riot password.</p>
+    <label class="field">Folder</label>
+    <div class="path">
+      <input id="dir" type="text" spellcheck="false" />
+      <button class="ghost" id="browse" type="button">Browse</button>
+    </div>
+    <div class="checks">
+      <label><input id="desktop" type="checkbox" checked /> Desktop shortcut</label>
+      <label><input id="start" type="checkbox" checked /> Start menu shortcut</label>
+      <label><input id="windows" type="checkbox" checked /> Start with Windows</label>
+      <label><input id="open-now" type="checkbox" checked /> Open Valvet when finished</label>
+    </div>
+    <div class="bar"><i id="meter"></i></div>
+    <div class="status" id="status">Choose a folder, then install.</div>
+  </div>
+  <div id="done">
+    <h1>Valvet is installed</h1>
+    <p>Shortcuts are in place. Saved games stay on this PC, not inside the installer.</p>
+  </div>
+  <div class="foot">
+    <span>__VALVET__</span>
+    <div class="actions">
+      <button class="ghost" id="close" type="button">Close</button>
+      <button class="solid" id="go" type="button">Install</button>
+    </div>
+  </div>
+  <script>
+    (async () => {
+    const dir = document.getElementById("dir");
+    const status = document.getElementById("status");
+    const meter = document.getElementById("meter");
+    const go = document.getElementById("go");
+    dir.value = await setupHome();
+    document.getElementById("browse").onclick = async () => {
+      const next = await setupBrowse(dir.value);
+      if (next) dir.value = next;
+    };
+    document.getElementById("close").onclick = () => setupClose();
+    go.onclick = async () => {
+      if (go.dataset.done === "1") { await setupOpen(); return; }
+      const folder = dir.value.trim();
+      if (!folder) { status.textContent = "Choose a folder first."; return; }
+      go.disabled = true;
+      status.textContent = "Copying Valvet…";
+      meter.style.width = "45%";
+      const msg = await setupInstall(folder, document.getElementById("desktop").checked, document.getElementById("start").checked, document.getElementById("windows").checked);
+      if (msg !== "ok") {
+        go.disabled = false;
+        meter.style.width = "0";
+        status.textContent = msg;
+        return;
+      }
+      meter.style.width = "100%";
+      document.getElementById("ask").hidden = true;
+      document.getElementById("done").style.display = "block";
+      go.disabled = false;
+      go.dataset.done = "1";
+      go.textContent = "Open Valvet";
+      if (document.getElementById("open-now").checked) await setupOpen();
+    };
+    })();
+  </script>
+</body>
+</html>

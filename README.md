@@ -1,113 +1,95 @@
 # Valvet
 
-Valvet is a Windows app for the Valorant account already signed in on that PC. It does not ask for a Riot password, and it is not made by Riot Games.
+Valvet is a local Windows companion for the Valorant session already running on that PC. It reads the Riot Client lockfile, then uses the local port and token the client already created. It does not ask for a Riot password, it does not inject into the Valorant process, and it is not made by Riot Games.
 
-Open the Riot Client, then open Valvet.
+The file is not bound to an account. Valvet can only see the account signed into the Riot Client on that machine.
 
-![Live match](docs/shots/live.png)
+![Live match, ranks, and team averages](docs/shots/live.png)
 
 ## Install
 
 1. Download [ValvetSetup.exe](https://github.com/qdxnnyq/valvet/releases/latest/download/ValvetSetup.exe).
-2. Choose a folder. The suggested folder is `%LOCALAPPDATA%\Valvet`.
-3. The installer adds Start menu and Desktop shortcuts named Valvet, then opens the app.
-4. Leave the Riot Client open on the same PC.
+2. Run it. The installer copies `Valvet.exe` into the folder you pick. The suggested folder is `%LOCALAPPDATA%\Valvet`. It adds Start menu and Desktop shortcuts named Valvet, then opens the app.
+3. Keep the Riot Client open on the same PC.
 
-Windows SmartScreen can warn the first time. The build is unsigned. Download it from this GitHub release.
+Windows SmartScreen can warn the first time. The build is unsigned. The file to trust is the installer attached to the GitHub release.
 
-Settings and saved games stay on this PC. Updating does not delete them. Uninstall from Windows Apps removes the program and the shortcuts, and asks before deleting saved games.
-
-The first open is a short tour of the pages. Later updates show what changed. They do not start the tour again. Replay tutorial is in Settings.
+Settings, the saved match archive, and custom audio live on this PC. A new install uses `%LOCALAPPDATA%\Valvet`. A PC that already has games keeps that folder. They are not compiled into the exe. A new install with no saved volume starts at 15%.
 
 ## Updates
 
-The installer is only for the first setup. After that, a newer version is a pink bar in the app. That downloads the new app and restarts. You do not run the installer again.
+The installer is for the first setup. It asks which folder to use. After that, Valvet reads `version.json` in this repository. A newer build is a pink bar inside the app. That action downloads the app from the matching release, replaces the installed binary, and restarts. It does not download the installer again.
+
+## How a read works
+
+Startup finds the Riot Client lockfile and keeps a short-lived session from it. Live state is polled from that session: phase, map, mode, server, score, and the current roster.
+
+Competitive rank is a separate MMR request per player. A known rank is cached for several hours. An unknown rank is retried sooner. If the current act has no competitive tier and Riot still returns a peak tier, the row shows that peak with a Not active mark. Peak is not current RR.
+
+Match history uses the same session and the same rank fields as the live board. A name that arrives late stays on the row it was already drawn into, so identities do not swap while the request is in flight.
 
 ## Live
 
-During agent select and in a match, your side is on the left and the other side is on the right. Each player shows agent, rank, RR, KDA, headshot percent, and ADR. The header is the average rank of that side. A player with no rank this act shows their peak, marked Peak. A duo or a three-stack keeps its party mark.
+During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak, with a Not active mark, and still counts toward that average. Enemy groups of two or more are marked as a stack.
 
-The phase line shows the server, the two averages, and your record on the current map. One daily goal is taken from your recent games. Today on this page starts at 6:00 am.
+The phase line shows server, party average, enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.
 
-When the match ends, a result card can be copied as a picture.
+## Match history
 
-## Friends
+![Match history with ranks, peak ranks, MVP, and side averages](docs/shots/history.png)
 
-Friends are split into Valorant, League, and the Riot Client. Someone in your party shows with your Valorant friends. If nobody else is in Valorant, the page says you are so lonely.
+Queues are filterable. Inside a finished match, each side is sorted by KDA, highest first. Highlighting a name highlights the same player in the stat table. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side. Opening a player shows that MVP mark on their older games as well.
 
-## History
-
-![Match history](docs/shots/history.png)
-
-History keeps this act. The next act replaces it. Duos, clutches, heat, and records use the same act.
-
-Queues can be filtered. Inside a finished match, each side is sorted by KDA, best first. Highlight a name and the same person lights up in the stats. MVP is the best KDA on the winning side. SVP is the best KDA on the losing side.
-
-A finished match shows each round: whether you won it, how it ended, and which side you were on. The match can be copied as an image. Search stays with the page.
+History ranks are the same MMR result as the live board, including the Peak label, the Not active mark, and the side average. A finished match shows each round: whether you won it, how it ended, and which side you were on. A finished match can be copied as an image.
 
 ## Profile
 
-![Profile](docs/shots/profile.png)
+![Profile card and saved-game stats](docs/shots/profile.png)
 
-The card, title, level, and agent mastery are the account on this PC. Under that, the act: friend win rate, weapons, maps, and a chart for headshot percent, ACS, and kills.
+The player card, title, level, and agent mastery come from the local account. Under that, Valvet keeps every decided game from the current act. History, duos, clutches, heat, and records use that same act. When the next act starts, the previous one drops off.
 
-Friend win rate counts Riot friends, after two games together. Weapons show finishing kills and headshot percent. Maps show win rate. A day on the chart starts at 6:00 am. Older days stay behind View more.
-
-## Book
-
-- **Records.** Totals, bests, form, and agents from this act.
-- **Maps.** The minimap for each map. Bigger fits the picture in the window. Esc or Close leaves it.
-- **Deaths.** Where you died, on the same minimap.
-- **Heat.** Where kills landed.
-- **Clutches.** Hold rate, then each 1vX. Older rounds stay behind View more.
-- **Duos.** Riot friends only, with the time you have played together.
-- **Session.** The last 30 days of play time. Click a day for that day's matches. The clock is time since 6:00 am.
-- **Seen.** Green is on the client or in a game right now, with where they are. Yellow is AFK. The rest is the last time and place. Riot Mobile is ignored.
-- **Roster.** A custom list you keep yourself.
-
-## Store and locker
-
-Store is the daily offers, Kingdom Credits, and the night market. Wishlist pins stay at the top when they are in the shop. The wallet groups VP, Kingdom Credits, and Radianite, and each list stays closed until you open it.
-
-The featured bundle is its own page. Esports is the current and upcoming events, moved with Previous and Next. A card opens the event page. Capsules open to the items inside.
-
-Loadout is what you have equipped. Changing it asks you to confirm. Agents, the battle pass, missions, patch notes, and news each have their own page. The pass shows level, XP, and the time left in the act. Reward tiles stay square. A free pass, when Riot ships one, shows beside the current one.
-
-News is recent Valorant posts. Open a card to read it on playvalorant.com. Patch notes open from the link at the top of the page.
-
-## Game
-
-The Game page is the graphics and the sensitivity from the Valorant menu on this PC. Copy puts the list on the clipboard.
-
-Type your mouse DPI, or pick 400, 800, 1600, or 3200. Valvet shows eDPI, centimetres per 360, and inches per 360. Want eDPI tells you the sensitivity to set for that DPI.
-
-Crosshairs are codes you paste and name. Export copies the set. Valvet does not read the crosshair out of Valorant.
+Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC. History, duos, clutches, heat, and records all use the current act.
 
 ## Trace
 
-- **Watch list.** Any Name#Tag. If they are in your lobby or your match, the row is marked and a sound can play. If they finish a match you were not in, Valvet tells you once.
-- **Unfriends.** A Riot friend who was there, then was not.
-- **Name changes.** The old Riot ID and the new one.
-- **Wallet.** VP, Kingdom Credits, and Radianite, with the time the balance changed.
+Trace is not match history.
+
+- **Watch list.** Any `Name#Tag`, friend or not. If they are in your lobby or your match, the row is marked and the watch-list notification can play. If they finish a match you were not in, Valvet reports that new match id once.
+- **Unfriends.** Riot friends present on one read and missing on the next.
+- **Name changes.** The previous Riot ID and the new one.
+- **Wallet.** Timestamped deltas for VP, Kingdom Credits, and Radianite when the store balance changes.
+
+The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. Open a picture to see it larger. If a pinned item is in the daily store or the night market, it is sorted to the top of Store.
+
+## Locker
+
+Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Valvet does not read a crosshair off the PC.
+
+The Book pages are records, maps, death spots, clutches, duos, session time, last seen, and a custom roster. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
+
+The Game page reads the graphics and sensitivity Valorant is using on this PC. Sensitivity is the slider from RiotUserSettings, not the Unreal default. Copy puts that list on the clipboard.
+
+A background image can recolor the app from the picture. Live-only mode loads Live and Settings and skips the rest.
 
 ## Find Duo
 
-Find Duo is in beta. It is a board, not a live queue. You post the roles, modes, server, queue, rank range, and an optional note. Age and gender are optional, and the board can be filtered by them. Do not post if you are under 16.
+Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and an optional note. Age and gender are optional. The board can be filtered by server, queue, mode, age, and gender. Do not post if you are under 16.
 
-After you play with someone, you can rate them from 1 to 5. The leaderboard is people with a strong rating and more saved games. A post stays up for about 12 hours. Your name is shared only if you turn that on.
+After you play with someone, you can rate them from 1 to 5. The leaderboard lists people on the board who have a 4 or 5 average, sorted by the saved games on their PC. A post stays on the board for about 12 hours.
+
+Settings also creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public board.
 
 ## Sounds
 
-Friend in your match, watch list, wishlist, win, and loss each have their own sound. Any of them can be set to none, or replaced with a file on this PC. Win and loss have their own volume, separate from the rest. They play when the match result is in, not when a round ends.
+Alerts, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss are separate controls. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.
 
-Quiet hours mute the alerts, including win and loss. Preview plays the sound you picked.
+Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of those sounds can be replaced with a local file. Preview plays the selected file immediately.
 
-## Look
+## Install notes
 
-Settings has colour presets. You can also upload a picture and Valvet takes the colours from it. Clear goes back to the preset.
+The installer adds Valvet to Windows apps, the Start menu, and the Desktop, then opens Valvet and closes. Uninstall from Apps closes Valvet if it is still open, removes the program and the shortcuts, and asks before deleting saved games and settings.
 
-Live only keeps the match and leaves the other pages off.
-
-## Contact
+Agents, patches, the battle pass, and the esports list open from a copy saved on this PC, then refresh when the source changes.
 
 Bug reports and feedback go from Settings. [Twitter](https://x.com/qdxnnyq).
+

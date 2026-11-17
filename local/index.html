@@ -1,0 +1,835 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valvet</title>
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/app-live.css" />
+    <link rel="stylesheet" href="/app-history.css" />
+    <link rel="stylesheet" href="/app-maps.css" />
+  </head>
+  <body>
+    <div class="app-frame" id="app-frame">
+      <img src="/pack/mark.svg" alt="" />
+      <b class="word">VAL<span>VET</span></b>
+      <span id="frame-title"></span>
+      <div class="frame-acts">
+        <button type="button" id="frame-min" aria-label="Minimize">–</button>
+        <button type="button" id="frame-max" aria-label="Maximize">□</button>
+        <button type="button" id="frame-close" aria-label="Close">×</button>
+      </div>
+    </div>
+    <div id="update-bar" class="update-bar" hidden>
+      <img class="update-cat" src="/wait.gif" alt="" />
+      <span id="update-bar-text">A newer Valvet is ready.</span>
+      <button id="update-go" type="button">Download and install</button>
+    </div>
+    <canvas id="engine"></canvas>
+    <div id="depth"></div>
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+      <filter id="liquid" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.016" numOctaves="2" seed="3" result="noise">
+          <animate attributeName="baseFrequency" dur="14s" values="0.007 0.014;0.012 0.02;0.007 0.014" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+    <canvas id="shade"></canvas>
+    <div class="shell">
+      <aside>
+        <div class="logo"><img src="/pack/mark.svg" alt="" /><span class="word">VAL<span>VET</span></span></div>
+        <div class="you" id="you"><b id="you-name">Waiting</b><span id="you-level"></span><div id="you-streak" class="streak"></div></div>
+        <form class="find" id="find-player">
+          <input id="find-q" placeholder="Name#Tag" maxlength="32" autocomplete="off" spellcheck="false" />
+          <button type="submit">Find</button>
+        </form>
+        <div class="find-note" id="find-note"></div>
+        <nav class="nav">
+          <div class="nav-label">Play</div>
+          <button id="tab-live" class="on" type="button">Live</button>
+          <button id="tab-friends" type="button">Friends</button>
+          <button id="tab-history" type="button">History</button>
+          <button id="tab-session" type="button">Session</button>
+          <button id="tab-seen" type="button">Seen</button>
+          <div class="nav-label">Locker</div>
+          <button id="tab-store" type="button">Store</button>
+          <button id="tab-bundle" type="button">Bundle</button>
+          <button id="tab-esports" type="button">Esports</button>
+          <button id="tab-loadout" type="button">Collection</button>
+          <button id="tab-agents" type="button">Agents</button>
+          <button id="tab-profile" type="button">Profile</button>
+          <button id="tab-pass" type="button">Pass</button>
+          <div class="nav-label">Book</div>
+          <button id="tab-records" type="button">Records</button>
+          <button id="tab-maps" type="button">Maps</button>
+          <button id="tab-deaths" type="button">Heat</button>
+          <button id="tab-clutches" type="button">Clutches</button>
+          <button id="tab-queues" type="button">Duos</button>
+          <button id="tab-team" type="button">Team</button>
+          <button id="tab-news" type="button">News</button>
+          <div class="nav-label">More</div>
+          <button id="tab-patches" type="button">Patches</button>
+          <button id="tab-alerts" type="button">Trace</button>
+          <button id="tab-crosshairs" type="button">Crosshairs</button>
+          <button id="tab-sounds" type="button">Sounds</button>
+          <button id="tab-game" type="button">Game</button>
+        </nav>
+        <div class="side-foot">
+          <button id="update" type="button" hidden>Update</button>
+          <button id="tab-settings" type="button">Settings</button>
+          <div class="side-meta">
+            <button class="build-chip" id="build-chip" type="button">__VALVET__</button>
+            <button id="app-notes" class="app-notes" type="button">Notes</button>
+          </div>
+          <button type="button" class="credit" id="credit"><i></i><span>by <b>Danny</b></span></button>
+        </div>
+      </aside>
+      <main>
+        <section id="pane-live">
+          <div class="map-wash" id="map-wash"></div>
+          <div class="live-top" id="live-top">
+            <div id="today" class="today"></div>
+            <section class="post" id="post" hidden>
+              <div class="post-top">
+                <div>
+                  <div class="eyebrow" id="post-kicker">Last game</div>
+                  <h2 id="post-title">Match over</h2>
+                  <p class="sub" id="post-line"></p>
+                </div>
+                <div class="post-score" id="post-score"></div>
+              </div>
+              <div class="post-stats" id="post-stats"></div>
+              <div id="post-rounds"></div>
+              <div class="post-actions">
+                <button type="button" class="tiny" id="post-copy">Copy card</button>
+                <button type="button" class="tiny" id="post-save">Save image</button>
+              </div>
+            </section>
+            <div id="challenge" class="chip" hidden></div>
+            <div class="stage" id="stage" hidden></div>
+            <div class="lobby-band">
+              <h2 id="party-title">Lobby</h2>
+              <div id="duos"></div>
+              <div class="party" id="party"></div>
+            </div>
+            <div class="friend-band" id="live-valorant-band" hidden>
+              <h2 id="friends-title">Valorant</h2>
+              <div id="friends"></div>
+            </div>
+            <div class="friend-band" id="live-league-band" hidden>
+              <h2 id="live-league-title">League</h2>
+              <div id="live-league"></div>
+            </div>
+          </div>
+          <div id="wait" class="wait">
+            <div class="wait-scan"></div>
+            <div id="riot-ask" class="riot-ask" hidden>
+              <img src="/pack/mark.svg" alt="" />
+              <div>
+                <div class="eyebrow">Riot</div>
+                <h2>Open the Riot Client</h2>
+                <p class="sub">Valvet reads the game from the client already on this PC.</p>
+              </div>
+            </div>
+            <div class="wait-scene">
+              <div class="wait-cat"><img src="/wait.gif" alt="" /></div>
+              <div>
+                <div class="eyebrow">Live</div>
+                <h1>Waiting for a live game</h1>
+                <p class="sub" id="wait-sub">Stays here until a game is found.</p>
+                <div class="wait-pips" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="empty" id="note" hidden>Queue any mode. The match shows up under the lobby.</div>
+          <section class="live" id="status" hidden>
+            <div>
+              <div class="eyebrow" id="mode"></div>
+              <h1 id="map"></h1>
+              <div class="phase" id="phase"></div>
+            </div>
+            <div class="score" id="score"></div>
+          </section>
+          <div id="watch-live" class="watch-live" hidden></div>
+          <div id="avoid-live" class="played-live" hidden></div>
+          <div id="penalty-live" class="played-live" hidden></div>
+          <div id="played-live" class="played-live" hidden></div>
+          <div id="board"></div>
+        </section>
+        <section id="pane-friends" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">People</div>
+              <h1>Friends</h1>
+              <p class="sub">Friends online in Valorant, League, Riot, and Riot Mobile.</p>
+              <div class="friend-switch" id="friend-switch">
+                <button type="button" class="tiny solid" id="friends-online">Online</button>
+                <button type="button" class="tiny" id="friends-offline">Offline</button>
+              </div>
+              <label class="query"><input id="friend-query" placeholder="Search friends" spellcheck="false" /></label>
+            </div>
+          </header>
+          <div class="desk">
+            <section class="desk-card" id="rank-board-card" hidden>
+              <h2>Ranks</h2>
+              <div id="rank-board"></div>
+            </section>
+            <section class="desk-card">
+              <h2 id="friends-title-2">Valorant</h2>
+              <div id="friends-2"></div>
+            </section>
+            <section class="desk-card">
+              <h2 id="league-title">League</h2>
+              <div id="league"></div>
+            </section>
+            <section class="desk-card">
+              <h2 id="riot-title">Riot</h2>
+              <div id="riot"></div>
+            </section>
+            <section class="desk-card">
+              <h2 id="mobile-title">Riot Mobile</h2>
+              <div id="mobile"></div>
+            </section>
+            <section class="desk-card" id="offline-card" hidden>
+              <h2 id="offline-title">Offline</h2>
+              <div id="offline-friends"></div>
+            </section>
+          </div>
+        </section>
+        <section id="pane-history" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Matches</div>
+              <h1>History</h1>
+              <div class="friend-switch" id="hist-switch">
+              <button type="button" class="tiny solid" id="hist-matches">Matches</button>
+              <button type="button" class="tiny" id="hist-replays">Replay files</button>
+            </div>
+            <p class="sub">This act's matches, saved on this PC.</p>
+            </div>
+          </header>
+          <div class="hist-bar">
+            <div class="filters" id="filters"></div>
+            <div class="hist-picks" id="hist-picks"></div>
+            <label class="query"><input id="match-query" placeholder="Map, agent, or queue" spellcheck="false" /></label>
+          </div>
+          <section class="desk-card" id="replay-card" hidden>
+            <h2>Replays</h2>
+            <p class="sub">Valvet keeps the replay files Valorant downloads. Valorant can open one only on the patch that made it. After a patch, Play the round still opens from the lines saved on this PC.</p>
+            <div id="replay-list"></div>
+            <div class="set-actions"><button type="button" class="tiny" id="replay-scan">Save replay files</button></div>
+          </section>
+          <div id="recent"></div>
+        </section>
+        <section id="pane-loadout" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Locker</div>
+              <h1>Collection</h1>
+              <p class="sub">What you have equipped.</p>
+            </div>
+          </header>
+          <div id="loadout" class="empty">Equipped skins show up here.</div>
+        </section>
+        <section id="pane-store" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Today</div>
+              <h1>Store</h1>
+              <p class="sub">Today's offers, the night market, and Kingdom Credits.</p>
+            </div>
+          </header>
+          <div id="store"></div>
+        </section>
+        <section id="pane-bundle" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Featured</div>
+              <h1>Bundle</h1>
+              <p class="sub">The bundle in the store right now.</p>
+            </div>
+          </header>
+          <div id="bundle" class="empty">The featured bundle shows up here.</div>
+        </section>
+        <section id="pane-patches" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Game</div>
+              <h1>Patches</h1>
+              <p class="sub">Official patch notes. Pick your agents to filter them.</p>
+            </div>
+          </header>
+          <div id="patches" class="empty">Patch notes show up here.</div>
+        </section>
+        <section id="pane-esports" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">VCT</div>
+              <h1>Esports</h1>
+              <p class="sub">Live and upcoming Valorant events.</p>
+            </div>
+          </header>
+          <div id="esports" class="empty">Esports bundles show up here.</div>
+        </section>
+        <section id="pane-agents" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Roster</div>
+              <h1>Agents</h1>
+              <p class="sub">Agents and their abilities.</p>
+            </div>
+          </header>
+          <div id="agents" class="empty">Agents and abilities show up here.</div>
+        </section>
+        <section id="pane-profile" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">You</div>
+              <h1>Profile</h1>
+              <p class="sub">Your card, guns, and maps this act.</p>
+            </div>
+          </header>
+          <div id="profile" class="empty">Your card shows up here.</div>
+        </section>
+        <section id="pane-pass" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Act</div>
+              <h1>Pass</h1>
+              <p class="sub">Level, time left, and every reward.</p>
+            </div>
+          </header>
+          <div id="pass" class="empty">Battle pass level shows up here.</div>
+        </section>
+        <section id="pane-alerts" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Trace</div>
+              <h1>Trace</h1>
+              <p class="sub">Watch list, name changes, and wallet history.</p>
+            </div>
+          </header>
+          <div class="desk-card" id="wallet-block">
+            <h2>Wallet</h2>
+            <p class="sub">VP, Kingdom Credits, and Radianite.</p>
+            <div id="wallet-now" class="sub">Waiting for the store balance.</div>
+            <div id="wallet-log"></div>
+          </div>
+          <div class="desk-card" id="watch-block">
+            <h2>Watch list</h2>
+            <p class="sub">Players you want marked in a lobby or a game.</p>
+            <form class="add" id="watch-form">
+              <input id="watch-q" placeholder="Name#Tag" maxlength="32" />
+              <button class="tiny" type="submit">Add</button>
+            </form>
+            <div id="watch-list"></div>
+          </div>
+          <div class="desk-card">
+            <h2>Unfriended you</h2>
+            <p class="sub">Friends who are no longer on the client.</p>
+            <div id="unfriends" class="empty">No unfriends yet.</div>
+          </div>
+          <div class="desk-card">
+            <h2>Name changes</h2>
+            <p class="sub">Riot IDs a friend used before the current one.</p>
+            <div id="renames" class="empty">No name changes yet.</div>
+          </div>
+          <div class="desk-card">
+            <h2>Store wishlist</h2>
+            <p class="sub">Skins, the daily store, the night market, and Kingdom Credits items.</p>
+            <input id="wish-q" class="wish-search" placeholder="Search skins, buddies, cards, sprays" />
+            <div id="wish-tools"></div>
+            <div id="wish-list" class="wish-picks"></div>
+          </div>
+        </section>
+        <section id="pane-game" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">This PC</div>
+              <h1>Game</h1>
+              <p class="sub">Sensitivity and graphics from your Riot settings. eDPI is mouse DPI times sensitivity.</p>
+            </div>
+            <button type="button" class="tiny solid" id="game-copy">Copy</button>
+          </header>
+          <div id="game" class="empty">Reading the local Valorant config…</div>
+        </section>
+        <section id="pane-crosshairs" hidden>
+          <header class="page-hero">
+            <div>
+              <div class="eyebrow">Aim</div>
+              <h1>Crosshairs</h1>
+              <p class="sub">Import a crosshair code, or export the ones you saved.</p>
+            </div>
+          </header>
+          <div class="desk-card">
+            <form class="add" id="xh-form">
+              <input id="xh-name" placeholder="Name" maxlength="24" />
+              <input id="xh-code" placeholder="Paste a crosshair code" />
+              <button class="tiny" type="submit">Import</button>
+              <button class="tiny" id="xh-range" type="button">Range</button>
+              <button class="tiny" id="xh-export" type="button">Export all</button>
+            </form>
+            <canvas id="xh-preview" width="220" height="220"></canvas>
+            <h2>Saved</h2>
+            <div id="crosshairs" class="xh-grid"></div>
+          </div>
+        </section>
+        <section id="pane-records" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Saved games</div><h1>Records</h1><p class="sub">Agent stats for this act.</p></div></header>
+          <div id="records" class="empty">Records show up after games are saved.</div>
+        </section>
+        <section id="pane-maps" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Notebook</div><h1>Maps</h1><p class="sub">Minimap for each map. Bigger opens the full map.</p></div></header>
+          <div id="maps" class="empty">Maps show up here.</div>
+        </section>
+        <section id="pane-deaths" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Maps</div><h1>Heat</h1><p class="sub">Where you died, and where your kills landed.</p></div></header>
+          <div id="deaths" class="empty">Death spots show up after the next games.</div>
+        </section>
+        <section id="pane-clutches" hidden>
+          <header class="page-hero"><div><div class="eyebrow">1vX</div><h1>Clutches</h1><p class="sub">Rounds you were the last one alive.</p></div></header>
+          <div id="clutches" class="empty">Clutches show up after the next games.</div>
+        </section>
+        <section id="pane-queues" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Together</div><h1>Duos</h1><p class="sub">Friends you queued with, and how long you played.</p></div></header>
+          <div id="queues" class="empty">Duo history shows up after saved games.</div>
+        </section>
+        <section id="pane-team" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Roster</div><h1>Team</h1><p class="sub">A roster you keep yourself.</p></div></header>
+          <div id="team" class="empty">Name the team and add Name#Tag.</div>
+        </section>
+        <section id="pane-session" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Today</div><h1>Session</h1><p class="sub">Playtime today and the last 30 days. Click a day for that day's matches.</p><p class="sub" id="queue-clock"></p></div></header>
+          <div id="session" class="empty">A session starts when a game is found.</div>
+        </section>
+        <section id="pane-seen" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Friends</div><h1>Seen</h1><p class="sub">Who is in a game, online, away, or last seen.</p></div></header>
+          <div id="seen" class="empty">Open the client. Friends show up as they come online.</div>
+        </section>
+        <section id="pane-news" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Official</div><h1>News</h1><p class="sub">Announcements and upcoming bundles.</p></div></header>
+          <div id="news" class="empty">News shows up here.</div>
+        </section>
+        <section id="pane-sounds" hidden>
+          <header class="page-hero"><div><div class="eyebrow">Alerts</div><h1>Sounds</h1><p class="sub">Alerts you can turn on, including win and loss.</p></div></header>
+          <div class="set-grid">
+            <section class="set-card">
+              <div class="eyebrow">Sound</div>
+              <h2>Sound</h2>
+              <label class="set-row"><span>Interface sounds</span><input id="set-sound" type="checkbox" /></label>
+              <label class="set-row"><span>Volume <b id="set-volume-n">15%</b></span><input id="set-volume" type="range" min="0" max="100" /></label>
+              <label class="set-row"><span>Win / loss volume <b id="set-result-volume-n">1%</b></span><input id="set-result-volume" type="range" min="0" max="100" /></label>
+              <label class="set-row"><span>Alert sound</span>
+                <select id="set-pack">
+                  <option value="none">None</option>
+                  <option value="soft">Soft</option>
+                  <option value="ping">Ping</option>
+                  <option value="chime">Chime</option>
+                  <option value="arcade">Arcade</option>
+                  <option value="radar">Radar</option>
+                  <option value="drop">Drop</option>
+                  <option value="spark">Spark</option>
+                  <option value="bell">Bell</option>
+                  <option value="neon">Neon</option>
+                  <option value="siren">Siren</option>
+                  <option value="honk">Honk</option>
+                  <option value="boing">Boing</option>
+                  <option value="coin">Coin</option>
+                  <option value="drama">Drama</option>
+                  <option value="trombone">Trombone</option>
+                  <option value="airhorn">Airhorn</option>
+                  <option value="cricket">Cricket</option>
+                  <option value="typewriter">Typewriter</option>
+                  <option value="slot">Slot machine</option>
+                  <option value="probe">Probe</option>
+                  <option value="mothership">Mothership</option>
+                  <option value="abduct">Abduct</option>
+                  <option value="signal">Signal</option>
+                  <option value="ufo">UFO</option>
+                  <option value="knock">Knock</option>
+                  <option value="bloom">Bloom</option>
+                  <option value="pulse">Pulse</option>
+                  <option value="clutch">Clutch</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom alert</span><input id="set-notify-file" type="file" accept="audio/*" /></label>
+              <label class="set-row" id="row-friend-sound"><span>Friend in your game</span>
+                <select id="set-friend-sound">
+                  <option value="none">None</option>
+                  <option value="pack">Same as alert</option>
+                  <option value="soft">Soft</option>
+                  <option value="ping">Ping</option>
+                  <option value="chime">Chime</option>
+                  <option value="arcade">Arcade</option>
+                  <option value="radar">Radar</option>
+                  <option value="bell">Bell</option>
+                  <option value="siren">Siren</option>
+                  <option value="honk">Honk</option>
+                  <option value="coin">Coin</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom friend sound</span><input id="set-friend-file" type="file" accept="audio/*" /></label>
+              <label class="set-row" id="row-watch-sound"><span>Watch list in your game</span>
+                <select id="set-watch-sound">
+                  <option value="none">None</option>
+                  <option value="sting">Sting</option>
+                  <option value="soft">Soft</option>
+                  <option value="ping">Ping</option>
+                  <option value="chime">Chime</option>
+                  <option value="arcade">Arcade</option>
+                  <option value="radar">Radar</option>
+                  <option value="bell">Bell</option>
+                  <option value="siren">Siren</option>
+                  <option value="airhorn">Airhorn</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom watch sound</span><input id="set-watch-file" type="file" accept="audio/*" /></label>
+              <label class="set-row" id="row-played-sound"><span>Watch list finishes a game</span>
+                <select id="set-played-sound">
+                  <option value="none">None</option>
+                  <option value="watch">Same as watch list</option>
+                  <option value="ping">Ping</option>
+                  <option value="chime">Chime</option>
+                  <option value="bell">Bell</option>
+                  <option value="siren">Siren</option>
+                  <option value="trombone">Trombone</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom played sound</span><input id="set-played-file" type="file" accept="audio/*" /></label>
+              <label class="set-row"><span>Win sound</span>
+                <select id="set-win">
+                  <option value="none">None</option>
+                  <option value="gg">GG, easy</option>
+                  <option value="cheer">Cheer</option>
+                  <option value="fanfare">Fanfare</option>
+                  <option value="spark">Spark</option>
+                  <option value="coin">Coin</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom win</span><input id="set-win-file" type="file" accept="audio/*" /></label>
+              <label class="set-row"><span>Loss sound</span>
+                <select id="set-loss">
+                  <option value="none">None</option>
+                  <option value="sad">Sad</option>
+                  <option value="low">Low</option>
+                  <option value="drop">Drop</option>
+                  <option value="hush">Hush</option>
+                  <option value="trombone">Trombone</option>
+                  <option value="meow">Meow</option>
+                  <option value="custom">Custom file</option>
+                </select>
+              </label>
+              <label class="set-row"><span>Custom loss</span><input id="set-loss-file" type="file" accept="audio/*" /></label>
+              <label class="set-row"><span>Chime when a match starts</span><input id="set-chime" type="checkbox" /></label>
+              <label class="set-row"><span>Sound when a friend joins your lobby</span><input id="set-join" type="checkbox" /></label>
+              <label class="set-row"><span>Sound when queue pops</span><input id="set-pop" type="checkbox" /></label>
+              <label class="set-row"><span>Ping when night market opens</span><input id="set-night" type="checkbox" /></label>
+              <label class="set-row"><span>Windows notice when a wish is in the store</span><input id="set-wish-note" type="checkbox" /></label>
+              <p class="sub">Off unless you turn it on. Windows shows a notice for a wishlisted item in today's store.</p>
+              <label class="set-row"><span>Compact friend cards</span><input id="set-compact" type="checkbox" /></label>
+              <label class="set-row"><span>Quiet from</span><input id="set-quiet-from" type="time" /></label>
+              <label class="set-row"><span>Quiet until</span><input id="set-quiet-to" type="time" /></label>
+              <p class="sub">Queue, match start, friend join, and night market stay off until you turn them on. Win and loss use their own volume.</p>
+            </section>
+          </div>
+        </section>
+        <section id="pane-settings" hidden>
+          <div class="settings-scroll">
+            <header class="set-hero">
+              <div>
+                <div class="eyebrow">This PC</div>
+                <h1>Settings</h1>
+                <p class="sub">Sounds and colours stay on this computer.</p>
+              </div>
+              <button type="button" class="tiny" id="tour-again">Replay tutorial</button>
+            </header>
+            <div class="set-switch" id="set-switch">
+              <button type="button" data-set="look" class="on">Look</button>
+              <button type="button" data-set="window">Window</button>
+              <button type="button" data-set="share">Share</button>
+              <button type="button" data-set="discord">Discord</button>
+              <button type="button" data-set="backup">Backup and feedback</button>
+            </div>
+            <div class="set-grid">
+              <section class="set-card" id="look-sample" data-set="look">
+                <div class="eyebrow">Sample</div>
+                <h2>This is the look</h2>
+                <p class="sub">Change colour, corners, motion, and glass. The row updates here.</p>
+                <div class="swatches" id="sample-swatches"></div>
+                <div id="pickers"></div>
+                <div class="sample-shape" id="sample-shape">
+                  <button type="button" class="tiny" data-corners="soft">Soft</button>
+                  <button type="button" class="tiny" data-corners="round">Round</button>
+                  <button type="button" class="tiny" data-corners="sharp">Sharp</button>
+                  <button type="button" class="tiny" data-motion="full">Full</button>
+                  <button type="button" class="tiny" data-motion="calm">Calm</button>
+                  <button type="button" class="tiny" data-motion="still">Still</button>
+                </div>
+                <label class="set-row"><span>Liquid glass</span><input id="set-glass" type="checkbox" /></label>
+                <div class="set-actions"><button type="button" class="tiny" id="reset-look">Reset look</button></div>
+                <div class="sample-board">
+                  <div class="sample-row">
+                    <span class="sample-agent"></span>
+                    <b>Player</b>
+                    <span class="squad sA">Party A</span>
+                    <span class="sample-rank">Diamond 2</span>
+                  </div>
+                  <div class="expect"><b>62%</b><span>expected</span></div>
+                </div>
+              </section>
+              <section class="set-card" data-set="look">
+                <div class="eyebrow">Sound</div>
+                <h2>Sound</h2>
+                <p class="sub">Sounds are on the Sounds tab.</p>
+                <div class="set-actions"><button class="tiny" id="jump-sounds" type="button">Open Sounds</button></div>
+              </section>
+              <section class="set-card" id="feedback-card" data-set="backup">
+                <div class="eyebrow">Contact</div>
+                <h2>Report a bug or send feedback</h2>
+                <p class="sub">Send a note. Twitter is on this card.</p>
+                <textarea id="set-feedback" maxlength="2000" placeholder="What broke, or what you want changed" spellcheck="true"></textarea>
+                <div class="set-actions">
+                  <button class="tiny solid" id="set-feedback-send" type="button">Send</button>
+                  <button class="tiny" id="set-feedback-x" type="button">Twitter</button>
+                </div>
+                <p class="sub" id="set-feedback-note"></p>
+              </section>
+              <section class="set-card" data-set="share">
+                <div class="eyebrow">Friends</div>
+                <h2>Share Valvet with a friend</h2>
+                <p class="sub">Paste their id to share queue, map, and score. Your password stays here.</p>
+                <div class="idline"><b id="my-code">········</b><button type="button" class="tiny" id="copy-code">Copy</button><button type="button" class="tiny" id="copy-invite">Copy invite</button></div>
+                <form class="add" id="add-code">
+                  <input id="add-code-q" placeholder="Paste their id" maxlength="12" />
+                  <button class="tiny" type="submit">Add</button>
+                </form>
+              </section>
+              <section class="set-card set-split" data-set="window">
+                <div>
+                <div class="eyebrow">Window</div>
+                <h2>Size</h2>
+                <p class="sub">Valvet fits the window size you pick.</p>
+                <div class="sizes" id="sizes">
+                  <button type="button" data-size="compact"><b>Compact</b><span>1100 × 700</span></button>
+                  <button type="button" data-size="standard"><b>Standard</b><span>1280 × 780</span></button>
+                  <button type="button" data-size="wide"><b>Wide</b><span>1500 × 900</span></button>
+                  <button type="button" data-size="large"><b>Large</b><span>1760 × 1000</span></button>
+                </div>
+                <h2>Startup</h2>
+                <p class="sub">Start with Windows, or wait until the Riot Client is open.</p>
+                <div class="sizes" id="launch">
+                  <button type="button" data-launch="off"><b>Off</b><span>Start it yourself</span></button>
+                  <button type="button" data-launch="windows"><b>Windows</b><span>Open at login</span></button>
+                  <button type="button" data-launch="riot"><b>Riot</b><span>When the client opens</span></button>
+                </div>
+                <p class="sub">The window also reopens on the same monitor, in the same place.</p>
+                </div>
+                <div>
+                <label class="set-row"><span>Shaders</span><input id="set-fx" type="checkbox" /></label>
+                <p class="sub">Grain, a rim on the selected gun, a streak on ranks, and a light that follows the cursor.</p>
+                <label class="set-row"><span>Live only</span><input id="set-minimal" type="checkbox" /></label>
+                <p class="sub">Only the live match loads until you turn this off.</p>
+                <label class="set-row"><span>Pause lookups in a game</span><input id="set-pause-lookups" type="checkbox" /></label>
+                <p class="sub">Off unless you turn it on. While it is on, headshot, damage, combat score, and extra party lookups wait until the game ends.</p>
+                <h2>Pages</h2>
+                <p class="sub">Hide pages you do not use. Live and Settings stay.</p>
+                <div id="hide-pages" class="hide-pages"></div>
+                <h2>Log</h2>
+                <p class="sub">Riot client closed, a missing queue, and a failed update land here.</p>
+                <div class="set-actions"><button class="tiny" id="set-log" type="button">Open log</button></div>
+                <pre id="app-log" class="app-log" hidden></pre>
+                </div>
+              </section>
+              <section class="set-card" data-set="backup">
+                <div class="eyebrow">This PC</div>
+                <h2>Backup</h2>
+                <p class="sub">Save or load your settings.</p>
+                <h2>Update</h2>
+                <p class="sub" id="build-line"></p>
+                <div class="set-actions">
+                  <button class="tiny" id="set-update" type="button">Check for update</button>
+                </div>
+                <p class="sub" id="set-update-note">Looks at GitHub now, without waiting on the usual check.</p>
+                <label class="set-row"><span>Gmail</span><input id="set-gmail" type="email" placeholder="you@gmail.com" spellcheck="false" /></label>
+                <p class="sub">Email a backup. Valvet does not ask for your Gmail password.</p>
+                <label class="set-row"><span>Weekly RR goal</span><input id="set-goal" type="number" min="0" max="500" step="5" /></label>
+                <div class="set-actions">
+                  <button class="tiny" id="set-export" type="button">Export</button>
+                  <button class="tiny" id="set-import" type="button">Import</button>
+                  <button class="tiny solid" id="set-gmail-send" type="button">Email backup</button>
+                  <input id="set-file" type="file" accept="application/json" hidden />
+                </div>
+              </section>
+              <section class="set-card" data-set="backup">
+                <div class="eyebrow">This PC</div>
+                <h2>Storage</h2>
+                <p class="sub" id="storage-use">Checking space…</p>
+                <p class="sub" id="storage-detail"></p>
+                <div class="set-actions">
+                  <button class="tiny" id="set-folder" type="button">Open folder</button>
+                  <button class="tiny" id="set-rounds" type="button">Round videos</button>
+                  <button class="tiny" id="set-clear" type="button">Delete old data</button>
+                </div>
+                <p class="sub">Open folder shows the saved files on this PC. Round videos opens the Play the round clips. That folder stays closed until you open it here. Delete old data clears the cache and exported pictures. Games and settings stay.</p>
+              </section>
+              <section class="set-card" data-set="discord">
+                <div class="eyebrow">Discord</div>
+                <h2>Channel and profile</h2>
+                <label class="set-row"><span>Send to Discord</span><input id="set-discord" type="checkbox" /></label>
+                <label class="set-row"><span>Webhook</span><input id="set-discord-url" type="text" placeholder="https://discord.com/api/webhooks/…" spellcheck="false" /></label>
+                <label class="set-row"><span>Map and phase status</span><input id="set-discord-status" type="checkbox" /></label>
+                <label class="set-row"><span>Profile status</span><input id="set-discord-app" type="text" inputmode="numeric" placeholder="Application ID" spellcheck="false" /></label>
+                <label class="set-row"><span>Round won or lost</span><input id="set-discord-rounds" type="checkbox" /></label>
+                <label class="set-row"><span>When a game is found</span><input id="set-discord-live" type="checkbox" /></label>
+                <label class="set-row"><span>Score when it ends</span><input id="set-discord-end" type="checkbox" /></label>
+                <label class="set-row"><span>Watched player or friend</span><input id="set-discord-watch" type="checkbox" /></label>
+                <label class="set-row"><span>Someone unfriends you</span><input id="set-discord-unfriend" type="checkbox" /></label>
+                <div class="set-actions"><button class="tiny solid" id="set-discord-test" type="button">Test Discord</button></div>
+                <p class="sub" id="discord-note">A Discord webhook for alerts. Discord has to be open.</p>
+              </section>
+              <section class="set-card set-wide" data-set="look">
+                <div class="eyebrow">Look</div>
+                <h2>More</h2>
+                <label class="set-row"><span>Cats on history</span><input id="set-cats" type="checkbox" checked /></label>
+                <h2>Engine</h2>
+                <label class="set-row"><span>Mouse light</span>
+                  <select id="set-light">
+                    <option value="off">Off</option>
+                    <option value="pink">Soft pink</option>
+                    <option value="gold">Gold</option>
+                    <option value="violet">Violet</option>
+                    <option value="ice">Ice</option>
+                    <option value="ember">Ember</option>
+                  </select>
+                </label>
+                <label class="set-row"><span>Strength</span>
+                  <select id="set-light-power">
+                    <option value="faint">Faint</option>
+                    <option value="soft">Soft</option>
+                    <option value="bright">Bright</option>
+                  </select>
+                </label>
+                <p class="sub">Off until you pick a colour.</p>
+                <h2>Lights</h2>
+                <label class="set-row"><span>Follow the round</span>
+                  <select id="set-lights">
+                    <option value="off">Off</option>
+                    <option value="keyboard">Keyboard (OpenRGB)</option>
+                    <option value="room">Room (WLED)</option>
+                    <option value="both">Keyboard and room</option>
+                  </select>
+                </label>
+                <label class="set-row"><span>OpenRGB</span><input id="set-openrgb" placeholder="127.0.0.1" spellcheck="false" /></label>
+                <label class="set-row"><span>WLED</span><input id="set-wled" placeholder="192.168.1.20" spellcheck="false" /></label>
+                <label class="set-row"><span>Kill</span><input id="light-kill" type="color" value="#28dc78" /></label>
+                <label class="set-row"><span>Death</span><input id="light-death" type="color" value="#dc2846" /></label>
+                <label class="set-row"><span>Clutch</span><input id="light-clutch" type="color" value="#ffc440" /></label>
+                <label class="set-row"><span>Queue pop</span><input id="light-queue" type="color" value="#ff5fa2" /></label>
+                <p class="sub">Each event can use its own colour.</p>
+                <div class="set-actions">
+                  <button class="tiny" id="set-broadcast" type="button">Open broadcast</button>
+                  <button class="tiny" id="set-light-test" type="button">Test lights</button>
+                </div>
+                <p class="sub">OpenRGB, WLED, or a window for OBS.</p>
+                <h2>Background</h2>
+                <p class="sub">Upload a picture and Valvet uses its colours.</p>
+                <div class="set-actions">
+                  <button class="tiny" id="set-bg" type="button">Upload background</button>
+                  <button class="tiny" id="set-bg-clear" type="button">Clear</button>
+                  <input id="set-bg-file" type="file" accept="image/*" hidden />
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="agent-sheet" id="agent-sheet" hidden>
+      <div class="sheet" id="agent-sheet-body"></div>
+    </div>
+    <div class="thanks" id="thanks" hidden>
+      <div class="tour-card">
+        <div class="wax" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg></div>
+        <div class="eyebrow">First open</div>
+        <h2>Thank you for trying my app</h2>
+        <p class="sub">If something breaks, tell me on Twitter.</p>
+        <div class="tour-actions">
+          <button type="button" class="tiny" id="thanks-x">Twitter</button>
+          <button type="button" class="tiny solid" id="thanks-go">Continue</button>
+        </div>
+      </div>
+    </div>
+    <div class="thanks" id="whats-new" hidden>
+      <div class="tour-card">
+        <div class="eyebrow">What's new</div>
+        <h2 id="notes-title">__VALVET__</h2>
+        <div id="notes-body"></div>
+        <div class="tour-actions">
+          <button type="button" class="tiny solid" id="notes-go">Continue</button>
+        </div>
+      </div>
+    </div>
+    <div class="tour" id="tour" hidden>
+      <div class="tour-card">
+        <div class="eyebrow" id="tour-kicker">Welcome</div>
+        <h2 id="tour-title">This is Valvet</h2>
+        <p class="sub" id="tour-body"></p>
+        <div class="tour-dots" id="tour-dots"></div>
+        <div class="tour-actions">
+          <button type="button" class="tiny" id="tour-skip">Skip tutorial</button>
+          <button type="button" class="tiny solid" id="tour-next">Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="zoom" id="zoom" hidden>
+      <img id="zoom-img" alt="" />
+      <video id="zoom-vid" hidden loop autoplay muted playsinline></video>
+      <b id="zoom-name"></b>
+      <button class="tiny solid" id="zoom-wish" type="button" hidden>Add to wishlist</button>
+      <button class="tiny" id="zoom-close" type="button">Close</button>
+    </div>
+    <div class="matchbox" id="matchbox" hidden>
+      <div class="sheet">
+        <div class="sheet-top">
+          <div>
+            <div class="eyebrow" id="sheet-kicker"></div>
+            <h2 id="sheet-title">Match</h2>
+          </div>
+          <button class="tiny" id="sheet-close" type="button">Close</button>
+        </div>
+        <div id="sheet-body"></div>
+      </div>
+    </div>
+    <div class="note-pop" id="note-pop" hidden>
+      <div class="note-sheet" role="dialog" aria-modal="true" aria-labelledby="note-title">
+        <div class="eyebrow">Friend note</div>
+        <h2 id="note-title">Friend</h2>
+        <p class="sub">Only you see this. It pings when they queue.</p>
+        <textarea id="note-text" maxlength="240" placeholder="A note for this friend" spellcheck="true"></textarea>
+        <div class="note-actions">
+          <button type="button" class="tiny" id="note-clear">Clear</button>
+          <button type="button" class="tiny" id="note-cancel">Cancel</button>
+          <button type="button" class="tiny solid" id="note-save">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="scrim" id="scrim" hidden>
+      <div class="drawer">
+        <button class="close" id="close" type="button">Close</button>
+        <div id="dossier"></div>
+      </div>
+    </div>
+    <div id="flash" class="flash" hidden></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
