@@ -1,6 +1,6 @@
 {
-  "version": 149,
-  "name": "1.8.24",
-  "notes": "Seen, ranks, and the session chart use a Valvet card. Today's game opens that match. Ranked games show RR. This week, friend search, and the played count are in. Find Duo is gone.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v149/Valvet.exe"
+  "version": 150,
+  "name": "1.8.25",
+  "notes": "The battle pass does not load when Valvet opens. Online Valorant and League friends are back on Live, with their state. The waiting cat is bigger again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v150/Valvet.exe"
 }
