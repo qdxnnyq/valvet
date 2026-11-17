@@ -1,6 +1,6 @@
 {
-  "version": 160,
-  "name": "1.8.35",
-  "notes": "A rank on the live board opens vtl.lol again. History and a player card use the games already saved on this PC.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v160/Valvet.exe"
+  "version": 161,
+  "name": "1.8.36",
+  "notes": "Ranks and peaks load again. History and player cards use the saved games. Party marks stay.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v161/Valvet.exe"
 }
