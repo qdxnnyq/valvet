@@ -324,8 +324,9 @@
         const list = document.getElementById("team-list");
         if (list) list.hidden = true;
         card.append(el("h2", null, [data.name || "Premier", data.tag ? "#" + data.tag : ""].filter(Boolean).join(" ")));
-        const bits = [data.division, data.points ? data.points + " pts" : ""].filter(Boolean).join(" · ");
+        const bits = [data.division, data.points ? data.points + " pts" : "", data.when ? "When " + data.when : ""].filter(Boolean).join(" · ");
         if (bits) card.append(el("p", "sub", bits));
+        if (data.maps) card.append(el("p", "sub", "Maps " + data.maps));
         if (!roster.length) card.append(el("p", "sub", "The client named the team and did not send the roster."));
         for (const mate of roster) card.append(el("div", "sub", [mate.name || "Player", mate.tag ? "#" + mate.tag : "", mate.role].filter(Boolean).join(" ")));
       }
@@ -375,12 +376,11 @@
         }
         return keys.map((key) => ({
           key,
-          ms: Math.max(session[key] || 0, matches[key] || 0) + (key === liveKey ? liveMs : 0),
+          ms: (matches[key] || 0) || (session[key] || 0),
           now: key === today,
-        }));
+        })).map((bar) => bar.key === liveKey ? { ...bar, ms: bar.ms + liveMs } : bar);
       }
       let sessionDay = 0;
-      let sessionLined = false;
       function dayMatches(key) {
         return (history || []).filter((match) => {
           const start = Number(match.started) || Date.parse(match.when || "");
@@ -426,21 +426,7 @@
           };
           plot.append(col);
         });
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("class", "month-line");
-        svg.setAttribute("viewBox", "0 0 300 100");
-        svg.setAttribute("preserveAspectRatio", "none");
-        const points = bars.map((bar, index) => {
-          const x = bars.length === 1 ? 150 : (index / (bars.length - 1)) * 300;
-          const y = 100 - Math.max(bar.ms ? 8 : 2, Math.round((bar.ms / max) * 92));
-          return x.toFixed(1) + "," + y.toFixed(1);
-        }).join(" ");
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-        line.setAttribute("points", points);
-        if (!sessionLined) line.classList.add("draw");
-        svg.append(line);
-        sessionLined = true;
-        plot.append(svg, guide, tip);
+        plot.append(guide, tip);
         plot.onmousemove = (event) => {
           const box = plot.getBoundingClientRect();
           if (!box.width || !bars.length) return;
@@ -501,7 +487,7 @@
         for (const row of rows) closed += Math.max(0, row.end - row.start);
         let played = 0;
         for (const match of games) played += matchMs(match);
-        let total = Math.max(closed, played);
+        let total = games.length ? played : closed;
         if (open && open.start) total += Math.max(0, Date.now() - open.start);
         if (games.length) {
           for (const match of games) {
@@ -1089,11 +1075,27 @@
             root.append(el("p", "sub", "No replay files saved yet. They copy over after Valorant downloads one."));
             return;
           }
+          const groups = new Map();
           for (const row of rows) {
-            const line = el("div", "status-line");
-            const label = el("b", null, row.name || "Replay");
-            const meta = el("span", "subline", [row.patch || "Patch unknown", row.saved ? "saved" : ""].filter(Boolean).join(" · "));
-            line.append(label, meta);
+            const name = String(row.name || "").toLowerCase();
+            const hit = (history || []).find((match) => {
+              const id = String(match.id || "").toLowerCase();
+              return id && name.includes(id);
+            });
+            const map = hit ? (mapName(hit.map) || hit.map || "Map") : (row.patch ? "Patch " + row.patch : "Other");
+            const score = hit && hit.score1 != null && hit.score2 != null ? hit.score1 + "–" + hit.score2 : "";
+            const list = groups.get(map) || [];
+            list.push({ row, score, map });
+            groups.set(map, list);
+          }
+          for (const [map, list] of groups) {
+            root.append(el("h2", null, map));
+            for (const item of list) {
+              const row = item.row;
+              const line = el("div", "status-line");
+              const label = el("b", null, row.name || "Replay");
+              const meta = el("span", "subline", [item.score, row.patch || "Patch unknown", row.saved ? "saved" : ""].filter(Boolean).join(" · "));
+              line.append(label, meta);
             if (data && data.game) {
               const open = el("button", "tiny", "Open in Valorant");
               open.type = "button";
@@ -1110,6 +1112,7 @@
               line.append(open);
             }
             root.append(line);
+            }
           }
         } catch {
           root.replaceChildren(el("p", "sub", "Replay files could not be read."));
@@ -1215,6 +1218,16 @@
         target.placeholder = "280";
         target.value = localStorage.getItem("valvet-edpi-target") || "";
         want.append(target);
+        const pal = el("label", "edpi-in");
+        pal.append(el("span", null, "Friend eDPI"));
+        const friend = document.createElement("input");
+        friend.type = "number";
+        friend.min = "1";
+        friend.max = "20000";
+        friend.step = "1";
+        friend.placeholder = "Their eDPI";
+        friend.value = localStorage.getItem("valvet-friend-edpi") || "";
+        pal.append(friend);
         const out = el("div", "edpi-out");
         const pretty = (n) => {
           if (!Number.isFinite(n)) return "—";
@@ -1225,6 +1238,7 @@
           const dpi = Number(input.value);
           localStorage.setItem("valvet-dpi", input.value || "");
           localStorage.setItem("valvet-edpi-target", target.value || "");
+          localStorage.setItem("valvet-friend-edpi", friend.value || "");
           out.replaceChildren();
           const chip = (k, v) => {
             const card = el("article");
@@ -1243,10 +1257,16 @@
           if (scoped && scoped !== 1) out.append(chip("Scoped eDPI", pretty(edpi * scoped)));
           const goal = Number(target.value);
           if (Number.isFinite(goal) && goal > 0) out.append(chip("Set sens", pretty(goal / dpi)));
+          const theirs = Number(friend.value);
+          if (Number.isFinite(theirs) && theirs > 0) {
+            const gap = Math.round(edpi - theirs);
+            out.append(chip("Friend", pretty(theirs) + (gap ? " · you " + (gap > 0 ? "+" : "") + gap : "")));
+          }
         };
         input.oninput = draw;
         target.oninput = draw;
-        box.append(field, chips, want, out, el("p", "sub hint", "eDPI is DPI × sensitivity. cm/360 uses Valorant's 0.07 yaw."));
+        friend.oninput = draw;
+        box.append(field, chips, want, pal, out, el("p", "sub hint", "eDPI is DPI × sensitivity. cm/360 uses Valorant's 0.07 yaw."));
         draw();
         return box;
       }

@@ -402,7 +402,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	}
 	presenceHints := map[string]partyHint{}
 	if live && len(players) > 0 {
-		pctx, cancelPresence := context.WithTimeout(ctx, 1200*time.Millisecond)
+		pctx, cancelPresence := context.WithTimeout(context.Background(), 200*time.Millisecond)
 		presenceHints = c.stampLivePresence(pctx, port, auth, players)
 		cancelPresence()
 		if matchID != "" {
@@ -518,16 +518,9 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		}
 		members := []string{}
 		{
-			pctx, cancelParty := context.WithTimeout(ctx, 800*time.Millisecond)
+			pctx, cancelParty := context.WithTimeout(context.Background(), 200*time.Millisecond)
 			members = c.myPartyMembers(pctx, port, auth, me)
 			cancelParty()
-		}
-		if mine != "" {
-			pctx, cancelLocal := context.WithTimeout(ctx, 800*time.Millisecond)
-			if extra := c.localPartyMembers(pctx, port, auth, mine); len(extra) >= 2 {
-				members = extra
-			}
-			cancelLocal()
 		}
 		if mine == "" && len(members) >= 2 {
 			mine = "mine"
@@ -601,5 +594,13 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	c.mu.Lock()
 	out.FriendIDs = append([]string(nil), c.friendIDs...)
 	c.mu.Unlock()
+	nowLive := phase == "Agent select" || phase == "In game" || phase == "Loading lobby"
+	wasLive := prevPhase == "Agent select" || prevPhase == "In game" || prevPhase == "Loading lobby"
+	if nowLive && !wasLive {
+		appLog("match found")
+	}
+	if !nowLive && wasLive {
+		appLog("match lost")
+	}
 	return out
 }

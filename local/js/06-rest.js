@@ -211,14 +211,15 @@
         audio.play().catch(() => {});
       }
       playHello();
+      const frameTitle = document.getElementById("frame-title");
+      if (frameTitle) frameTitle.textContent = NOTES_VER;
       checkUpdate(false);
-      setTimeout(() => checkUpdate(false), 20000);
       tick();
       armTick();
       loadAct(true);
       tickMastery();
       setInterval(tickMastery, 20000);
-      setInterval(() => checkUpdate(false), 180000);
+      setInterval(() => checkUpdate(false), 3600000);
       setInterval(loadSocial, 20000);
       setInterval(() => { if (!tabHidden("profile") && !tabHidden("history")) tickRR(); }, 60000);
       if (!tabHidden("profile") && !tabHidden("history")) tickRR();
@@ -226,12 +227,13 @@
       setInterval(() => { if (tab === "store" || tab === "pass") paintNightClock(); }, 1000);
       const TOUR = [
         { tab: "live", mark: "you", kicker: "Start", title: "This is Valvet", body: "Valvet reads the Riot Client already open on this PC. It never asks for your password. Your name on the left opens your profile. Leave the client open and the pages fill in." },
-        { tab: "live", mark: "wait", kicker: "Live", title: "The match", body: "This is the live page. When a game is found, your side is on the left and the other side is on the right. Each row is the name, the agent, the party, and the rank. A coloured line is a party." },
+        { tab: "live", mark: "wait", kicker: "Live", title: "The match", body: "This is the live page. When a game is found, your side is on the left and the other side is on the right. Each row is the agent, the name, the rank, the peak, and the party." },
+        { tab: "live", mark: "board", kicker: "Live", title: "Party and peak", body: "The rank bubble is the current rank. The pink bubble is the peak. The letter bubble is the party. They pop in when they load. The rest of the row stays put." },
         { tab: "live", mark: "post", kicker: "After the match", title: "The result", body: "When the match ends, this card shows the score. Copy card saves a picture. The cat is the win or the loss." },
         { tab: "friends", mark: "friend-switch", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. Online and offline are the switch. An empty list stays empty." },
         { tab: "history", mark: "hist-switch", kicker: "History", title: "Matches and replays", body: "Matches is this act. Replay files is the other switch. Those are the .vrf files Valorant downloaded. Open in Valorant starts the game, not a file picker." },
         { tab: "history", mark: "recent", kicker: "History", title: "A game", body: "Filters sit on top. Click a game to open it. The two teams are sorted, not one long row. Play the round draws the kill lines on the map and can save an mp4." },
-        { tab: "session", mark: "session", kicker: "Session", title: "Time played", body: "The chart is the last 30 days. Click a day for the matches from that day. The clock is time played since 6:00 am." },
+        { tab: "session", mark: "session", kicker: "Session", title: "Time played", body: "The chart is the last 30 days. Click a day for the matches from that day. The clock is the length of today's games, from 6:00 am, not only the time this window was open." },
         { tab: "seen", mark: "seen", kicker: "Seen", title: "Who is around", body: "Green is on the client or in a game, with where they are. Yellow is AFK. The rest is the last time and place. Riot Mobile is ignored." },
         { tab: "store", mark: "store", kicker: "Store", title: "Today's store", body: "Daily offers, the night market, and Kingdom Credits. Wish sits under the price. Owned stays on the card." },
         { tab: "bundle", mark: "bundle", kicker: "Bundle", title: "Featured bundle", body: "The poster is the bundle. Click it to open the items. Click again to close it. The cards match the store." },
@@ -242,18 +244,18 @@
         { tab: "pass", mark: "pass", kicker: "Pass", title: "Battle pass", body: "Level, XP, and the time left. Reward tiles stay square. A free pass, if Riot ships one, shows on this page." },
         { tab: "records", mark: "records", kicker: "Records", title: "Records", body: "Agent records from the games saved on this PC. Sort them. This is your own history, not a website." },
         { tab: "maps", mark: "maps", kicker: "Maps", title: "Maps", body: "Each map is the minimap. Bigger fits the picture in the window. Esc or Close leaves it." },
-        { tab: "deaths", mark: "deaths", kicker: "Heat", title: "Heat", body: "Deaths and kills on the minimap. The circles stay small so the map behind them is still visible." },
+        { tab: "deaths", mark: "deaths", kicker: "Spots", title: "Spots", body: "Kills and deaths on the minimap. The circles stay small so the map behind them is still visible." },
         { tab: "clutches", mark: "clutches", kicker: "Clutches", title: "Clutches", body: "1v1, 1v2, and 1v3 are separate. A clutch counts only if you were last alive and the round went your way. Losses stay losses." },
-        { tab: "queues", mark: "queues", kicker: "Duos", title: "Duos", body: "Who you queue with, from the games saved here. Two players can sit side by side." },
+        { tab: "queues", mark: "queues", kicker: "Queues", title: "Queues", body: "Who you queue with, from the games saved here. Two players can sit side by side." },
         { tab: "team", mark: "team", kicker: "Team", title: "Premier", body: "Your Premier team, when the client has one. The roster is the people on that team." },
         { tab: "news", mark: "news", kicker: "News", title: "News", body: "Official posts and upcoming bundles. Open a card to read it on playvalorant.com. The list is saved until it is old." },
         { tab: "patches", mark: "patches", kicker: "Patches", title: "Patch notes", body: "Official notes. My agents filters them to the agents you play. Notes stay saved on this PC." },
-        { tab: "alerts", mark: "watch-block", kicker: "Trace", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked. If they finish a game you were not in, Trace blinks with the map and the time." },
+        { tab: "alerts", mark: "watch-block", kicker: "Watch", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked. If they finish a game you were not in, Watch blinks with the map and the time." },
         { tab: "crosshairs", mark: "pane-crosshairs", kicker: "Crosshairs", title: "Crosshairs", body: "Paste a code, name it, and keep a set on this PC. Pro codes are a button on this page. Valvet does not read the crosshair out of Valorant." },
         { tab: "game", mark: "game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Type your mouse DPI for eDPI, cm/360, and a target eDPI." },
         { tab: "settings", mark: "sample-swatches", set: "look", kicker: "Look", title: "Colour", body: "Pick a preset, or upload a picture and Valvet takes the colours from it. Corners, motion, and glass are on this same card." },
         { tab: "settings", mark: "sound-card", set: "sound", kicker: "Sounds", title: "Sounds", body: "Sounds are a tab in Settings, not a page of their own. Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume." },
-        { tab: "settings", mark: "window-card", set: "window", kicker: "Window", title: "Window", body: "Size, start with Windows, and Live only. Live only keeps the match and leaves the other pages off. Pause lookups waits on headshot and combat score. Parties stay." },
+        { tab: "settings", mark: "window-card", set: "window", kicker: "Window", title: "Window", body: "Size, start with Windows, and Live only. Live only keeps the match and leaves the other pages off. Pause lookups waits on headshot, damage, and combat score. Parties, names, and the live board stay." },
         { tab: "settings", mark: "share-card", set: "share", kicker: "Share", title: "Share", body: "Your id is hidden until you press Show. Copy it, or paste a friend's id to share queue, map, and score." },
         { tab: "settings", mark: "discord-card", set: "discord", kicker: "Discord", title: "Discord", body: "A webhook for alerts. Discord has to be open. Test Discord sends one message." },
         { tab: "settings", mark: "backup-card", set: "backup", kicker: "Backup", title: "Backup and update", body: "One file for settings, the watch list, wishes, and crosshairs. Check for update is on this card. The pink bar at the top is the same update." },
@@ -262,6 +264,20 @@
       let tourAt = 0;
       function tourList() {
         return TOUR.filter((step) => step && !tabHidden(step.tab) && document.getElementById(step.mark));
+      }
+      function tourPart(step) {
+        const name = (step && step.tab) || "";
+        if (name === "settings" || name === "crosshairs" || name === "game") return "settings";
+        if (["store", "bundle", "esports", "loadout", "agents", "profile", "pass"].indexOf(name) >= 0) return "shop";
+        if (["history", "session", "seen", "records", "maps", "deaths", "clutches", "queues", "team", "news", "patches", "alerts"].indexOf(name) >= 0) return "book";
+        return "live";
+      }
+      function jumpTour(part) {
+        const steps = tourList();
+        const index = steps.findIndex((step) => tourPart(step) === part);
+        if (index < 0) return;
+        tourAt = index;
+        renderTour();
       }
       function renderTour() {
         const steps = tourList();
@@ -335,10 +351,15 @@
         const card = document.getElementById("whats-new");
         const title = document.getElementById("notes-title");
         if (!body || !card) return;
-        const note = APP_NOTES[0];
+        const notes = (typeof visibleNotes === "function" ? visibleNotes() : APP_NOTES).slice(0, 5);
+        const note = notes[0];
         if (title) title.textContent = (note && note.ver) || NOTES_VER;
         body.replaceChildren();
-        for (const line of (note && note.lines) || []) body.append(el("p", "sub", line));
+        for (const item of notes) {
+          if (!item) continue;
+          body.append(el("p", "sub", item.ver));
+          for (const line of item.lines || []) body.append(el("p", "sub", line));
+        }
         card.hidden = false;
       }
       function closeTour() {
@@ -359,6 +380,9 @@
         quietNav = false;
       }
       document.getElementById("tour-skip").onclick = closeTour;
+      document.querySelectorAll("#tour-jumps button").forEach((button) => {
+        button.onclick = () => jumpTour(button.dataset.part);
+      });
       document.getElementById("tour-next").onclick = () => {
         if (tourAt >= tourList().length - 1) closeTour();
         else { tourAt += 1; renderTour(); }
@@ -529,7 +553,7 @@
         const wait = start ? Math.max(0, Date.now() - start) : 0;
         const you = ((data && data.players) || []).find((player) => player.you) || ((data && data.party) || []).find((player) => player.you);
         const rows = readJSON("valvet-pops") || [];
-        rows.push({ t: Date.now(), hour: new Date().getHours(), wait, rank: (you && you.rank) || "" });
+        rows.push({ t: Date.now(), hour: new Date().getHours(), wait, mode: (data && (data.mode || data.queue)) || "", rank: (you && you.rank) || "" });
         writeJSON("valvet-pops", rows.slice(-180));
         localStorage.removeItem("valvet-queue-start");
         paintQueueClock();

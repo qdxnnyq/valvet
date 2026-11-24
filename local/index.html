@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Valvet</title>
+    <title>Valvet __VALVET__</title>
     <link rel="stylesheet" href="/app.css" />
     <link rel="stylesheet" href="/app-live.css" />
     <link rel="stylesheet" href="/app-history.css" />
@@ -62,14 +62,14 @@
           <div class="nav-label">Book</div>
           <button id="tab-records" type="button">Records</button>
           <button id="tab-maps" type="button">Maps</button>
-          <button id="tab-deaths" type="button">Heat</button>
+          <button id="tab-deaths" type="button">Spots</button>
           <button id="tab-clutches" type="button">Clutches</button>
-          <button id="tab-queues" type="button">Duos</button>
-          <button id="tab-team" type="button">Team</button>
+          <button id="tab-queues" type="button">Queues</button>
+          <button id="tab-team" type="button">Premier</button>
           <button id="tab-news" type="button">News</button>
           <div class="nav-label">More</div>
           <button id="tab-patches" type="button">Patches</button>
-          <button id="tab-alerts" type="button">Trace</button>
+          <button id="tab-alerts" type="button">Watch</button>
           <button id="tab-crosshairs" type="button">Crosshairs</button>
           <button id="tab-game" type="button">Game</button>
         </nav>
@@ -90,7 +90,6 @@
             <div id="today" class="today"></div>
             <section class="post" id="post" hidden>
               <div class="post-top">
-                <div id="post-cat" class="mood-box post-cat" hidden></div>
                 <div>
                   <div class="eyebrow" id="post-kicker">Last game</div>
                   <h2 id="post-title">Match over</h2>
@@ -98,13 +97,16 @@
                 </div>
                 <div class="post-score" id="post-score"></div>
               </div>
-              <div class="post-stats" id="post-stats"></div>
+              <div class="post-mid">
+                <div id="post-cat" class="mood-box post-cat" hidden></div>
+                <div class="post-stats" id="post-stats"></div>
+                <div class="post-actions">
+                  <button type="button" class="tiny" id="post-copy">Copy</button>
+                  <button type="button" class="tiny" id="post-save">Save</button>
+                </div>
+              </div>
               <div id="post-rounds"></div>
               <div id="post-death" hidden></div>
-              <div class="post-actions">
-                <button type="button" class="tiny" id="post-copy">Copy card</button>
-                <button type="button" class="tiny" id="post-save">Save image</button>
-              </div>
             </section>
             <div id="stage" class="stage" hidden></div>
             <div class="lobby-band">
@@ -142,6 +144,7 @@
             </div>
           </div>
           <div class="empty" id="note" hidden>Queue any mode. The match shows up under the lobby.</div>
+          <section class="veto" id="veto" hidden></section>
           <section class="live" id="status" hidden>
             <div>
               <div class="eyebrow" id="mode"></div>
@@ -304,8 +307,8 @@
         <section id="pane-alerts" hidden>
           <header class="page-hero">
             <div>
-              <div class="eyebrow">Trace</div>
-              <h1>Trace</h1>
+              <div class="eyebrow">Watch</div>
+              <h1>Watch</h1>
               <p class="sub">Watch list, name changes, and wallet history.</p>
             </div>
           </header>
@@ -384,7 +387,7 @@
           <div id="maps" class="empty">Maps show up here.</div>
         </section>
         <section id="pane-deaths" hidden>
-          <header class="page-hero"><div><div class="eyebrow">Maps</div><h1>Heat</h1><p class="sub">Where you died, and where your kills landed.</p></div></header>
+          <header class="page-hero"><div><div class="eyebrow">Maps</div><h1>Spots</h1><p class="sub">Kills and deaths on the minimap.</p></div></header>
           <div id="deaths" class="empty">Death spots show up after the next games.</div>
         </section>
         <section id="pane-clutches" hidden>
@@ -392,11 +395,11 @@
           <div id="clutches" class="empty">Clutches show up after the next games.</div>
         </section>
         <section id="pane-queues" hidden>
-          <header class="page-hero"><div><div class="eyebrow">Together</div><h1>Duos</h1><p class="sub">Friends you queued with, and how long you played.</p></div></header>
+          <header class="page-hero"><div><div class="eyebrow">Together</div><h1>Queues</h1><p class="sub">Friends you queued with, and how long you played.</p></div></header>
           <div id="queues" class="empty">Duo history shows up after saved games.</div>
         </section>
         <section id="pane-team" hidden>
-          <header class="page-hero"><div><div class="eyebrow">Roster</div><h1>Team</h1><p class="sub">Premier from the client on this PC. A typed roster is only there when Premier is not.</p></div></header>
+          <header class="page-hero"><div><div class="eyebrow">Roster</div><h1>Premier</h1><p class="sub">Premier from the client on this PC. A typed roster is only there when Premier is not.</p></div></header>
           <div id="team" class="empty">Name the team and add Name#Tag.</div>
         </section>
         <section id="pane-session" hidden>
@@ -473,7 +476,7 @@
                 </select>
               </label>
               <label class="set-row"><span>Custom alert</span><input id="set-notify-file" type="file" accept="audio/*" /></label>
-              <label class="set-row" id="row-friend-sound"><span>Friend in your game</span>
+              <label class="set-row" id="row-friend-sound"><span>Friend in your game, not your party</span>
                 <select id="set-friend-sound">
                   <option value="none">None</option>
                   <option value="pack">Same as alert</option>
@@ -636,17 +639,17 @@
                 <p class="sub">Hide pages you do not use. Live and Settings stay.</p>
                 <div id="hide-pages" class="hide-pages"></div>
                 <h2>Log</h2>
-                <p class="sub">Riot client closed, a missing queue, and a failed update land here.</p>
+                <p class="sub">Riot client closed, a match found, a match lost, and a failed update land here.</p>
                 <div class="set-actions"><button class="tiny" id="set-log" type="button">Open log</button></div>
                 <pre id="app-log" class="app-log" hidden></pre>
                 </div>
               </section>
               <section class="set-card" id="backup-card" data-set="backup">
-                <div class="eyebrow">This PC</div>
+                <div class="eyebrow">This PC · __VALVET__</div>
                 <h2>Backup</h2>
                 <p class="sub">One file for this PC: settings, watch list, wishes, crosshairs, and the sounds you picked. Import puts that file back. The pink update bar still reads the public version list.</p>
                 <h2>Update</h2>
-                <p class="sub" id="build-line"></p>
+                <p class="sub" id="build-line">Valvet __VALVET__</p>
                 <div class="set-actions">
                   <button class="tiny" id="set-update" type="button">Check for update</button>
                 </div>
@@ -771,6 +774,12 @@
     </div>
     <div class="tour" id="tour" hidden>
       <div class="tour-card">
+        <div class="tour-jumps" id="tour-jumps">
+          <button type="button" data-part="live">Live</button>
+          <button type="button" data-part="book">Book</button>
+          <button type="button" data-part="shop">Shop</button>
+          <button type="button" data-part="settings">Settings</button>
+        </div>
         <div class="eyebrow" id="tour-kicker">Welcome</div>
         <h2 id="tour-title">This is Valvet</h2>
         <p class="sub" id="tour-body"></p>

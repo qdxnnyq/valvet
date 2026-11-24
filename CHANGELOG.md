@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.25
+
+First time: ValvetSetup.exe. After that, the pink bar.
+
+Ranked agent select shows a short note from the last five games. Custom and Premier lobbies show map win rates. The act poster saves rank start, rank end, and the most played duo. Replays group by map and score. Session time is the length of the games.
+
 ## 1.9.24
 
 Session time counts the full length of today's games.

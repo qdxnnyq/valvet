@@ -326,5 +326,24 @@
       body[data-corners="round"] .seen-tip { border-radius: 22px; }
       body.glass .seen-tip { background-color: #160d13; background-image: linear-gradient(165deg, rgba(255,95,162,.16), rgba(255,95,162,.04) 28%, rgba(16,8,13,.15)); border-color: rgba(255, 95, 162, .42); backdrop-filter: blur(16px) saturate(1.35); }
       .desk-card .map-stage .call { max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
+      #pane-live.match .live-agent { color: var(--muted); font-size: 12px; font-weight: 650; flex: none; }
+      #pane-live.match .live-brief { margin-top: 2px; color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      @keyframes pillIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+      #pane-live.match .hrank, #pane-live.match .squad { animation: pillIn .22s ease; }
+      body[data-motion="calm"] #pane-live.match .hrank, body[data-motion="calm"] #pane-live.match .squad { animation: none; }
+      .veto { margin: 0 0 12px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: #160d14; display: grid; gap: 6px; }
+      .veto-row { color: var(--ink); font-size: 13px; }
+      .reward, .collect-card { position: relative; overflow: hidden; border-radius: 10px; background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 28%), repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 7px), #120c10; border: 1px solid rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 12px 26px rgba(0,0,0,.35); }
+      .reward img, .collect-card img { width: 100%; object-fit: contain; background: radial-gradient(90px 28px at 50% 86%, rgba(0,0,0,.55), transparent 70%), #0c080b; }
+      .collect-grid, #loadout .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+      :root { --title: 30px; --pill: 28px; }
+      h1, .page-hero h1, #pane-settings .set-hero h1, #pane-live.match #status h1, #pane-live > .wait h1, .bundle-poster h1 { font-size: var(--title); line-height: 1.05; }
+      button.tiny, .set-switch button, .wallet-filter, .hist-pick { height: var(--pill); }
+      body[data-size="compact"] h1, body[data-size="compact"] .page-hero h1, body[data-size="compact"] #pane-live > .wait h1 { font-size: 24px; }
+      .tour-jumps { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+      .tour-jumps button { height: 28px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 0 10px; cursor: pointer; }
+      .tour-jumps button:hover { border-color: var(--accent); }
+      #replay-list h2 { margin: 12px 0 6px; }
+
     
 

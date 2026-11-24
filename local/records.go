@@ -379,14 +379,26 @@ func guessLength(mode string, rounds int) int {
 	m := strings.ToLower(mode)
 	switch {
 	case strings.Contains(m, "deathmatch"), strings.Contains(m, "escalation"), strings.Contains(m, "replication"):
-		return 10 * 60 * 1000
+		return 10 * 60
 	case strings.Contains(m, "spike"), strings.Contains(m, "swift"), strings.Contains(m, "snowball"), strings.Contains(m, "hurm"):
-		return 14 * 60 * 1000
+		return 14 * 60
 	}
 	if rounds > 0 {
-		return rounds * 100000
+		return rounds * 100
 	}
-	return 35 * 60 * 1000
+	return 35 * 60
+}
+
+// lengthMillis treats a stored match length as seconds, unless it is already
+// milliseconds. Records, duo time, and the session clock all use this.
+func lengthMillis(length int) int {
+	if length >= 100000 {
+		return length
+	}
+	if length > 0 {
+		return length * 1000
+	}
+	return 0
 }
 
 func statDayStart(t time.Time) time.Time {
@@ -628,7 +640,7 @@ func takeFace(book map[string]*faceTally, face recordFace, won *bool, length int
 		book[id] = row
 	}
 	row.games++
-	row.ms += length
+	row.ms += lengthMillis(length)
 	if won != nil {
 		if *won {
 			row.wins++
@@ -1177,7 +1189,7 @@ func (c *riotClient) kickWatch(sess riotSession) {
 			mapName = rows[0].Map
 			finished = rows[0].Started
 			if rows[0].Length > 0 && finished > 0 {
-				finished += int64(rows[0].Length) * 1000
+				finished += int64(lengthMillis(rows[0].Length))
 			}
 		}
 		if finished == 0 {

@@ -530,7 +530,6 @@
       function playResult(kind, force) {
         const pick = localStorage.getItem(kind === "loss" ? "valvet-loss" : "valvet-win") || (kind === "loss" ? "sad" : "gg");
         if (pick === "none") return;
-        if (!force && sessionStorage.getItem("valvet-mute-results") === "1") return;
         if (!force && quietNow()) return;
         const vol = resultVolume();
         if (vol <= 0) return;
@@ -820,7 +819,9 @@
       let nightWas = false;
       function syncNight(shop) {
         const open = ((shop && shop.night) || []).length > 0;
-        if (nightReady && open && !nightWas && localStorage.getItem("valvet-night") === "on") playPack();
+        if (nightReady && open && !nightWas && localStorage.getItem("valvet-night") === "on") {
+          playNotes([784, 988, 1174, 1568], "triangle", 0.16, false, { step: 0.08, decay: 4 });
+        }
         nightWas = open;
         nightReady = true;
       }
@@ -900,11 +901,9 @@
         roundMark = now;
         const line = now.us + " – " + now.them + (data.map ? " · " + data.map : "");
         if (now.us > prev.us && now.them === prev.them) {
-          edgeFlash("win");
           lightEvent("kill");
           if (localStorage.getItem("valvet-discord-rounds") !== "off") postDiscord("Round won", line);
         } else if (now.them > prev.them && now.us === prev.us) {
-          edgeFlash("loss");
           lightEvent("death");
           if (localStorage.getItem("valvet-discord-rounds") !== "off") postDiscord("Round lost", line);
         }

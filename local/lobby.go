@@ -79,9 +79,6 @@ func activity(priv map[string]any, availability, product string) (state, mode, m
 			mode = ""
 		}
 	}
-	if state == "In game" && mode == "" {
-		appLog("no queue in presence")
-	}
 	mapPath := str(presencePick(priv, "matchMap", "MatchMap"))
 	if mapPath == "" {
 		mapPath = str(presencePick(priv, "partyOwnerMatchMap", "PartyOwnerMatchMap"))

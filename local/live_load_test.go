@@ -105,6 +105,48 @@ func TestEveryLiveStackIsLabeled(t *testing.T) {
 	}
 }
 
+func TestFiveStackDuoAndSolos(t *testing.T) {
+	hints := map[string]partyHint{}
+	for _, id := range []string{"s1", "s2", "s3", "s4", "s5"} {
+		hints[id] = partyHint{id: "stack"}
+	}
+	hints["d1"] = partyHint{id: "duo"}
+	hints["d2"] = partyHint{id: "duo"}
+	hints["a"] = partyHint{id: "solo-a"}
+	hints["b"] = partyHint{id: "solo-b"}
+	hints["c"] = partyHint{id: "solo-c"}
+	grouped := groupsOf(hints)
+	players := make([]player, 0, len(hints))
+	for id := range hints {
+		players = append(players, player{PUUID: id})
+	}
+	markParties(players, grouped)
+	got := map[string]string{}
+	for _, p := range players {
+		got[p.PUUID] = p.Party
+	}
+	if got["s1"] == "" || got["s1"] != got["s5"] {
+		t.Fatalf("5-stack %+v", got)
+	}
+	if got["d1"] == "" || got["d1"] != got["d2"] || got["d1"] == got["s1"] {
+		t.Fatalf("duo %+v", got)
+	}
+	for _, id := range []string{"a", "b", "c"} {
+		if got[id] != "" {
+			t.Fatalf("solo %s labeled %q", id, got[id])
+		}
+	}
+}
+
+func TestLengthMillisKeepsALongGame(t *testing.T) {
+	if got := lengthMillis(40 * 60); got != 40*60*1000 {
+		t.Fatalf("40 minute game became %d ms", got)
+	}
+	if got := lengthMillis(40 * 60 * 1000); got != 40*60*1000 {
+		t.Fatalf("already-ms length became %d", got)
+	}
+}
+
 type rewriteHost struct {
 	base http.RoundTripper
 	host string

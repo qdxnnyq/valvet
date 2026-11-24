@@ -4,7 +4,7 @@ Valvet is a local Windows companion for the Valorant session already running on 
 
 The file is not bound to an account. Valvet can only see the account signed into the Riot Client on that machine.
 
-![Live match, ranks, and team averages](docs/shots/live.png)
+![Live board. Each row is the agent, the name, the rank, the peak, and the party.](docs/shots/live.png)
 
 ## Install
 
@@ -30,9 +30,11 @@ Match history uses the same session and the same rank fields as the live board. 
 
 ## Live
 
-During agent select and in game, each side shows agent, KDA, headshot percent, ADR, rank icon, rank, and RR. The side header is the average competitive tier on that side. An unranked player with a stored peak is labeled Peak, with a Not active mark, and still counts toward that average. Enemy groups of two or more are marked as a stack.
+During agent select and in game, each row is the agent, the name, the current rank, the peak, and the party. Rank and party are the same bubbles as match history. They pop in when they load. A party is a 2px edge and the letter bubble, not a glow across the row. The side header is the average competitive tier on that side.
 
-The phase line shows server, party average, enemy average, and this PC's record on the current map. A daily challenge is computed from recent games.
+On a ranked agent select, an enemy row also shows the last five shared competitive games, the agent they play most, and whether you have beaten them. Other modes stay the same row.
+
+The phase line shows server, party average, enemy average, and this PC's record on the current map. While you sit in queue, the wait line shows the usual wait for that mode. A custom or Premier lobby shows your map win rates.
 
 ## Match history
 
@@ -48,11 +50,11 @@ History ranks are the same MMR result as the live board, including the Peak labe
 
 The player card, title, level, and agent mastery come from the local account. Under that, Valvet keeps every decided game from the current act. History, duos, clutches, heat, and records use that same act. When the next act starts, the previous one drops off.
 
-Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC. History, duos, clutches, heat, and records all use the current act.
+Friend win rate counts only Riot friends, and only after two decided games together. Random teammates are excluded. A rival is an enemy faced at least twice. Each weapon shows finishing kills and headshot percent. Each map shows its win rate. A daily chart tracks HS, ACS, and kills. A new day starts at 6:00 am local time on that PC. History, queues, clutches, spots, and records all use the current act.
 
-## Trace
+## Watch
 
-Trace is not match history.
+Trace is not match history. The page is Watch.
 
 - **Watch list.** Any `Name#Tag`, friend or not. If they are in your lobby or your match, the row is marked and the watch-list notification can play. If they finish a match you were not in, Valvet reports that new match id once.
 - **Unfriends.** Riot friends present on one read and missing on the next.
@@ -65,23 +67,19 @@ The wishlist is a pin list across weapon skins and the Kingdom Credits catalog. 
 
 Store covers daily offers, Kingdom Credits, and the night market. The featured bundle, esports capsules, equipped collection, agent kits, battle pass, missions, patch notes, and news are separate pages. Esports shows active and upcoming events in a row, moved with Previous and Next. A card opens the event page. Capsules open to the items inside. If Riot ships a free pass, it shows on the Pass page next to the current one, with how long is left in the act. Crosshairs are paste and export only. Valvet does not read a crosshair off the PC.
 
-The Book pages are records, maps, death spots, clutches, duos, session time, last seen, and a custom roster. Duos count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and deaths use the minimap. Bigger fits that map in the window.
+The Book pages are records, maps, spots, clutches, queues, session time, last seen, and Premier. Queues count Riot friends only. Seen ignores Riot Mobile and stamps the time they came online in the client or a game. Maps and spots use the minimap. Bigger fits that map in the window. The session clock and the 30-day chart are the length of the games, not only the time the window was open.
 
 The Game page reads the graphics and sensitivity Valorant is using on this PC. Sensitivity is the slider from RiotUserSettings, not the Unreal default. Copy puts that list on the clipboard.
 
 A background image can recolor the app from the picture. Live-only mode loads Live and Settings and skips the rest.
 
-## Find Duo
+## Share
 
-Find Duo is in beta. It is a board of posts, not a live queue. You write what you are looking for: roles, modes, server, queue, rank range, and an optional note. Age and gender are optional. The board can be filtered by server, queue, mode, age, and gender. Do not post if you are under 16.
-
-After you play with someone, you can rate them from 1 to 5. The leaderboard lists people on the board who have a 4 or 5 average, sorted by the saved games on their PC. A post stays on the board for about 12 hours.
-
-Settings also creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings. It is not the public board.
+The public Find Duo board is not in the app. Settings still creates a private id. That id is a second channel between two installs: queue, map, score, shared wishes, and watch-list pings.
 
 ## Sounds
 
-Alerts, a friend appearing in your match, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss are separate controls. Win and loss play only after the match result is written, not when a round ends. A round only flashes the window edge. Changing tabs does not play a sound.
+Alerts, a friend appearing in your match who is not already in your party, a watched player appearing in your lobby or match, a watched player finishing their own match, wishlist, win, and loss are separate controls. The night market has its own sound. Win and loss play only after the match result is written, not when a round ends. The result card has one thin line across the top. Changing tabs does not play a sound.
 
 Quiet hours mute the alerts. They do not mute the post-match win or loss. Any of those sounds can be replaced with a local file. Preview plays the selected file immediately.
 

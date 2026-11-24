@@ -1,34 +1,27 @@
-      const rankSeen = new Map();
-      function liveRank(player) {
-        player = player || {};
-        const peaked = !!player.rankPeak || ((!player.rank || player.rank === "Unranked") && !!player.peak);
-        const name = peaked ? (player.peak || player.rank || "Unranked") : (player.rank || "Unranked");
-        const icon = peaked ? (player.peakIcon || player.rankIcon) : player.rankIcon;
-        const box = el("button", "live-rank coin" + (peaked ? " peaked" : ""));
-        box.type = "button";
-        const token = String(player.puuid || player.name || "") ;
-        const coin = token + ":" + name + ":" + (player.rr || "");
-        if (token && rankSeen.has(token) && rankSeen.get(token) !== coin) box.classList.add("flip");
-        if (token) rankSeen.set(token, coin);
-        if (icon) {
-          const img = document.createElement("img");
-          img.alt = "";
-          img.src = icon;
-          box.append(img);
+      function isRankedSelect(mode) {
+        return latestState && latestState.phase === "Agent select" && /competitive/.test(String(mode || "").toLowerCase());
+      }
+      function enemyBrief(player) {
+        const id = String((player && player.puuid) || "").toLowerCase();
+        if (!id) return "";
+        const rows = [];
+        const agents = {};
+        let beaten = false;
+        for (const match of history || []) {
+          const modeName = String(match.mode || match.queue || "").toLowerCase();
+          if (modeName && !/competitive/.test(modeName)) continue;
+          const them = (match.players || []).find((row) => String((row && row.puuid) || "").toLowerCase() === id);
+          if (!them) continue;
+          rows.push(them);
+          if (them.agent && them.agent !== "Picking") agents[them.agent] = (agents[them.agent] || 0) + 1;
+          const you = (match.players || []).find((row) => row && row.you);
+          const same = !!(you && them.team && you.team && them.team === you.team);
+          if (!same && match.won === true) beaten = true;
+          if (rows.length >= 5) break;
         }
-        const copy = el("div");
-        const title = el("b");
-        title.textContent = name;
-        copy.append(title);
-        if (peaked) copy.append(el("span", "peak-flag", "Peak"));
-        else if (player.rr) copy.append(el("span", null, player.rr + " RR"));
-        box.append(copy);
-        box.onclick = (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          openTracker(player);
-        };
-        return box;
+        if (!rows.length) return "";
+        const main = Object.entries(agents).sort((a, b) => b[1] - a[1])[0];
+        return rows.length + " recent" + (main ? " · " + main[0] : "") + (beaten ? " · beaten" : "");
       }
       function boardShape(players, mode) {
         const text = String(mode || "").toLowerCase();
@@ -105,14 +98,19 @@
           for (const player of list) {
             const tone = colors[player.party] || "";
             const row = el("div", "row" + (playerTracked(player) ? " tracked" : "") + (tone ? " p" + tone : ""));
+            if (player.agentIcon) row.style.setProperty("--wash", "url(\"" + String(player.agentIcon).replace(/"/g, "") + "\")");
             const img = face(player);
             img.className = "agent";
             const id = el("div", "live-id");
             const top = el("div", "live-sub");
             top.append(nameButton(player));
-            id.append(top);
             const agent = player.agent && player.agent !== "Picking" ? player.agent : "";
-            if (agent) id.append(el("div", "live-agent", agent));
+            if (agent) top.append(el("span", "live-agent", agent));
+            id.append(top);
+            if (isRankedSelect(mode) && player.enemy && !player.you) {
+              const brief = enemyBrief(player);
+              if (brief) id.append(el("div", "live-brief", brief));
+            }
             const side = el("div", "live-side");
             const rank = rankMark(player);
             if (rank) side.append(rank);

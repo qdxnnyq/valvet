@@ -292,6 +292,7 @@
       let actArchive = null;
       let showAct = false;
       function drawRecent(matches) {
+        if (tab !== "history") return;
         const typed = ((document.getElementById("match-query") || {}).value || "").trim();
         const source = showAct ? (actArchive || []) : (modeQueue ? modeMatches || [] : matches || []);
         paintHistPicks(history && history.length ? history : source);
@@ -687,9 +688,10 @@
         }
         if (waitSub) {
           const partyRank = averageRank(party);
-          const next = !data.ok ? (data.error || "Start the Riot Client, then leave this window open.") : data.phase === "In queue" ? [data.mode, "In queue", data.penalty].filter(Boolean).join(" · ") : inMatch ? "" : [partyRank ? "Party " + partyRank : "", data.penalty, "Stays here until a game is found."].filter(Boolean).join(" · ");
+          const next = !data.ok ? (data.error || "Start the Riot Client, then leave this window open.") : data.phase === "In queue" ? [data.mode, "In queue", queueAverage(data.mode || data.queue), data.penalty].filter(Boolean).join(" · ") : inMatch ? "" : [partyRank ? "Party " + partyRank : "", data.penalty, "Stays here until a game is found."].filter(Boolean).join(" · ");
           if (waitSub.textContent !== next) waitSub.textContent = next;
         }
+        paintVeto(data);
         if (!data.ok) {
           if (status) status.hidden = true;
           if (note) note.hidden = true;
@@ -2125,8 +2127,11 @@
         const kd = deaths ? (kills / deaths).toFixed(2) : (kills ? kills.toFixed(2) : "—");
         const hs = hsN ? Math.round(hsSum / hsN) + "%" : "—";
         const last = (rrPoints || [])[(rrPoints || []).length - 1];
+        const firstPoint = (rrPoints || [])[0];
         const rank = last && last.rank ? last.rank : "This act";
+        const startRank = firstPoint && firstPoint.rank ? firstPoint.rank : "";
         const rr = last && last.rr != null && last.rr !== "" ? String(last.rr) + " RR" : "";
+        const duo = (typeof duoRows === "function" ? duoRows() : [])[0];
         const who = String((latestState && latestState.you) || "").trim();
         const box = (x, y, w, h, r) => {
           ctx.beginPath();
@@ -2175,6 +2180,13 @@
           ctx.fillStyle = "#ff5fa2";
           ctx.font = "740 32px Segoe UI, sans-serif";
           ctx.fillText(rr, 82, who ? 352 : 322);
+        }
+        if (startRank) {
+          ctx.fillStyle = "#b89aaa";
+          ctx.font = "650 22px Segoe UI, sans-serif";
+          ctx.textAlign = "right";
+          ctx.fillText("Started " + startRank, W - 82, who ? 348 : 318);
+          ctx.textAlign = "left";
         }
         const cardY = who ? 400 : 370;
         box(78, cardY, W - 156, 250, 28);
@@ -2252,6 +2264,13 @@
         ctx.fillStyle = "#ff5fa2";
         ctx.font = "700 18px Segoe UI, sans-serif";
         ctx.fillText("RATING", 110, sparkY + 46);
+        if (duo && duo.name) {
+          ctx.textAlign = "right";
+          ctx.fillStyle = "#fff7fa";
+          ctx.font = "700 22px Segoe UI, sans-serif";
+          ctx.fillText(("Duo " + duo.name + (duo.games ? " · " + duo.games : "")).slice(0, 32), W - 110, sparkY + 46);
+          ctx.textAlign = "left";
+        }
         if (points.length > 1) {
           const vals = points.map((point) => (Number(point.tier) || 0) * 100 + (Number(point.rr) || 0));
           const min = Math.min(...vals);

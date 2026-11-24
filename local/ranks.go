@@ -19,23 +19,6 @@ type rankHit struct {
 	fetched bool
 }
 
-func rankHitFresh(hit rankHit, ok bool, now time.Time) bool {
-	if !ok {
-		return false
-	}
-	age := now.Sub(hit.at)
-	if hit.tier >= 3 || hit.peak >= 3 {
-		return hit.known && age < 6*time.Hour
-	}
-	if !hit.known {
-		return age < 20*time.Second
-	}
-	if hit.tier < 3 && hit.peak < 3 {
-		return age < 20*time.Second
-	}
-	return age < 6*time.Hour
-}
-
 func (c *riotClient) ranksMissing(players []player) bool {
 	now := time.Now()
 	c.mu.Lock()

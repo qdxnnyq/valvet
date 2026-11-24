@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type premierMate struct {
@@ -17,6 +19,8 @@ type premierView struct {
 	Tag      string        `json:"tag,omitempty"`
 	Division string        `json:"division,omitempty"`
 	Points   int           `json:"points,omitempty"`
+	When     string        `json:"when,omitempty"`
+	Maps     string        `json:"maps,omitempty"`
 	Roster   []premierMate `json:"roster,omitempty"`
 	Error    string        `json:"error,omitempty"`
 }
@@ -76,6 +80,12 @@ func readPremier(node any, view *premierView) {
 		if view.Points == 0 {
 			view.Points = num(pick(n, "points", "Points", "score", "Score"))
 		}
+		if view.When == "" {
+			view.When = premierWhen(pick(n, "nextMatchTime", "scheduledMatchTime", "matchStartTime", "startTime"))
+		}
+		if view.Maps == "" {
+			view.Maps = premierMapList(pick(n, "mapPool", "MapPool"))
+		}
 		for _, item := range asArr(pick(n, "members", "Members", "roster", "Roster")) {
 			row := asMap(item)
 			if row == nil {
@@ -110,4 +120,50 @@ func readPremier(node any, view *premierView) {
 		kept = append(kept, mate)
 	}
 	view.Roster = kept
+}
+
+func premierWhen(node any) string {
+	raw := strings.TrimSpace(str(node))
+	if raw == "" {
+		return ""
+	}
+	if n, err := strconv.ParseInt(raw, 10, 64); err == nil && n > 0 {
+		if n < 1_000_000_000_000 {
+			n *= 1000
+		}
+		return time.UnixMilli(n).Local().Format("Mon 15:04")
+	}
+	if t, err := time.Parse(time.RFC3339, raw); err == nil {
+		return t.Local().Format("Mon 15:04")
+	}
+	if len(raw) > 42 {
+		return ""
+	}
+	return raw
+}
+
+func premierMapList(node any) string {
+	items := asArr(node)
+	if len(items) == 0 {
+		if row := asMap(node); row != nil {
+			items = asArr(pick(row, "maps", "Maps", "mapPool", "MapPool"))
+		}
+	}
+	names := []string{}
+	for _, item := range items {
+		name := str(item)
+		if name == "" {
+			row := asMap(item)
+			name = str(pick(row, "name", "Name", "map", "Map"))
+		}
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		names = append(names, prettyMap(name))
+		if len(names) == 7 {
+			break
+		}
+	}
+	return strings.Join(names, ", ")
 }

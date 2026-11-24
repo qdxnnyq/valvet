@@ -885,6 +885,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
+        { ver: "1.9.25", title: "Valvet", lines: ["Ranked agent select shows the last five games, the main agent, and if you have beaten them.", "Custom and Premier lobbies show your map win rates. The act poster can be saved, with rank start, rank end, and your most played duo.", "Replays group by map. The session clock is the length of today's games."] },
         { ver: "1.9.24", title: "Valvet", lines: ["Session time counts the full length of today's games."] },
         { ver: "1.9.16", title: "Valvet", lines: ["When a match is found, the live lobby shows again. Your side is on the left and theirs is on the right."] },
         { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
@@ -1087,7 +1088,7 @@
             if (!id) continue;
             const row = book[id] || { name: player.name || "Player", tag: player.tag || "", puuid: player.puuid || "", wins: 0, losses: 0, games: 0, ms: 0 };
             row.games += 1;
-            row.ms += Number(match.length) > 0 ? Number(match.length) : guessMatchLength(match);
+            row.ms += matchMs(match);
             if (match.won === true) row.wins += 1;
             if (match.won === false) row.losses += 1;
             if (player.name) row.name = player.name;
