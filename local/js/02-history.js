@@ -623,33 +623,36 @@
       }
       function draw(data) {
         if (new URLSearchParams(location.search).has("demo")) return;
-        latestState = data;
-        if (data && data.map) data.map = mapName(data.map);
-        const pauseBox = document.getElementById("set-pause-lookups");
-        if (pauseBox && document.activeElement !== pauseBox && pauseBox.checked !== !!data.pauseLookups) {
-          pauseBox.checked = !!data.pauseLookups;
-          localStorage.setItem("valvet-pause-lookups", pauseBox.checked ? "on" : "off");
-        }
-        if (data && data.tray === "settings") setTab("settings");
-        syncRoomHits(data);
-        if (data.recent && data.recent.length) mergeHistory(data.recent);
-        noteClutchLight();
-        if (data.level) knownLevel = data.level;
-        const level = data.level || knownLevel;
-        paintIdentity(data.you || "This PC", level);
-        if (Array.isArray(data.party) || Array.isArray(data.friends)) drawPeople(data);
-        refreshTracked(data);
-        notePings(data);
-        const pen = document.getElementById("penalty-live");
-        if (pen) pen.hidden = true;
-        maybeInsights();
-        if (data.store) {
-          lastShop = data.store;
-          trackWallet(data.store);
-          wishlistHits(data.store);
-          if (tab === "store") drawStore(data.store);
-          if (tab === "bundle") drawBundle(data.store);
-        }
+        latestState = data || {};
+        data = latestState;
+        try {
+          if (data && data.map) data.map = mapName(data.map);
+          const pauseBox = document.getElementById("set-pause-lookups");
+          if (pauseBox && document.activeElement !== pauseBox && pauseBox.checked !== !!data.pauseLookups) {
+            pauseBox.checked = !!data.pauseLookups;
+            localStorage.setItem("valvet-pause-lookups", pauseBox.checked ? "on" : "off");
+          }
+          if (data && data.tray === "settings") setTab("settings");
+          syncRoomHits(data);
+          if (data.recent && data.recent.length) mergeHistory(data.recent);
+          noteClutchLight();
+          if (data.level) knownLevel = data.level;
+          const level = data.level || knownLevel;
+          paintIdentity(data.you || "This PC", level);
+          if (Array.isArray(data.party) || Array.isArray(data.friends)) drawPeople(data);
+          refreshTracked(data);
+          notePings(data);
+          const pen = document.getElementById("penalty-live");
+          if (pen) pen.hidden = true;
+          maybeInsights();
+          if (data.store) {
+            lastShop = data.store;
+            trackWallet(data.store);
+            wishlistHits(data.store);
+            if (tab === "store") drawStore(data.store);
+            if (tab === "bundle") drawBundle(data.store);
+          }
+        } catch (err) {}
         const note = document.getElementById("note");
         const wait = document.getElementById("wait");
         const waitSub = document.getElementById("wait-sub");
@@ -658,9 +661,9 @@
         const stage = document.getElementById("stage");
         const pane = document.getElementById("pane-live");
         const inMatch = data.phase === "Agent select" || data.phase === "In game" || data.phase === "Loading lobby";
-        const party = (data.party || []).filter((person) => !isLeague(person));
+        const party = (data.party || []).filter((person) => person && !isLeague(person));
         const stageWant = party.length >= 2 && !inMatch ? party.map((person) => [person.puuid, person.name, person.card, person.rank, person.state, person.partySize].join(":")).join("|") : "";
-        if (stageWant !== stageKey) {
+        if (stage && stageWant !== stageKey) {
           stageKey = stageWant;
           stage.replaceChildren();
           stage.hidden = !stageWant;
@@ -688,48 +691,63 @@
           if (waitSub.textContent !== next) waitSub.textContent = next;
         }
         if (!data.ok) {
-          status.hidden = true;
-          note.hidden = true;
+          if (status) status.hidden = true;
+          if (note) note.hidden = true;
           paintMapArt("");
           applyLiveLayout("");
-          if (boardKey) { boardKey = ""; board.replaceChildren(); }
+          if (board && boardKey) { boardKey = ""; board.replaceChildren(); }
         } else if (inMatch) {
-          status.hidden = false;
-          note.hidden = true;
-          document.getElementById("mode").textContent = data.mode || "Live";
-          document.getElementById("map").textContent = data.map || "Lobby";
-          document.getElementById("phase").textContent = [data.phase, data.server, mapRecord(history, data.map), data.penalty].filter(Boolean).join(" · ");
-          paintMapArt(data.map);
-          const yours = (data.players || []).find((player) => player.you);
-          const lineups = document.getElementById("lineups");
-          const youAgent = yours && yours.agent && yours.agent !== "Picking" ? yours.agent : "";
-          if (lineups) {
-            lineups.hidden = !(data.map && youAgent);
-            lineups.onclick = (event) => {
-              event.preventDefault();
-              const url = "https://lineupsvalorant.com/?map=" + encodeURIComponent(data.map || "") + "&agent=" + encodeURIComponent(youAgent);
-              fetch("/api/open?url=" + encodeURIComponent(url)).catch(() => {});
-            };
-          }
-          const seenKey = [...seenLately(history)].sort().join(",");
-          const roomKey = [...roomWatches].sort().join("|");
-          const liveKey = JSON.stringify([data.phase, data.map, data.mode, data.server, data.score1, data.score2, data.team1, data.team2, seenKey, roomKey, (data.players || []).map((player) => [player.puuid, player.name, player.tag, player.agent, player.rank, player.peak, player.rankPeak, player.rr, player.party, player.partyN, player.hs, player.adr, player.acs, player.team, player.enemy, player.hidden, player.tier, player.level])]);
-          if (liveKey !== boardKey) {
-            boardKey = liveKey;
-            document.getElementById("score").replaceChildren(tally(data.score1, data.score2, data.team1, data.team2, yours ? yours.team : ""));
-            const scoreEl = document.getElementById("score");
-            const stamp = [data.score1, data.score2].join("-");
-            if (scoreEl.dataset.n && scoreEl.dataset.n !== stamp) {
-              scoreEl.classList.remove("tick");
-              void scoreEl.offsetWidth;
-              scoreEl.classList.add("tick");
+          if (status) status.hidden = false;
+          if (note) note.hidden = true;
+          try {
+            const modeEl = document.getElementById("mode");
+            const mapEl = document.getElementById("map");
+            const phaseEl = document.getElementById("phase");
+            if (modeEl) modeEl.textContent = data.mode || "Live";
+            if (mapEl) mapEl.textContent = data.map || "Lobby";
+            if (phaseEl) phaseEl.textContent = [data.phase, data.server, mapRecord(history, data.map), data.penalty].filter(Boolean).join(" · ");
+            paintMapArt(data.map);
+            const livePlayers = (data.players || []).filter((player) => player && (player.name || player.puuid));
+            const yours = livePlayers.find((player) => player.you);
+            const lineups = document.getElementById("lineups");
+            const youAgent = yours && yours.agent && yours.agent !== "Picking" ? yours.agent : "";
+            if (lineups) {
+              lineups.hidden = !(data.map && youAgent);
+              lineups.onclick = (event) => {
+                event.preventDefault();
+                const url = "https://lineupsvalorant.com/?map=" + encodeURIComponent(data.map || "") + "&agent=" + encodeURIComponent(youAgent);
+                fetch("/api/open?url=" + encodeURIComponent(url)).catch(() => {});
+              };
             }
-            scoreEl.dataset.n = stamp;
-            board.replaceChildren(roster(data.players, data.mode || data.queue));
-            board.classList.toggle("select-stage", data.phase === "Agent select");
-            paintSameLobby(data);
-            const markBtn = document.getElementById("mark-round");
-            if (markBtn) markBtn.hidden = data.phase !== "In game";
+            const seenKey = [...seenLately(history)].sort().join(",");
+            const roomKey = [...roomWatches].sort().join("|");
+            const liveKey = JSON.stringify([data.phase, data.map, data.mode, data.server, data.score1, data.score2, data.team1, data.team2, seenKey, roomKey, livePlayers.map((player) => [player.puuid, player.name, player.tag, player.agent, player.rank, player.peak, player.rankPeak, player.rr, player.party, player.partyN, player.hs, player.adr, player.acs, player.team, player.enemy, player.hidden, player.tier, player.level])]);
+            if (board && (liveKey !== boardKey || !board.querySelector(".team, .empty"))) {
+              boardKey = liveKey;
+              const scoreEl = document.getElementById("score");
+              if (scoreEl) {
+                scoreEl.replaceChildren(tally(data.score1, data.score2, data.team1, data.team2, yours ? yours.team : ""));
+                const stamp = [data.score1, data.score2].join("-");
+                if (scoreEl.dataset.n && scoreEl.dataset.n !== stamp) {
+                  scoreEl.classList.remove("tick");
+                  void scoreEl.offsetWidth;
+                  scoreEl.classList.add("tick");
+                }
+                scoreEl.dataset.n = stamp;
+              }
+              if (!livePlayers.length) board.replaceChildren(el("div", "empty", "Match found. Loading the lobby."));
+              else board.replaceChildren(roster(livePlayers, data.mode || data.queue));
+              board.classList.toggle("select-stage", data.phase === "Agent select");
+              paintSameLobby(data);
+              const markBtn = document.getElementById("mark-round");
+              if (markBtn) markBtn.hidden = data.phase !== "In game";
+            }
+          } catch (err) {
+            if (board && !board.querySelector(".row, .empty")) board.replaceChildren(el("div", "empty", "Match found. Loading the lobby."));
+          }
+          const wasLive = lastPhase === "Agent select" || lastPhase === "In game" || lastPhase === "Loading lobby";
+          if (!wasLive && tab !== "live") {
+            try { setTab("live"); } catch (err) {}
           }
         } else {
           status.hidden = true;
@@ -742,38 +760,43 @@
           if (sameLobby) sameLobby.hidden = true;
           if (boardKey) { boardKey = ""; board.replaceChildren(); }
         }
-        if (tab === "history" && !modeQueue) drawRecent(history);
-        if (tab === "live") {
-          paintDuos("duos", party, history);
-          paintToday(history);
-          paintStreak(history);
+        try {
+          if (tab === "history" && !modeQueue) drawRecent(history);
+          if (tab === "live") {
+            paintDuos("duos", party, history);
+            paintToday(history);
+            paintStreak(history);
+          }
+          if (tab === "profile") {
+            const profile = document.getElementById("profile");
+            if (profile && (profile.querySelector(".calling") || profile.querySelector("#act-compare"))) paintActCompare(profile);
+          }
+          syncPartyJoin(party, data.ok);
+          syncPost(data);
+          paintPost();
+          syncNight(data.store);
+          if (data.ok) {
+            syncRounds(data);
+            pushStatus(data);
+          }
+          if (!announced) { announced = true; lastPhase = data.phase || ""; stageLive(data); syncDiscord(data); return; }
+          const phase = data.phase || "";
+          const popped = lastPhase === "In queue" && (phase === "Agent select" || phase === "Loading lobby");
+          if (popped) {
+            notePop(data);
+            lightEvent("queue");
+          }
+          if (popped && localStorage.getItem("valvet-pop") === "on") playQueue();
+          if (!popped && localStorage.getItem("valvet-chime") === "on" && phase !== lastPhase && (phase === "In game" || phase === "Loading lobby" || phase === "Agent select")) playPack();
+          lastPhase = phase;
+          noteSession(data);
+          if (tab === "session" || tab === "seen") paintDesk();
+          stageLive(data);
+          syncDiscord(data);
+        } catch (err) {
+          if (!announced) announced = true;
+          lastPhase = data.phase || lastPhase || "";
         }
-        if (tab === "profile") {
-          const profile = document.getElementById("profile");
-          if (profile && (profile.querySelector(".calling") || profile.querySelector("#act-compare"))) paintActCompare(profile);
-        }
-        syncPartyJoin(party, data.ok);
-        syncPost(data);
-        paintPost();
-        syncNight(data.store);
-        if (data.ok) {
-          syncRounds(data);
-          pushStatus(data);
-        }
-        if (!announced) { announced = true; lastPhase = data.phase || ""; stageLive(data); syncDiscord(data); return; }
-        const phase = data.phase || "";
-        const popped = lastPhase === "In queue" && (phase === "Agent select" || phase === "Loading lobby");
-        if (popped) {
-          notePop(data);
-          lightEvent("queue");
-        }
-        if (popped && localStorage.getItem("valvet-pop") === "on") playQueue();
-        if (!popped && localStorage.getItem("valvet-chime") === "on" && phase !== lastPhase && (phase === "In game" || phase === "Loading lobby" || phase === "Agent select")) playPack();
-        lastPhase = phase;
-        noteSession(data);
-        if (tab === "session" || tab === "seen") paintDesk();
-        stageLive(data);
-        syncDiscord(data);
       }
       async function pickMode(label, queue) {
         mode = label;

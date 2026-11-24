@@ -69,16 +69,20 @@ func (c *riotClient) state(ctx context.Context) snapshot {
 
 	c.mu.Lock()
 	if next.OK || c.snap.You == "" {
-		if (next.Phase == "In game" || next.Phase == "Loading lobby") && len(next.Players) == 0 && len(c.snap.Players) > 0 {
-			next.Players = append([]player(nil), c.snap.Players...)
-			if next.Map == "" || next.Map == "Unknown map" {
-				next.Map = c.snap.Map
-			}
-			if next.Mode == "" {
-				next.Mode = c.snap.Mode
-			}
-			if next.Score1 == nil {
-				next.Score1, next.Score2 = c.snap.Score1, c.snap.Score2
+		if (next.Phase == "In game" || next.Phase == "Loading lobby" || next.Phase == "Agent select") && len(next.Players) == 0 && len(c.snap.Players) > 0 {
+			prevLive := c.snap.Phase == "In game" || c.snap.Phase == "Loading lobby" || c.snap.Phase == "Agent select"
+			sameMap := next.Map == "" || next.Map == "Unknown map" || next.Map == "Lobby" || c.snap.Map == "" || next.Map == c.snap.Map
+			if prevLive && sameMap {
+				next.Players = append([]player(nil), c.snap.Players...)
+				if next.Map == "" || next.Map == "Unknown map" || next.Map == "Lobby" {
+					next.Map = c.snap.Map
+				}
+				if next.Mode == "" {
+					next.Mode = c.snap.Mode
+				}
+				if next.Score1 == nil {
+					next.Score1, next.Score2 = c.snap.Score1, c.snap.Score2
+				}
 			}
 		}
 		if next.Level == 0 {
@@ -260,7 +264,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	}
 
 	priv := c.selfPresence(ctx, port, auth, sess.puuid)
-	loop := strings.ToUpper(str(pick(priv, "sessionLoopState", "SessionLoopState")))
+	loop := strings.ToUpper(strings.TrimSpace(str(pick(priv, "sessionLoopState", "SessionLoopState"))))
 	queue := str(pick(priv, "queueId", "queueID", "QueueID"))
 	mapPath := str(pick(priv, "matchMap", "MatchMap"))
 	if mapPath == "" {
@@ -286,6 +290,20 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
 				phase = "In game"
 				match = m
+			}
+		}
+	}
+	if match == nil && (loop == "PREGAME" || loop == "INGAME") && sess.region != "" && sess.shard != "" {
+		kind := "pregame"
+		if loop == "INGAME" {
+			kind = "core-game"
+		}
+		if m := c.glzMatch(ctx, sess, kind); m != nil {
+			match = m
+			if loop == "PREGAME" {
+				phase = "Agent select"
+			} else if phase != "Loading lobby" {
+				phase = "In game"
 			}
 		}
 	}

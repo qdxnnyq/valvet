@@ -1,82 +1,8 @@
 # Changelog
 
-## 1.9.15
+## 1.9.17
 
-History shows Unranked when a player has no rank.
-Rank, peak, MVP, and party chips share one size.
-
-## 1.9.14
-
-Recent history games load current rank and peak.
-Expanded match headers explain KDA, damage, shots, ADR, and ACS on hover.
-
-## 1.9.13
-
-History rows show the current rank and the peak on the same player line.
-
-## 1.9.12
-
-Deathmatch columns are both sorted by kills.
-
-## 1.9.11
-
-Deathmatch uses the same two-column player rows as the rest of history.
-
-## 1.9.10
-
-Player cards use one layout.
-Deathmatch shows every player in columns.
-The act poster saves into the real Pictures folder and opens it.
-
-## 1.9.9
-
-Sound controls share one column so Choose and None line up.
-Deathmatch history shows your kills against the winner in a short card.
-2v2 and Gauntlet use a small duo layout.
-
-## 1.9.8
-
-Last seen follows online or AFK in the Riot Client or League. Riot Mobile is ignored.
-
-## 1.9.7
-
-Riot Mobile no longer counts as online. Last seen uses the last desktop session or shared game.
-
-## 1.9.6
-
-Last seen uses the end of the last shared game when that is newer than the old presence stamp.
-
-## 1.9.5
-
-Last seen uses the last time someone was actually online.
-The act poster saves into Pictures and does not open the Windows download bar.
-Quiet hours insert the colon as you type. Settings tabs show a hover.
-
-## 1.9.4
-
-Friends, the store, bundles, and your profile load again.
-Choose file fits the sound row. Quiet hours are a list, and you can type the time.
-The GitHub release workflow no longer runs on every tag.
-
-## 1.9.3
-
-A live match no longer calls Riot while Valorant is connecting, and it stops rereading your history on every refresh.
-Open in Valorant only shows when the game is already open. It does not launch a console.
-Match end, agent select, the rank coin, the dim map, your last death, the round scrubber, duo chemistry, tendencies, round marks, same lobby, clutch playback, the session ladder, the two-loss mute, the act poster, and the scout card are in.
-
-## 1.9.2
-
-History has a button to hide the stats on top.
-Choose file and quiet hours use the same dark controls as the rest of Settings.
-A friend in your game uses the alert sound, and only if they are not in your party.
-
-## 1.9.1
-
-Open in Valorant starts the game instead of the Windows app picker.
-History no longer rebuilds and bounces every few seconds.
-The bundle is a poster again. Click it to open the items.
-Agents, esports, news, patches, the pass, and the collection stay saved until they need an update.
-The tutorial opens each page and highlights the thing it is talking about.
+The live lobby stays on screen when a match is found.
 
 ## 1.9.0
 

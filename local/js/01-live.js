@@ -1,5 +1,6 @@
       const rankSeen = new Map();
       function liveRank(player) {
+        player = player || {};
         const peaked = !!player.rankPeak || ((!player.rank || player.rank === "Unranked") && !!player.peak);
         const name = peaked ? (player.peak || player.rank || "Unranked") : (player.rank || "Unranked");
         const icon = peaked ? (player.peakIcon || player.rankIcon) : player.rankIcon;
@@ -47,9 +48,9 @@
       }
       function partyColors(players) {
         const order = [];
-        const you = (players || []).find((player) => player.you && player.party);
+        const you = (players || []).find((player) => player && player.you && player.party);
         if (you) order.push(you.party);
-        for (const player of players || []) if (player.party && !order.includes(player.party)) order.push(player.party);
+        for (const player of players || []) if (player && player.party && !order.includes(player.party)) order.push(player.party);
         const palette = "ABCDEFGH";
         const map = {};
         order.forEach((id, index) => { map[id] = palette[index] || "H"; });
@@ -214,7 +215,8 @@
       const nameMemory = new Map();
       function keepNames(rows) {
         return (rows || []).map((match) => {
-          const players = (match.players || []).map((player) => {
+          if (!match || typeof match !== "object") return match;
+          const players = (match.players || []).filter(Boolean).map((player) => {
             const key = (match.id || "") + "|" + String(player.puuid || "").toLowerCase();
             const name = String(player.name || "").trim();
             if (name && name !== "Player" && name !== "Hidden") {
@@ -483,10 +485,10 @@
         friends.append(grid);
       }
       function isLeague(person) {
-        return String(person.product || "").toLowerCase() === "league";
+        return String((person && person.product) || "").toLowerCase() === "league";
       }
       function isRiot(person) {
-        return String(person.product || "").toLowerCase() === "riot";
+        return String((person && person.product) || "").toLowerCase() === "riot";
       }
       function paintGroup(rootId, titleId, label, list) {
         const root = document.getElementById(rootId);

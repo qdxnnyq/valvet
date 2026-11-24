@@ -25,6 +25,8 @@
           const res = await fetch("/api/state" + stateQuery(), { cache: "no-store" });
           draw(await res.json());
         } catch {
+          const phase = (latestState && latestState.phase) || "";
+          if (phase === "Agent select" || phase === "In game" || phase === "Loading lobby") return;
           draw({ ok: false, error: "Close this window and open Valvet again.", recent: history });
         }
       }

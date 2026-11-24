@@ -587,6 +587,7 @@
           if (!prev || prev.at !== next.at || prev.since !== next.since || prev.live !== next.live || prev.state !== next.state || prev.map !== next.map || prev.mode !== next.mode || prev.product !== next.product || prev.playSince !== next.playSince || prev.name !== next.name) dirty = true;
         };
         for (const person of people || []) {
+          if (!person) continue;
           const id = String(person.puuid || "").toLowerCase();
           if (!id) continue;
           here.add(id);
@@ -1008,7 +1009,7 @@
         if (next === "history" && document.body.dataset.hist === "replays") loadReplays(false);
         if (next === "store" && lastShop) drawStore(lastShop);
         if (next === "live") {
-          const party = ((latestState && latestState.party) || []).filter((person) => !isLeague(person));
+          const party = ((latestState && latestState.party) || []).filter((person) => person && !isLeague(person));
           paintToday(history);
           paintStreak(history);
           paintDuos("duos", party, history);

@@ -115,10 +115,10 @@
       }
       function refreshTracked(data) {
         trackedNow = new Set();
-        const party = new Set((data.party || []).filter((person) => person.puuid && !person.you).map((person) => person.puuid.toLowerCase()));
+        const party = new Set((data.party || []).filter((person) => person && person.puuid && !person.you).map((person) => person.puuid.toLowerCase()));
         const friends = new Set((data.friendIds || []).map((id) => String(id).toLowerCase()));
         for (const person of [...(data.friends || []), ...(data.party || [])]) {
-          if (person.puuid && !person.you) friends.add(person.puuid.toLowerCase());
+          if (person && person.puuid && !person.you) friends.add(person.puuid.toLowerCase());
         }
         const you = (data.players || []).find((player) => player.you);
         const yourParty = you && you.party;
@@ -128,7 +128,7 @@
         let freshWatch = false;
         const names = [];
         for (const player of data.players || []) {
-          if (player.you) continue;
+          if (!player || player.you) continue;
           const id = String(player.puuid || "").toLowerCase();
           const key = trackKey(player.name, player.tag);
           const watched = key !== "#" && watch.some((item) => trackKey(item.name, item.tag) === key);
@@ -273,9 +273,13 @@
         };
         const mergeRanks = (dst, src) => {
           const by = new Map();
-          for (const player of (src && src.players) || []) by.set(String(player.puuid || "").toLowerCase(), player);
+          for (const player of (src && src.players) || []) {
+            if (!player) continue;
+            by.set(String(player.puuid || "").toLowerCase(), player);
+          }
           let changed = false;
           for (const player of (dst && dst.players) || []) {
+            if (!player) continue;
             const next = by.get(String(player.puuid || "").toLowerCase());
             if (takeRank(player, next)) changed = true;
           }
@@ -967,7 +971,7 @@
         } catch {}
       }
       function duoLines(party, matches) {
-        return (party || []).filter((person) => !person.you && person.puuid).map((mate) => {
+        return (party || []).filter((person) => person && !person.you && person.puuid).map((mate) => {
           const id = String(mate.puuid).toLowerCase();
           let games = 0;
           let wins = 0;
@@ -1117,6 +1121,7 @@
         const order = [];
         const map = new Map();
         for (const player of players || []) {
+          if (!player) continue;
           const team = player.team || "Lobby";
           if (!map.has(team)) { map.set(team, []); order.push(team); }
           map.get(team).push(player);
@@ -1262,7 +1267,7 @@
         return RANK_NAMES[avg] || "";
       }
       function mapRecord(matches, map) {
-        const rows = (matches || []).filter((match) => match.map === map && (match.won === true || match.won === false));
+        const rows = (matches || []).filter((match) => match && match.map === map && (match.won === true || match.won === false));
         if (!rows.length || !map) return "";
         const wins = rows.filter((match) => match.won).length;
         return wins + "–" + (rows.length - wins) + " on this map";
@@ -1271,10 +1276,11 @@
         const ids = new Set();
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         for (const match of matches || []) {
+          if (!match) continue;
           const at = Date.parse(match.when || "");
           if (Number.isNaN(at) || at < cutoff) continue;
           for (const player of match.players || []) {
-            if (!player.you && player.puuid) ids.add(String(player.puuid).toLowerCase());
+            if (player && !player.you && player.puuid) ids.add(String(player.puuid).toLowerCase());
           }
         }
         return ids;
