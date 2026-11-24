@@ -1,6 +1,6 @@
 {
-  "version": 167,
-  "name": "1.8.42",
-  "notes": "Win and loss on history, real clutches, no daily line, parties during pause, wish button under the price.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v167/Valvet.exe"
+  "version": 168,
+  "name": "1.8.43",
+  "notes": "Dark history filters, map sides, compare, bundle progress, copy agents, sound drop, clutch split, backup file, parties stay on.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v168/Valvet.exe"
 }
