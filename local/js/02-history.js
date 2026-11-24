@@ -526,7 +526,6 @@
         }
         if (tab === "history" && !modeQueue) drawRecent(history);
         if (tab === "live") {
-          paintChallenge();
           paintDuos("duos", party, history);
           paintToday(history);
           paintStreak(history);
@@ -811,7 +810,9 @@
           const body = el("div", "copy");
           body.append(el("div", "eyebrow", "Featured bundle"));
           body.append(el("h1", null, bundle.name || "Bundle"));
-          const bits = [bundle.left ? bundle.left + " left" : "", (bundle.items || []).length ? (bundle.items || []).length + " items" : "", bundle.desc || "", openBundle === id ? "Click to close" : "Click to open"].filter(Boolean);
+          const items = bundle.items || [];
+          const owned = items.filter((item) => owns(item.name)).length;
+          const bits = [items.length ? owned + " of " + items.length + " owned" : "", bundle.left ? bundle.left + " left" : "", bundle.desc || "", openBundle === id ? "Click to close" : "Click to open"].filter(Boolean);
           body.append(el("div", "sub", bits.join(" · ")));
           if (bundle.price) {
             const pill = el("div", "price-pill");
@@ -1065,12 +1066,9 @@
         const post = document.getElementById("post");
         if (post && !(postCard && Date.now() < postUntil)) post.hidden = true;
       }
-      function paintChallenge() {
-        const node = document.getElementById("challenge");
-        if (node) node.hidden = true;
-      }
       let trendMore = false;
       let clutchMore = false;
+      let clutchPick = 0;
       function viewMore(open, hidden, toggle) {
         const button = el("button", "tiny more-toggle", open ? "Show less" : "View more" + (hidden ? " · " + hidden : ""));
         button.type = "button";
@@ -1783,6 +1781,71 @@
         box.classList.remove("notes");
       };
       document.getElementById("matchbox").onclick = (event) => { if (event.target.id === "matchbox") event.currentTarget.hidden = true; };
+      let comparePair = [];
+      function playerSummary(seed, data) {
+        const id = String((seed && seed.puuid) || (data && data.puuid) || "").toLowerCase();
+        let games = 0;
+        let wins = 0;
+        let kills = 0;
+        let deaths = 0;
+        let assists = 0;
+        let hs = 0;
+        let hsN = 0;
+        for (const match of history || []) {
+          const hit = (match.players || []).find((person) => String(person.puuid || "").toLowerCase() === id);
+          if (!hit) continue;
+          games += 1;
+          const you = (match.players || []).find((person) => person.you);
+          const same = !!(you && you.team && hit.team && you.team === hit.team);
+          const won = resultOf(match);
+          const theirs = hit.you || same ? won : won == null ? null : !won;
+          if (theirs === true) wins += 1;
+          kills += Number(hit.kills) || 0;
+          deaths += Number(hit.deaths) || 0;
+          assists += Number(hit.assists) || 0;
+          const rate = Number(String(hit.hs || "").replace(/[^\d.]/g, ""));
+          if (rate) { hs += rate; hsN += 1; }
+        }
+        return {
+          id,
+          name: (data && data.name) || (seed && seed.name) || "Player",
+          tag: (data && data.tag) || (seed && seed.tag) || "",
+          rank: (data && data.rank) || (seed && seed.rank) || "",
+          games,
+          wins,
+          kills,
+          deaths,
+          assists,
+          hs: hsN ? Math.round(hs / hsN) : 0,
+        };
+      }
+      function rememberCompare(seed, data) {
+        const row = playerSummary(seed, data);
+        if (!row.id) return;
+        comparePair = comparePair.filter((item) => item.id !== row.id);
+        comparePair.push(row);
+        if (comparePair.length > 2) comparePair = comparePair.slice(-2);
+      }
+      function compareBoard() {
+        if (!comparePair.length) return null;
+        const board = el("div", "compare-board");
+        const paint = (row) => {
+          const col = el("div", "compare-col");
+          col.append(el("b", null, row.name + (row.tag ? " #" + row.tag : "")));
+          const rate = row.games ? Math.round((row.wins / row.games) * 100) + "%" : "—";
+          col.append(el("div", "sub", [row.rank, row.games + " games", rate + " wins"].filter(Boolean).join(" · ")));
+          col.append(el("div", "sub", row.kills + "/" + row.deaths + "/" + row.assists + (row.hs ? " · " + row.hs + "% HS" : "")));
+          board.append(col);
+        };
+        comparePair.forEach(paint);
+        if (comparePair.length === 1) {
+          const wait = el("div", "compare-col");
+          wait.append(el("b", null, "Second player"));
+          wait.append(el("div", "sub", "Open someone else and press Compare."));
+          board.append(wait);
+        }
+        return board;
+      }
       function renderProfile(seed, data) {
         const slot = document.getElementById("dossier");
         slot.replaceChildren();
@@ -1843,6 +1906,16 @@
           if (latestState) paintAvoidLive(latestState);
         };
         tools.append(avoidBtn);
+        const compareBtn = el("button", "tiny", "Compare");
+        compareBtn.type = "button";
+        compareBtn.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          rememberCompare(seed, data);
+          compareBtn.textContent = "Added";
+          setTimeout(() => { compareBtn.textContent = "Compare"; }, 800);
+        };
+        tools.append(compareBtn);
         id.append(tools);
         const mine = !!(seed && seed.you);
         const name = mine ? (seed.name || (data && data.name) || "You") : ((data && data.name) || seed.name || "Player");
@@ -1897,6 +1970,8 @@
         id.append(open);
         hero.append(img, id);
         slot.append(hero);
+        const board = compareBoard();
+        if (board) slot.append(board);
         const was = (data && data.was) || seed.was || "";
         if (was) {
           const aka = el("div", "aka");
@@ -1907,7 +1982,7 @@
         const apiGames = (data && data.matches) || [];
         const together = sharedGames(seed);
         const games = apiGames.length ? apiGames : together;
-        const head = el("div", "kicker", apiGames.length ? "Recent games" : together.length ? "Games you were in" : data ? "Recent games" : together.length ? "Games you were in" : "Loading games…");
+        const head = el("div", "kicker", data && data.cached ? "On this PC" : apiGames.length ? "Recent games" : together.length ? "Games you were in" : data ? "Recent games" : "Loading games…");
         slot.append(head);
         if (!games.length) {
           if (!data) return;
@@ -1919,11 +1994,11 @@
       async function openPlayer(player) {
         if (!player || !player.puuid) return;
         document.getElementById("scrim").hidden = false;
-        renderProfile(player, null);
+        const job = fetch("/api/player?id=" + encodeURIComponent(player.puuid), { cache: "no-store" });
+        renderProfile(player, { matches: sharedGames(player), cached: true });
         try {
-          const res = await fetch("/api/player?id=" + encodeURIComponent(player.puuid), { cache: "no-store" });
-          renderProfile(player, await res.json());
+          renderProfile(player, await (await job).json());
         } catch {
-          renderProfile(player, { error: "Couldn't load that history." });
+          renderProfile(player, { error: "Couldn't load that history.", matches: sharedGames(player) });
         }
       }

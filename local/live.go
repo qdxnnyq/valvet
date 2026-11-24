@@ -408,6 +408,8 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			}
 		}
 	}
+	// Parties for both sides, and your own stack, are filled on every live poll.
+	// Pause stat lookups does not skip this.
 	hints := map[string]partyHint{}
 	if len(players) > 0 {
 		roster := map[string]bool{}

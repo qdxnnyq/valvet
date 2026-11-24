@@ -883,7 +883,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.8.42", title: "Valvet", lines: ["History shows Win or Loss, and the cat, instead of an empty mark.", "A clutch is only a round you were last alive. A lost one says Died.", "The daily line is gone. Parties stay on during a match even if lookups are paused.", "The wish button sits under the price."] },
+        { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },
         { ver: "1.8.32", title: "Valvet", lines: ["The name is VALVET again. VAL is white, VET is pink, and the window title is pink.", "Play the round saves an mp4. The folder stays closed.", "Storage opens the round videos folder.", "A profile shows the rank and the agent picture without waiting on every game."] },
@@ -956,19 +956,7 @@
         const raw = String(name || "").trim();
         if (!raw) return "";
         const bit = raw.split(/[\\/]/).filter(Boolean).pop() || raw;
-        const known = {
-          ascent: "Ascent", bind: "Bind", haven: "Haven", split: "Split", icebox: "Icebox",
-          breeze: "Breeze", fracture: "Fracture", pearl: "Pearl", lotus: "Lotus", sunset: "Sunset",
-          abyss: "Abyss", corrode: "Corrode", summit: "Summit",
-          bonsai: "Split", canyon: "Fracture", duality: "Bind", foxtrot: "Breeze",
-          infinity: "Abyss", jam: "Lotus", juliett: "Sunset", pitt: "Pearl", port: "Icebox",
-          triad: "Haven", rook: "Corrode", plummet: "Summit",
-          range: "Range", poveglia: "The Range", povegliav2: "The Range", rangev2: "The Range",
-          basictraining: "The Range", npev2: "Basic Training",
-          hurm_alley: "District", hurm_bowl: "Kasbah", hurm_helix: "Drift",
-          hurm_hightide: "Glitch", hurm_yard: "Piazza",
-          district: "District", kasbah: "Kasbah", drift: "Drift", glitch: "Glitch", piazza: "Piazza",
-        };
+        const known = __MAPS__;
         return known[bit.toLowerCase()] || raw;
       }
       function actParts(iso) {
@@ -1097,18 +1085,31 @@
         })).sort((a, b) => b.games - a.games);
       }
       function mapRows() {
-        const rec = latestState && latestState.records;
-        if (rec && (rec.maps || []).length) return rec.maps;
         const book = {};
         for (const match of history || []) {
-          if (!match.map || match.won !== true && match.won !== false) continue;
-          const row = book[match.map] || { name: match.map, wins: 0, losses: 0, games: 0 };
+          const name = mapName(match.map);
+          if (!name || (match.won !== true && match.won !== false)) continue;
+          const row = book[name] || { name, wins: 0, losses: 0, games: 0, atkW: 0, atkL: 0, defW: 0, defL: 0 };
           row.games += 1;
           if (match.won) row.wins += 1;
           else row.losses += 1;
-          book[match.map] = row;
+          for (const round of match.rounds || []) {
+            if (round.you !== true && round.you !== false) continue;
+            const side = String(round.side || "");
+            if (/attack/i.test(side)) {
+              if (round.you) row.atkW += 1;
+              else row.atkL += 1;
+            } else if (/defen/i.test(side)) {
+              if (round.you) row.defW += 1;
+              else row.defL += 1;
+            }
+          }
+          book[name] = row;
         }
-        return Object.values(book).sort((a, b) => b.games - a.games);
+        const rows = Object.values(book).sort((a, b) => b.games - a.games);
+        if (rows.length) return rows;
+        const rec = latestState && latestState.records;
+        return (rec && rec.maps) || [];
       }
       function friendBook() {
         const ids = new Set();

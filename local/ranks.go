@@ -54,7 +54,7 @@ func (c *riotClient) ranksMissing(players []player) bool {
 }
 
 func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...[]player) {
-	if sess.shard == "" {
+	if sess.shard == "" || ctx.Err() != nil {
 		return
 	}
 	now := time.Now()
@@ -102,7 +102,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			call, cancel := context.WithTimeout(ctx, 6*time.Second)
+			call, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 			defer cancel()
 			status, payload, err := c.rankCall(call, sess, "GET", "https://pd."+sess.shard+".a.pvp.net/mmr/v1/players/"+id, nil)
 			var body map[string]any

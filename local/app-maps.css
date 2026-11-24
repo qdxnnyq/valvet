@@ -58,12 +58,13 @@
       .record-card b, .clutch-card b { display: block; font-size: 16px; letter-spacing: -0.03em; }
       .record-card .stamp, .game .wl { }
       .clutch-board { display: grid; grid-template-columns: minmax(140px, 180px) minmax(0, 1fr); gap: 12px; margin: 0 0 14px; }
-      .clutch-rate, .clutch-split article { border: 1px solid var(--line); border-radius: 18px; background: #140c12; }
+      .clutch-rate, .clutch-split article, .clutch-split button.clutch-pick { border: 1px solid var(--line); border-radius: 18px; background: #140c12; color: inherit; text-align: left; }
       .clutch-rate { padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 132px; }
       .clutch-rate b { font-size: 52px; letter-spacing: -0.06em; line-height: .85; }
       .clutch-rate span { color: var(--muted); margin-top: 8px; }
-      .clutch-split { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-      .clutch-split article { padding: 12px; min-width: 0; }
+      .clutch-split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .clutch-split article, .clutch-split button.clutch-pick { padding: 12px; min-width: 0; cursor: pointer; }
+      .clutch-split button.clutch-pick.on { box-shadow: inset 0 0 0 1px var(--accent); }
       .clutch-split .lab { color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
       .clutch-split b { display: block; margin-top: 6px; font-size: 22px; letter-spacing: -0.04em; }
       .clutch-split em { display: block; margin-top: 2px; font-style: normal; color: var(--muted); font-size: 12px; }
@@ -268,7 +269,8 @@
       .perf b { display: block; font-size: 15px; line-height: 1.1; letter-spacing: -0.03em; color: var(--ink); }
       .perf span { letter-spacing: .06em; }
       .hist-picks { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-      .hist-pick { height: 28px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 0 10px; max-width: 160px; }
+      .hist-pick { height: 28px; border-radius: 999px; border: 1px solid var(--line); background: #140c11; color: #fff7fa; color-scheme: dark; padding: 0 10px; max-width: 160px; }
+      .hist-pick option, select option { background: #1a1016; color: #fff7fa; }
       #pane-history .page-hero { margin: 0 0 8px; padding-bottom: 6px; }
       #pane-history .page-hero h1 { font-size: 24px; }
       #pane-history .page-hero .sub { margin-top: 2px; }

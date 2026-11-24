@@ -1408,13 +1408,22 @@ func keepParty(dst, src recentMatch) recentMatch {
 
 func matchRicher(a, b recentMatch) bool {
 	weight := func(m recentMatch) int {
-		n := len(m.Players) + len(m.Rounds)
+		n := len(m.Players)*2 + len(m.Rounds)*3 + len(m.Edges)
 		if len(m.Kills) > 0 || len(m.Deaths) > 0 {
 			n += 8
 		}
+		if m.Won != nil {
+			n += 6
+		}
+		if m.Score1 != nil {
+			n += 2
+		}
+		if m.KnownParty {
+			n += 2
+		}
 		return n
 	}
-	return weight(a) >= weight(b)
+	return weight(a) > weight(b)
 }
 
 func (c *riotClient) growArchive(ctx context.Context, sess riotSession, agents map[string]agentInfo) {

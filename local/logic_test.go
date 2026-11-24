@@ -363,3 +363,65 @@ func TestCatsAndSoundsServeWhole(t *testing.T) {
 		t.Fatalf("sound %d %s %d", rr.Code, rr.Header().Get("Content-Type"), rr.Body.Len())
 	}
 }
+
+func TestFinishedMatchResult(t *testing.T) {
+	me := "11111111-1111-1111-1111-111111111111"
+	ally := "22222222-2222-2222-2222-222222222222"
+	a := "33333333-3333-3333-3333-333333333333"
+	b := "44444444-4444-4444-4444-444444444444"
+	detail := map[string]any{
+		"matchInfo": map[string]any{
+			"matchId": "m1", "queueID": "unrated",
+			"mapId": "/Game/Maps/Duality/Duality", "gameStartMillis": float64(1700000000000),
+		},
+		"players": []any{
+			map[string]any{"subject": me, "teamId": "Red", "gameName": "Me", "tagLine": "EUW"},
+			map[string]any{"subject": ally, "teamId": "Red", "gameName": "Ally", "tagLine": "EUW"},
+			map[string]any{"subject": a, "teamId": "Blue", "gameName": "A", "tagLine": "EUW"},
+			map[string]any{"subject": b, "teamId": "Blue", "gameName": "B", "tagLine": "EUW"},
+		},
+		"teams": []any{
+			map[string]any{"teamId": "Red", "roundsWon": float64(2), "won": false},
+			map[string]any{"teamId": "Blue", "roundsWon": float64(5), "won": true},
+		},
+		"roundResults": []any{
+			map[string]any{
+				"roundNum": float64(0), "winningTeam": "Blue",
+				"playerStats": []any{
+					map[string]any{"subject": me, "kills": []any{
+						map[string]any{"roundTime": float64(1000), "victim": ally},
+					}},
+					map[string]any{"subject": ally},
+					map[string]any{"subject": a, "kills": []any{
+						map[string]any{"roundTime": float64(2000), "victim": me},
+					}},
+					map[string]any{"subject": b},
+				},
+			},
+		},
+	}
+	row := finalizeRecent(detail, me, nil)
+	if row == nil || row.Won == nil || *row.Won {
+		t.Fatalf("expected a loss, %+v", row)
+	}
+	if row.Map != "Bind" {
+		t.Fatalf("map %s", row.Map)
+	}
+	if row.Score1 == nil || *row.Score1 != 2 || row.Score2 == nil || *row.Score2 != 5 {
+		t.Fatalf("scores %v %v", row.Score1, row.Score2)
+	}
+	if len(row.Rounds) != 1 || row.Rounds[0].Vs != 2 || !row.Rounds[0].Fail {
+		t.Fatalf("clutch %+v", row.Rounds)
+	}
+}
+
+func TestThinnerMatchDoesNotReplace(t *testing.T) {
+	won := false
+	score := 2
+	rich := recentMatch{ID: "M1", Players: []player{{PUUID: "a"}, {PUUID: "b"}}, Rounds: []roundBeat{{N: 1}, {N: 2}}, Won: &won, Score1: &score}
+	thin := recentMatch{ID: "m1", Players: []player{{PUUID: "a"}}}
+	rows := mergeMatches([]recentMatch{rich}, []recentMatch{thin})
+	if len(rows) != 1 || rows[0].Won == nil || *rows[0].Won || len(rows[0].Rounds) != 2 {
+		t.Fatalf("%+v", rows)
+	}
+}

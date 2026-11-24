@@ -459,7 +459,7 @@ func trayMenu(hwnd uintptr) uintptr {
 	}
 	add(1, "Open")
 	add(2, "Settings")
-	add(4, "Pause lookups")
+	add(4, "Pause stat lookups")
 	add(3, "Close")
 	var pt struct{ X, Y int32 }
 	user("GetCursorPos").Call(uintptr(unsafe.Pointer(&pt)))

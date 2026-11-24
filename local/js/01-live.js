@@ -92,6 +92,19 @@
           avgBox.append(el("span", null, "Average"));
           avgBox.append(el("b", null, avg || "—"));
           head.append(left, avgBox);
+          if (!yours && list.some((player) => player.agent && player.agent !== "Picking")) {
+            const copy = el("button", "tiny", "Copy agents");
+            copy.type = "button";
+            copy.onclick = (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const line = list.map((player) => player.agent && player.agent !== "Picking" ? player.agent : "").filter(Boolean).join(", ");
+              const done = () => { copy.textContent = "Copied"; setTimeout(() => { copy.textContent = "Copy agents"; }, 900); };
+              if (line && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(line).then(done).catch(done);
+              else done();
+            };
+            head.append(copy);
+          }
           card.append(head);
           const host = shape === "ffa" ? el("div", "ffa-grid") : card;
           if (shape === "ffa") card.append(host);

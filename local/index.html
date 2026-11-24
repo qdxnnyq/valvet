@@ -105,7 +105,7 @@
                 <button type="button" class="tiny" id="post-save">Save image</button>
               </div>
             </section>
-            <div id="challenge" class="chip" hidden></div>
+            <div id="challenge" hidden></div>
             <div class="stage" id="stage" hidden></div>
             <div class="lobby-band">
               <h2 id="party-title">Lobby</h2>
@@ -174,15 +174,15 @@
               <h2 id="friends-title-2">Valorant</h2>
               <div id="friends-2"></div>
             </section>
-            <section class="desk-card">
+            <section class="desk-card" id="league-card" hidden>
               <h2 id="league-title">League</h2>
               <div id="league"></div>
             </section>
-            <section class="desk-card">
+            <section class="desk-card" id="riot-card" hidden>
               <h2 id="riot-title">Riot</h2>
               <div id="riot"></div>
             </section>
-            <section class="desk-card">
+            <section class="desk-card" id="mobile-card" hidden>
               <h2 id="mobile-title">Riot Mobile</h2>
               <div id="mobile"></div>
             </section>
@@ -207,7 +207,7 @@
           <div class="hist-bar">
             <div class="filters" id="filters"></div>
             <div class="hist-picks" id="hist-picks"></div>
-            <label class="query"><input id="match-query" placeholder="Map, agent, or queue" spellcheck="false" /></label>
+            <label class="query"><input id="match-query" placeholder="Player, map, or agent" spellcheck="false" /></label>
           </div>
           <section class="desk-card" id="replay-card" hidden>
             <h2>Replays</h2>
@@ -425,7 +425,7 @@
               <button type="button" data-set="backup">Backup and feedback</button>
             </div>
             <div class="set-grid">
-            <section class="set-card" data-set="sound">
+            <section class="set-card sound-grid" data-set="sound">
               <div class="eyebrow">Sound</div>
               <h2>Sound</h2>
               <label class="set-row"><span>Interface sounds</span><input id="set-sound" type="checkbox" /></label>
@@ -626,7 +626,7 @@
                 <label class="set-row"><span>Live only</span><input id="set-minimal" type="checkbox" /></label>
                 <p class="sub">Only the live match loads until you turn this off.</p>
                 <label class="set-row"><span>Pause lookups in a game</span><input id="set-pause-lookups" type="checkbox" /></label>
-                <p class="sub">Off unless you turn it on. While it is on, headshot, damage, combat score, and extra party lookups wait until the game ends.</p>
+                <p class="sub">Off unless you turn it on. While it is on, headshot, damage, and combat score wait until the game ends. Parties, names, and the live board stay.</p>
                 <h2>Pages</h2>
                 <p class="sub">Hide pages you do not use. Live and Settings stay.</p>
                 <div id="hide-pages" class="hide-pages"></div>
@@ -639,7 +639,7 @@
               <section class="set-card" data-set="backup">
                 <div class="eyebrow">This PC</div>
                 <h2>Backup</h2>
-                <p class="sub">Save or load your settings.</p>
+                <p class="sub">One file for this PC: settings, watch list, wishes, crosshairs, and the sounds you picked. Import puts that file back. The pink update bar still reads the public version list.</p>
                 <h2>Update</h2>
                 <p class="sub" id="build-line"></p>
                 <div class="set-actions">

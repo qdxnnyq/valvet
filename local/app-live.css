@@ -6,6 +6,14 @@
       #pane-settings .set-hero h1 { margin: 0; font-size: 42px; }
       #pane-settings .set-hero .sub { margin: 6px 0 0; max-width: 420px; }
       .set-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .set-card.sound-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
+      .set-card.sound-grid > .eyebrow, .set-card.sound-grid > h2 { grid-column: 1 / -1; }
+      .set-row.drop { outline: 1px dashed var(--accent); border-radius: 12px; }
+      .compare-board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 14px; }
+      .compare-col { min-width: 0; border: 1px solid var(--line); border-radius: 16px; background: #140c11; padding: 12px; }
+      .compare-col b { display: block; font-size: 16px; letter-spacing: -0.03em; }
+      .compare-col .sub { margin-top: 4px; }
+      select { color-scheme: dark; }
       .set-wide { grid-column: 1 / -1; }
       .set-card { background: color-mix(in srgb, var(--panel) 92%, black); border: 1px solid var(--line); border-radius: 22px; padding: 16px 16px 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
       #pane-settings .set-card h2 { margin: 2px 0 12px; font-size: 22px; letter-spacing: -0.04em; text-transform: none; color: var(--accent); font-weight: 740; }
@@ -147,7 +155,8 @@
       #pane-live.match .row.pF { box-shadow: inset 6px 0 0 #ff9b6a; }
       .live-rank { display: flex; align-items: center; gap: 6px; margin-top: 0; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; padding: 0; cursor: pointer; }
       .live-rank img { width: 22px; height: 22px; object-fit: contain; flex: none; }
-      .team-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin: 0 0 8px; }
+      .team-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin: 0 0 8px; flex-wrap: wrap; }
+      .team-head .tiny { margin-left: auto; }
       .team-avg { text-align: right; }
       .team-avg span { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 750; }
       .team-avg b { display: block; margin-top: 2px; font-size: 22px; letter-spacing: -0.04em; line-height: 1; }

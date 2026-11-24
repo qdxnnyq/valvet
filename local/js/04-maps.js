@@ -155,11 +155,8 @@
           const row = stats[name];
           const rate = row && row.games ? Math.round((row.wins / row.games) * 100) + "%" : "—";
           const card = el("article", "desk-card");
-          card.append(el("div", "eyebrow", "Minimap"));
-          card.append(el("h2", null, name + " · " + rate));
-          if (row) card.append(el("p", "sub", row.wins + "–" + row.losses + " · " + row.games + " saved games"));
-          else card.append(el("p", "sub", "No saved games on this map yet."));
           if (!map.displayIcon) {
+            card.append(el("h2", null, name));
             card.append(el("p", "sub", "No minimap for this name yet."));
             root.append(card);
             continue;
@@ -167,6 +164,10 @@
           warmMap(map.displayIcon);
           const pins = calloutPins(map);
           card.append(mapFrame(map, pins, null));
+          card.append(el("h2", null, name + " · " + rate));
+          const sideLine = row ? ["ATK " + (row.atkW || 0) + "–" + (row.atkL || 0), "DEF " + (row.defW || 0) + "–" + (row.defL || 0)].join(" · ") : "";
+          if (row) card.append(el("p", "sub", row.wins + "–" + row.losses + " · " + row.games + " saved games" + (sideLine ? " · " + sideLine : "")));
+          else card.append(el("p", "sub", "No saved games on this map yet."));
           root.append(card);
         }
       }

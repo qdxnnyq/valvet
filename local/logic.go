@@ -469,21 +469,30 @@ func prettyMap(path string) string {
 	return strings.ToUpper(name[:1]) + name[1:]
 }
 
-func mapLabel(name string) (string, bool) {
-	known := map[string]string{
-		"ascent": "Ascent", "bind": "Bind", "haven": "Haven", "split": "Split", "icebox": "Icebox",
-		"breeze": "Breeze", "fracture": "Fracture", "pearl": "Pearl", "lotus": "Lotus", "sunset": "Sunset",
-		"abyss": "Abyss", "corrode": "Corrode", "summit": "Summit",
-		"bonsai": "Split", "canyon": "Fracture", "duality": "Bind", "foxtrot": "Breeze",
-		"infinity": "Abyss", "jam": "Lotus", "juliett": "Sunset", "pitt": "Pearl", "port": "Icebox",
-		"triad": "Haven", "rook": "Corrode", "plummet": "Summit",
-		"range": "Range", "poveglia": "The Range", "povegliav2": "The Range", "rangev2": "The Range",
-		"basictraining": "The Range", "npev2": "Basic Training",
-		"hurm_alley": "District", "hurm_bowl": "Kasbah", "hurm_helix": "Drift",
-		"hurm_hightide": "Glitch", "hurm_yard": "Piazza",
-		"district": "District", "kasbah": "Kasbah", "drift": "Drift", "glitch": "Glitch", "piazza": "Piazza",
+var mapNames = map[string]string{
+	"ascent": "Ascent", "bind": "Bind", "haven": "Haven", "split": "Split", "icebox": "Icebox",
+	"breeze": "Breeze", "fracture": "Fracture", "pearl": "Pearl", "lotus": "Lotus", "sunset": "Sunset",
+	"abyss": "Abyss", "corrode": "Corrode", "summit": "Summit",
+	"bonsai": "Split", "canyon": "Fracture", "duality": "Bind", "foxtrot": "Breeze",
+	"infinity": "Abyss", "jam": "Lotus", "juliett": "Sunset", "pitt": "Pearl", "port": "Icebox",
+	"triad": "Haven", "rook": "Corrode", "plummet": "Summit",
+	"range": "Range", "poveglia": "The Range", "povegliav2": "The Range", "rangev2": "The Range",
+	"basictraining": "The Range", "npev2": "Basic Training",
+	"hurm_alley": "District", "hurm_bowl": "Kasbah", "hurm_helix": "Drift",
+	"hurm_hightide": "Glitch", "hurm_yard": "Piazza",
+	"district": "District", "kasbah": "Kasbah", "drift": "Drift", "glitch": "Glitch", "piazza": "Piazza",
+}
+
+func mapNamesJSON() []byte {
+	raw, err := json.Marshal(mapNames)
+	if err != nil || len(raw) == 0 {
+		return []byte("{}")
 	}
-	nice, ok := known[strings.ToLower(name)]
+	return raw
+}
+
+func mapLabel(name string) (string, bool) {
+	nice, ok := mapNames[strings.ToLower(name)]
 	return nice, ok
 }
 
@@ -1872,6 +1881,14 @@ func matchRounds(detail map[string]any, players []player) []roundBeat {
 			mine = p.Team
 		}
 	}
+	rawMine := ""
+	for _, item := range asArr(pick(detail, "players", "Players")) {
+		row := asMap(item)
+		if strings.EqualFold(playerID(row), me) {
+			rawMine = str(pick(row, "teamId", "TeamID"))
+			break
+		}
+	}
 	var out []roundBeat
 	ys, ns := 0, 0
 	for _, item := range asArr(pick(detail, "roundResults", "RoundResults")) {
@@ -1884,8 +1901,12 @@ func matchRounds(detail map[string]any, players []player) []roundBeat {
 		} else if winner != "" {
 			ns++
 		}
+		side := mine
+		if rawMine != "" {
+			side = teamSide(rawMine, queueOf(detail), n)
+		}
 		vs := clutchCount(round, me, players)
-		out = append(out, roundBeat{N: n, You: you, How: roundHow(round), Side: mine, ScoreY: ys, ScoreN: ns, Vs: vs, Fail: vs > 0 && !you})
+		out = append(out, roundBeat{N: n, You: you, How: roundHow(round), Side: side, ScoreY: ys, ScoreN: ns, Vs: vs, Fail: vs > 0 && !you})
 	}
 	return out
 }

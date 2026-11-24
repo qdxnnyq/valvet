@@ -1,5 +1,6 @@
-      .mood-box { width: 64px; height: 64px; min-width: 64px; min-height: 64px; overflow: hidden; border-radius: 12px; flex: none; background: transparent; }
-      .mood-box img { width: 64px !important; height: 64px !important; max-width: none; display: block !important; object-fit: contain; background: transparent; border-radius: 0; }
+      .mood-box { width: 52px; height: 52px; min-width: 52px; min-height: 52px; overflow: hidden; border-radius: 12px; flex: none; background: transparent; }
+      .mood-box img { width: 52px !important; height: 52px !important; max-width: none; display: block !important; object-fit: contain; background: transparent; border-radius: 0; }
+      .game .result { width: 132px; flex: none; display: flex; align-items: center; gap: 8px; }
       .wl { display: inline-grid; place-items: center; min-width: 52px; height: 26px; font-size: 11px; font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
       .wl.w { color: #9dffc3; border-color: rgba(61,206,134,.45); background: rgba(61,206,134,.1); }
       .wl.l { color: #ffb3c4; border-color: rgba(255,77,109,.4); background: rgba(255,77,109,.1); }
