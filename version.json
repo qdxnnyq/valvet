@@ -1,7 +1,7 @@
 {
-  "version": 195,
-  "label": "1.9.5",
-  "name": "1.9.5",
-  "notes": "Last seen stays current. The act poster saves into Pictures. Quiet hours add the colon as you type.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v195/Valvet.exe"
+  "version": 196,
+  "label": "1.9.6",
+  "name": "1.9.6",
+  "notes": "Last seen follows the last game you shared.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v196/Valvet.exe"
 }

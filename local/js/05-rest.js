@@ -630,6 +630,37 @@
           }
         }
         if (dirty) writeJSON("valvet-last-seen", book);
+        liftSeenFromHistory();
+      }
+      function liftSeenFromHistory() {
+        const played = new Map();
+        for (const match of history || []) {
+          const start = typeof matchStart === "function" ? matchStart(match) : 0;
+          if (!start) continue;
+          const length = Number(match.length) || 0;
+          let end = start + (length > 0 ? length * 1000 : 0);
+          if (!end || end < start) end = start;
+          if (end > Date.now()) end = Date.now();
+          const map = (typeof mapName === "function" ? mapName(match.map) : "") || match.map || "";
+          const mode = match.mode || "";
+          for (const player of match.players || []) {
+            const id = String(player.puuid || "").toLowerCase();
+            if (!id || player.you) continue;
+            const prev = played.get(id);
+            if (!prev || end > prev.at) played.set(id, { at: end, map, mode });
+          }
+        }
+        if (!played.size) return;
+        const book = readJSON("valvet-last-seen") || {};
+        let dirty = false;
+        for (const [id, hit] of played) {
+          const row = book[id];
+          if (!row || row.live) continue;
+          if (hit.at <= (Number(row.at) || 0) + 60000) continue;
+          book[id] = { ...row, at: hit.at, map: hit.map || row.map || "", mode: hit.mode || row.mode || "", product: "valorant", state: "In game" };
+          dirty = true;
+        }
+        if (dirty) writeJSON("valvet-last-seen", book);
       }
       function paintSeen() {
         const root = document.getElementById("seen");
@@ -648,12 +679,15 @@
           return;
         }
         const place = (row) => {
-          const game = row.product === "league" ? "League" : row.product === "valorant" ? "Valorant" : row.product === "riot" ? "Riot" : "";
-          const where = [row.map, row.mode].filter(Boolean).join(" · ");
+          const map = row.map || "";
+          const mode = row.mode || "";
+          if (map) return mode && mode !== map ? map + " · " + mode : map;
           const state = String(row.state || "");
-          if (where) return where;
-          if (state && state !== "Online" && state !== "Offline") return [game, state].filter(Boolean).join(" · ");
-          return game || "Riot";
+          const product = row.product || "";
+          if (product === "league") return state && state !== "Online" && state !== "Offline" ? "League · " + state : "League";
+          if (product === "valorant") return state && state !== "Online" && state !== "Offline" && state !== "In game" ? state : "Valorant";
+          if (product === "riot" || /^in riot$/i.test(state)) return "Riot Client";
+          return state || "Riot";
         };
         const clockLabel = (at) => {
           const clock = new Date(at);

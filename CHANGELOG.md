@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.6
+
+Last seen uses the end of the last shared game when that is newer than the old presence stamp.
+
 ## 1.9.5
 
 Last seen uses the last time someone was actually online.
