@@ -1,6 +1,6 @@
 {
-  "version": 166,
-  "name": "1.8.41",
-  "notes": "Clear win cat, history cats, win and loss sounds, Trace blink, parties, peak label, team sort. Sounds are in Settings.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v166/Valvet.exe"
+  "version": 167,
+  "name": "1.8.42",
+  "notes": "Win and loss on history, real clutches, no daily line, parties during pause, wish button under the price.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v167/Valvet.exe"
 }
