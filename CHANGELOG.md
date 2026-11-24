@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.24
+
+Session time counts the full length of today's games.
+
 ## 1.9.23
 
 Live ranks and every party load together, without waiting on each other.

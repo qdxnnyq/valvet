@@ -337,6 +337,12 @@
         if (rounds) return rounds * 100000;
         return 35 * 60000;
       }
+      function matchMs(match) {
+        const n = Number(match && match.length) || 0;
+        if (n >= 100000) return n;
+        if (n > 0) return n * 1000;
+        return guessMatchLength(match);
+      }
       function monthBars() {
         const today = dayStart(Date.now());
         const keys = [];
@@ -365,7 +371,7 @@
           if (!start) continue;
           const key = dayStart(start);
           if (matches[key] == null) continue;
-          matches[key] += Number(match.length) > 0 ? Number(match.length) : guessMatchLength(match);
+          matches[key] += matchMs(match);
         }
         return keys.map((key) => ({
           key,
@@ -477,6 +483,7 @@
           const bits = [match.mode, match.won === true ? "Win" : match.won === false ? "Loss" : "", match.score1 != null && match.score2 != null ? match.score1 + "–" + match.score2 : ""].filter(Boolean);
           mid.append(el("div", "sub", bits.join(" · ")));
           row.append(mid);
+          row.append(el("div", null, clockSpan(matchMs(match))));
           row.onclick = () => openMatchSheet(match);
           wrap.append(row);
         }
@@ -488,18 +495,23 @@
         const start = dayStart(Date.now());
         const rows = (readJSON("valvet-sessions") || []).filter((row) => row && row.end >= start);
         const open = readJSON("valvet-session-open");
-        let total = 0;
+        const games = dayMatches(start);
+        let closed = 0;
         const items = [];
-        for (const row of rows) {
-          const ms = Math.max(0, row.end - row.start);
-          total += ms;
-          items.push({ when: new Date(row.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), queue: row.queue || "Game", map: row.map || "—", ms, live: false });
+        for (const row of rows) closed += Math.max(0, row.end - row.start);
+        let played = 0;
+        for (const match of games) played += matchMs(match);
+        let total = Math.max(closed, played);
+        if (open && open.start) total += Math.max(0, Date.now() - open.start);
+        if (games.length) {
+          for (const match of games) {
+            const when = Number(match.started) || Date.parse(match.when || "");
+            items.push({ when: when ? new Date(when).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—", queue: match.mode || "Game", map: match.map || "—", ms: matchMs(match), live: false });
+          }
+        } else {
+          for (const row of rows) items.push({ when: new Date(row.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), queue: row.queue || "Game", map: row.map || "—", ms: Math.max(0, row.end - row.start), live: false });
         }
-        if (open && open.start) {
-          const ms = Math.max(0, Date.now() - open.start);
-          total += ms;
-          items.push({ when: "Now", queue: open.queue || "Game", map: open.map || "—", ms, live: true });
-        }
+        if (open && open.start) items.push({ when: "Now", queue: open.queue || "Game", map: open.map || "—", ms: Math.max(0, Date.now() - open.start), live: true });
         const picked = sessionDay ? dayMatches(sessionDay) : [];
         const sessionSig = [sessionDay, picked.map((match) => match.id).join(","), items.map((item) => [item.when, item.queue, item.map, Math.floor(item.ms / 60000), item.live ? 1 : 0].join(":")).join("|")].join("~");
         if (root.dataset.sig === sessionSig && root.querySelector(".session-hero, .empty")) return;

@@ -885,7 +885,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.9.23", title: "Valvet", lines: ["Live ranks and every party load together, without waiting on each other."] },
+        { ver: "1.9.24", title: "Valvet", lines: ["Session time counts the full length of today's games."] },
         { ver: "1.9.16", title: "Valvet", lines: ["When a match is found, the live lobby shows again. Your side is on the left and theirs is on the right."] },
         { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
