@@ -173,6 +173,16 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		friends = append([]friend(nil), c.lobbyFriends...)
 	}
 	c.mu.Unlock()
+	early, earlyKind := c.quickMatch(port, auth, sess.puuid)
+	if early != nil {
+		useLobby = true
+		if len(party) == 0 {
+			c.mu.Lock()
+			party = append([]friend(nil), c.lobbyParty...)
+			friends = append([]friend(nil), c.lobbyFriends...)
+			c.mu.Unlock()
+		}
+	}
 	if !useLobby {
 		party, friends = c.lobby(ctx, port, auth, sess)
 		c.mu.Lock()
@@ -203,7 +213,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			Store:   shop{Offers: []storeItem{}, Night: []storeItem{}, Bundles: bundles, Kingdom: []storeItem{}},
 		}
 	}
-	if entErr != nil || sess.puuid == "" || sess.access == "" || sess.entitlement == "" {
+	if early == nil && (entErr != nil || sess.puuid == "" || sess.access == "" || sess.entitlement == "") {
 		return clientOnly()
 	}
 	c.mu.Lock()
@@ -216,7 +226,14 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	c.mu.Unlock()
 	hot := prevPhase == "In game" || prevPhase == "Loading lobby" || prevPhase == "Agent select" || prevPhase == "In queue"
 	region, shard := "", ""
-	if (hot || time.Since(logAt) < 3*time.Minute) && prevRegion != "" && prevShard != "" {
+	if early != nil && prevRegion != "" && prevShard != "" {
+		region, shard = prevRegion, prevShard
+		if prevVer != "" {
+			sess.version = prevVer
+		} else {
+			sess.version = c.version
+		}
+	} else if (hot || time.Since(logAt) < 3*time.Minute) && prevRegion != "" && prevShard != "" {
 		region, shard = prevRegion, prevShard
 		if prevVer != "" {
 			sess.version = prevVer
@@ -243,19 +260,19 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		c.logAt = time.Now()
 		c.mu.Unlock()
 	}
-	if region == "" || shard == "" {
+	if (region == "" || shard == "") && early == nil {
 		return clientOnly()
 	}
 	sess.region, sess.shard = region, shard
 	c.mu.Lock()
 	c.session = sess
 	c.mu.Unlock()
-	if !hot {
+	if !hot && early == nil {
 		c.ensureAgents(ctx)
 		c.ensureRanks(ctx)
 	}
 	store := shop{Offers: []storeItem{}, Night: []storeItem{}, Bundles: []bundleView{}, Kingdom: []storeItem{}}
-	if hot || liveOnly || skipStore {
+	if hot || liveOnly || skipStore || early != nil {
 		c.mu.Lock()
 		store = c.shop
 		c.mu.Unlock()
@@ -275,21 +292,30 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 
 	var match map[string]any
 	phase := "In menu"
-	switch loop {
-	case "PREGAME":
-		phase = "Agent select"
-		match = c.localMatch(ctx, port, auth, "pregame", sess.puuid)
-	case "INGAME":
-		phase = "In game"
-		match = c.localMatch(ctx, port, auth, "core-game", sess.puuid)
-	default:
-		if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
+	if early != nil {
+		match = early
+		if earlyKind == "core-game" {
+			phase = "In game"
+		} else {
 			phase = "Agent select"
-			match = m
-		} else if loop != "MENUS" {
-			if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
-				phase = "In game"
+		}
+	} else {
+		switch loop {
+		case "PREGAME":
+			phase = "Agent select"
+			match = c.localMatch(ctx, port, auth, "pregame", sess.puuid)
+		case "INGAME":
+			phase = "In game"
+			match = c.localMatch(ctx, port, auth, "core-game", sess.puuid)
+		default:
+			if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
+				phase = "Agent select"
 				match = m
+			} else if loop != "MENUS" {
+				if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
+					phase = "In game"
+					match = m
+				}
 			}
 		}
 	}
@@ -405,7 +431,9 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	}
 	presenceHints := map[string]partyHint{}
 	if live && len(players) > 0 {
-		presenceHints = c.stampLivePresence(ctx, port, auth, players)
+		pctx, cancelPresence := context.WithTimeout(ctx, 1200*time.Millisecond)
+		presenceHints = c.stampLivePresence(pctx, port, auth, players)
+		cancelPresence()
 		if matchID != "" {
 			for id, hint := range c.restoreRoster(matchID) {
 				if _, ok := presenceHints[id]; !ok && hint.id != "" {
@@ -523,11 +551,18 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 				mine = hint.id
 			}
 		}
-		members := c.myPartyMembers(ctx, port, auth, me)
+		members := []string{}
+		{
+			pctx, cancelParty := context.WithTimeout(ctx, 800*time.Millisecond)
+			members = c.myPartyMembers(pctx, port, auth, me)
+			cancelParty()
+		}
 		if mine != "" {
-			if extra := c.localPartyMembers(ctx, port, auth, mine); len(extra) >= 2 {
+			pctx, cancelLocal := context.WithTimeout(ctx, 800*time.Millisecond)
+			if extra := c.localPartyMembers(pctx, port, auth, mine); len(extra) >= 2 {
 				members = extra
 			}
+			cancelLocal()
 		}
 		if mine == "" && len(members) >= 2 {
 			mine = "mine"

@@ -518,6 +518,18 @@ func (c *riotClient) matchDoc(ctx context.Context, port, auth string, sess riotS
 	return c.glzMatch(ctx, sess, kind)
 }
 
+func (c *riotClient) quickMatch(port, auth, puuid string) (map[string]any, string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2500*time.Millisecond)
+	defer cancel()
+	if m := c.localMatch(ctx, port, auth, "pregame", puuid); m != nil {
+		return m, "pregame"
+	}
+	if m := c.localMatch(ctx, port, auth, "core-game", puuid); m != nil {
+		return m, "core-game"
+	}
+	return nil, ""
+}
+
 func (c *riotClient) localMatch(ctx context.Context, port, auth, kind, puuid string) map[string]any {
 	if port == "" || puuid == "" {
 		return nil
