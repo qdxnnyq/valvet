@@ -531,7 +531,7 @@
         const state = String((person && person.state) || "").trim().toLowerCase();
         const mode = String((person && person.mode) || "").trim().toLowerCase();
         const product = String((person && person.product) || "").trim().toLowerCase();
-        return state === "mobile" || mode === "mobile" || mode === "riot mobile" || product.includes("mobile");
+        return !!(person && person.mobile) || state === "mobile" || mode === "mobile" || mode === "riot mobile" || product === "bacon" || product.includes("mobile") || product.includes("bacon");
       }
       function onDesktop(person) {
         if (!person || isRiotMobile(person)) return false;
@@ -592,11 +592,21 @@
           here.add(id);
           const prev = book[id] || {};
           if (isRiotMobile(person)) {
-            if (!prev.desk) {
+            const fake = !prev.real && prev.at && now - prev.at < 45 * 60000;
+            if (!prev.real && !(prev.at > 0) && !fake) {
               if (book[id]) { delete book[id]; dirty = true; }
               continue;
             }
-            put(id, { ...prev, live: false });
+            put(id, {
+              ...prev,
+              name: person.name || prev.name || "Player",
+              tag: person.tag || prev.tag || "",
+              at: fake ? 0 : (prev.at || 0),
+              live: false,
+              since: 0,
+              playSince: 0,
+              mobileNow: true,
+            });
             continue;
           }
           const online = onDesktop(person);
@@ -606,7 +616,7 @@
           const wasPlaying = /in game|agent select|loading/i.test(String(prev.state || ""));
           if (online) seenTouch.set(id, now);
           let at = prev.at || 0;
-          if (online) at = !prev.live || !prev.at || now - prev.at > 120000 ? now : prev.at;
+          if (online) at = !prev.at || now - prev.at > 60000 ? now : prev.at;
           else if (prev.live && seenTouch.has(id)) at = seenTouch.get(id);
           put(id, {
             name: person.name || prev.name || "Player",
@@ -616,6 +626,8 @@
             playSince: playing ? (wasPlaying && prev.playSince ? prev.playSince : now) : 0,
             live: online,
             desk: online ? true : !!prev.desk,
+            real: online ? true : !!prev.real,
+            mobileNow: false,
             product: online ? (person.product || prev.product || "") : (prev.product || ""),
             state,
             mode: online ? (person.mode || "") : (prev.mode || ""),
@@ -632,24 +644,34 @@
         if (dirty) writeJSON("valvet-last-seen", book);
         liftSeenFromHistory();
       }
-      function liftSeenFromHistory() {
+      function matchSeenAt(match) {
+        const start = typeof matchStart === "function" ? matchStart(match) : 0;
+        const parsed = Date.parse((match && match.when) || "");
+        let at = start || (Number.isFinite(parsed) ? parsed : 0);
+        if (Number.isFinite(parsed) && parsed > at) at = parsed;
+        const length = Number(match && match.length) || 0;
+        if (length > 0 && length < 90 * 60) at += length * 1000;
+        if (!at) return 0;
+        return Math.min(Date.now(), at);
+      }
+      function historySeenBook() {
         const played = new Map();
         for (const match of history || []) {
-          const start = typeof matchStart === "function" ? matchStart(match) : 0;
-          if (!start) continue;
-          const length = Number(match.length) || 0;
-          let end = start + (length > 0 ? length * 1000 : 0);
-          if (!end || end < start) end = start;
-          if (end > Date.now()) end = Date.now();
+          const at = matchSeenAt(match);
+          if (!at) continue;
           const map = (typeof mapName === "function" ? mapName(match.map) : "") || match.map || "";
           const mode = match.mode || "";
           for (const player of match.players || []) {
             const id = String(player.puuid || "").toLowerCase();
             if (!id || player.you) continue;
             const prev = played.get(id);
-            if (!prev || end > prev.at) played.set(id, { at: end, map, mode });
+            if (!prev || at > prev.at) played.set(id, { at, map, mode });
           }
         }
+        return played;
+      }
+      function liftSeenFromHistory() {
+        const played = historySeenBook();
         if (!played.size) return;
         const book = readJSON("valvet-last-seen") || {};
         let dirty = false;
@@ -657,7 +679,7 @@
           const row = book[id];
           if (!row || row.live) continue;
           if (hit.at <= (Number(row.at) || 0) + 60000) continue;
-          book[id] = { ...row, at: hit.at, map: hit.map || row.map || "", mode: hit.mode || row.mode || "", product: "valorant", state: "In game" };
+          book[id] = { ...row, at: hit.at, map: hit.map || row.map || "", mode: hit.mode || row.mode || "", product: "valorant", state: "In game", real: true };
           dirty = true;
         }
         if (dirty) writeJSON("valvet-last-seen", book);
@@ -666,7 +688,19 @@
         const root = document.getElementById("seen");
         if (!root) return;
         const book = readJSON("valvet-last-seen") || {};
-        const rows = Object.entries(book).map(([id, row]) => ({ ...row, id })).filter((row) => row && row.at && String(row.state || "").toLowerCase() !== "mobile").sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.at || 0) - (a.at || 0));
+        const played = historySeenBook();
+        const rows = Object.entries(book).map(([id, row]) => {
+          const next = { ...row, id };
+          const hit = played.get(id);
+          if (hit && !next.live && hit.at > (Number(next.at) || 0) + 60000) {
+            next.at = hit.at;
+            next.map = hit.map || next.map || "";
+            next.mode = hit.mode || next.mode || "";
+            next.product = "valorant";
+            next.state = "In game";
+          }
+          return next;
+        }).filter((row) => row && row.at && String(row.state || "").toLowerCase() !== "mobile").sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.at || 0) - (a.at || 0));
         const sig = rows.map((row) => [row.name, row.live ? 1 : 0, row.state, row.map, row.mode, row.product, row.at, row.playSince || 0].join(":")).join("|");
         if (root.dataset.sig === sig) return;
         root.dataset.sig = sig;

@@ -152,6 +152,14 @@ func riotMobilePresence(p map[string]any) bool {
 	if chat == "mobile" {
 		return true
 	}
+	product := strings.ToLower(strings.TrimSpace(str(pick(p, "product", "productName", "Product"))))
+	switch product {
+	case "bacon", "riotmobile", "riot_mobile", "riot-mobile", "riot mobile":
+		return true
+	}
+	if strings.Contains(product, "bacon") || strings.Contains(product, "riotmobile") || strings.Contains(product, "riot-mobile") || strings.Contains(product, "riot_mobile") {
+		return true
+	}
 	plat := strings.ToLower(strings.TrimSpace(str(pick(p, "platform", "Platform"))))
 	switch plat {
 	case "android", "ios", "iphone", "ipad", "mobile":
@@ -497,6 +505,7 @@ func (c *riotClient) lobby(ctx context.Context, port, auth string, sess riotSess
 				label = "AFK"
 			}
 			person.State = label
+			person.Mobile = label == "Mobile"
 		default:
 			person.Product = "valorant"
 		}

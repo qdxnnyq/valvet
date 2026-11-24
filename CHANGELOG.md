@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.7
+
+Riot Mobile no longer counts as online. Last seen uses the last desktop session or shared game.
+
 ## 1.9.6
 
 Last seen uses the end of the last shared game when that is newer than the old presence stamp.

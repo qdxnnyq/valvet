@@ -1,7 +1,7 @@
 {
-  "version": 196,
-  "label": "1.9.6",
-  "name": "1.9.6",
-  "notes": "Last seen follows the last game you shared.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v196/Valvet.exe"
+  "version": 197,
+  "label": "1.9.7",
+  "name": "1.9.7",
+  "notes": "Riot Mobile is not online. Last seen uses the last real session or shared game.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v197/Valvet.exe"
 }

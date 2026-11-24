@@ -51,6 +51,14 @@ func TestLeagueOnlyWhenPlaying(t *testing.T) {
 	if bucket, state := presenceBucket(android); bucket != "riot" || state != "Mobile" {
 		t.Fatalf("android %+v %s", bucket, state)
 	}
+	bacon := map[string]any{"product": "bacon", "state": "chat"}
+	if bucket, state := presenceBucket(bacon); bucket != "riot" || state != "Mobile" {
+		t.Fatalf("bacon %+v %s", bucket, state)
+	}
+	bucket, state, _ := classifyPresences([]map[string]any{{"product": "bacon", "state": "chat"}})
+	if bucket != "riot" || state != "Mobile" {
+		t.Fatalf("bacon only %+v %s", bucket, state)
+	}
 	riot := map[string]any{"product": "riotclient", "state": "chat"}
 	if bucket, state := presenceBucket(riot); bucket != "riot" || state != "In Riot" {
 		t.Fatalf("riot %+v %s", bucket, state)
@@ -71,7 +79,7 @@ func TestLeagueOnlyWhenPlaying(t *testing.T) {
 	if bucket, state := presenceBucket(riotGame); bucket != "league" || state != "In game" {
 		t.Fatalf("riot private %+v %s", bucket, state)
 	}
-	bucket, state, _ := classifyPresences([]map[string]any{
+	bucket, state, _ = classifyPresences([]map[string]any{
 		{"product": "riotclient", "state": "chat", "puuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"},
 		{"product": "league_of_legends", "state": "dnd", "puuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"},
 	})

@@ -174,6 +174,7 @@ type friend struct {
 	PartySize int    `json:"partySize,omitempty"`
 	MaxParty  int    `json:"maxParty,omitempty"`
 	Product   string `json:"product,omitempty"`
+	Mobile    bool   `json:"mobile,omitempty"`
 }
 
 type storeItem struct {
