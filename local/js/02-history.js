@@ -22,6 +22,23 @@
       let histAgent = localStorage.getItem("valvet-hist-agent") || "";
       let histParty = localStorage.getItem("valvet-hist-party") || "";
       let histWith = "";
+      let hideHistStats = localStorage.getItem("valvet-hist-stats") === "off";
+      const histStats = document.getElementById("hist-stats");
+      function paintHistStatsBtn() {
+        if (!histStats) return;
+        histStats.textContent = hideHistStats ? "Show stats" : "Hide stats";
+        histStats.classList.toggle("solid", !hideHistStats);
+      }
+      if (histStats) {
+        paintHistStatsBtn();
+        histStats.onclick = () => {
+          hideHistStats = !hideHistStats;
+          localStorage.setItem("valvet-hist-stats", hideHistStats ? "off" : "on");
+          paintHistStatsBtn();
+          recentKey = "";
+          drawRecent(modeQueue ? modeMatches || [] : history);
+        };
+      }
       function youOf(match) {
         return ((match && match.players) || []).find((player) => player.you) || null;
       }
@@ -280,7 +297,7 @@
         paintHistPicks(history && history.length ? history : source);
         const showing = queryMatches(typed, (source || []).filter(passesHist));
         for (const match of showing) markAwards(match);
-        let key = mode + "|" + modeQueue + "|" + typed.toLowerCase() + "|" + histMap + "|" + histAgent + "|" + histParty + "|" + histWith + "|" + (showAct ? "a" : "");
+        let key = mode + "|" + modeQueue + "|" + typed.toLowerCase() + "|" + histMap + "|" + histAgent + "|" + histParty + "|" + histWith + "|" + (showAct ? "a" : "") + "|" + (hideHistStats ? "0" : "1");
         for (const match of showing) {
           const won = resultOf(match);
           key += (match.id || "") + ":" + match.score1 + "-" + match.score2 + ":" + (won === true ? "w" : won === false ? "l" : "") + ":" + (rrDelta(match) == null ? "" : rrDelta(match)) + ":";
@@ -305,9 +322,9 @@
           if (pane) pane.scrollTop = scroll;
           return;
         }
-        const perf = performanceCard(showing);
+        const perf = hideHistStats ? null : performanceCard(showing);
         if (perf) recent.append(perf);
-        const form = formStrip(showing);
+        const form = hideHistStats ? null : formStrip(showing);
         if (form) recent.append(form);
         showing.forEach((match, index) => {
           const won = resultOf(match);

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.2
+
+History has a button to hide the stats on top.
+Choose file and quiet hours use the same dark controls as the rest of Settings.
+A friend in your game uses the alert sound, and only if they are not in your party.
+
 ## 1.9.1
 
 Open in Valorant starts the game instead of the Windows app picker.

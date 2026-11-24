@@ -120,6 +120,8 @@
         for (const person of [...(data.friends || []), ...(data.party || [])]) {
           if (person.puuid && !person.you) friends.add(person.puuid.toLowerCase());
         }
+        const you = (data.players || []).find((player) => player.you);
+        const yourParty = you && you.party;
         const live = data.phase === "Agent select" || data.phase === "In game" || data.phase === "Loading lobby";
         if (!live) alerted.clear();
         let fresh = false;
@@ -131,7 +133,8 @@
           const key = trackKey(player.name, player.tag);
           const watched = key !== "#" && watch.some((item) => trackKey(item.name, item.tag) === key);
           const unfriendHit = unfriends.some((item) => (item.puuid && id && String(item.puuid).toLowerCase() === id) || trackKey(item.name, item.tag) === key);
-          const randomFriend = id && friends.has(id) && !party.has(id);
+          const inParty = (id && party.has(id)) || (yourParty && player.party && player.party === yourParty);
+          const randomFriend = !!(id && friends.has(id) && !inParty);
           if (!watched && !randomFriend && !unfriendHit) continue;
           trackedNow.add(id || key);
           if (live && !alerted.has(id || key)) {
@@ -169,7 +172,7 @@
         playNotes([740, 988, 740, 1480, 1976], "square", 0.08, true, { step: 0.055, decay: 11 });
       }
       function playSaved(kind, force) {
-        const defaults = { friend: "none", watch: "none", played: "none" };
+        const defaults = { friend: "pack", watch: "none", played: "none" };
         const pick = localStorage.getItem("valvet-" + kind + "-sound") || defaults[kind] || "soft";
         if (pick === "none") return;
         if (!force && (quietNow() || localStorage.getItem("valvet-sound") === "off")) return;

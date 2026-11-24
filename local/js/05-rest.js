@@ -2423,7 +2423,7 @@
         const bindSound = (id, kind) => {
           const node = document.getElementById(id);
           if (!node) return;
-          const defaults = { friend: "none", watch: "none", played: "none" };
+          const defaults = { friend: "pack", watch: "none", played: "none" };
           node.value = localStorage.getItem("valvet-" + kind + "-sound") || defaults[kind];
           hearSelect(node, () => { localStorage.setItem("valvet-" + kind + "-sound", node.value); playSaved(kind, true); });
         };
