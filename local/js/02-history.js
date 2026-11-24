@@ -418,28 +418,18 @@
         return wrap;
       }
       function ffaStrip(match) {
-        const players = [...((match && match.players) || [])].sort((a, b) => killCount(b) - killCount(a));
-        const you = players.find((player) => player.you);
-        const picked = [];
-        const seen = new Set();
-        for (const player of [you, ...players.slice(0, 3)]) {
-          if (!player) continue;
-          const key = whoKey(player);
-          if (seen.has(key)) continue;
-          seen.add(key);
-          picked.push(player);
-        }
-        const strip = el("div", "ffa-strip");
-        for (const player of picked) {
-          const chip = el("button", "ffa-chip" + (player.you ? " me" : "") + (players[0] && whoKey(player) === whoKey(players[0]) ? " top" : ""));
+        const players = [...((match && match.players) || [])].sort((a, b) => killCount(b) - killCount(a) || String(a.name || "").localeCompare(String(b.name || "")));
+        const board = el("div", "ffa-board");
+        players.forEach((player, index) => {
+          const chip = el("button", "ffa-chip" + (player.you ? " me" : "") + (index === 0 ? " top" : ""));
           chip.type = "button";
-          chip.append(el("b", null, String(killCount(player))));
+          chip.append(el("i", null, String(index + 1)));
           chip.append(el("span", null, player.you ? "You" : String(player.name || "Player").split("#")[0].trim()));
+          chip.append(el("b", null, String(killCount(player))));
           chip.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
-          strip.append(chip);
-        }
-        if (players.length > picked.length) strip.append(el("span", "ffa-more", "+" + (players.length - picked.length)));
-        return strip;
+          board.append(chip);
+        });
+        return board;
       }
       function pairRow(match, shape) {
         const players = (match && match.players) || [];
@@ -2262,14 +2252,16 @@
             reader.onload = () => resolve(reader.result);
             reader.readAsDataURL(blob);
           });
+          const stamp = new Date();
+          const name = "valvet-act-" + stamp.getFullYear() + "-" + String(stamp.getMonth() + 1).padStart(2, "0") + "-" + String(stamp.getDate()).padStart(2, "0") + ".png";
           try {
-            const res = await fetch("/api/picture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "valvet-act.png", data, quiet: true }) });
+            const res = await fetch("/api/picture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, data }) });
             const body = await res.json();
             if (button) button.textContent = body && body.ok ? "Saved to Pictures" : "Act poster";
           } catch {
             if (button) button.textContent = "Act poster";
           }
-          setTimeout(() => { if (button) button.textContent = "Act poster"; }, 1600);
+          setTimeout(() => { if (button) button.textContent = "Act poster"; }, 2200);
         }, "image/png");
       }
       function attachDeathBeat(match) {
@@ -2580,23 +2572,16 @@
         if (comparePair.length > 2) comparePair = comparePair.slice(-2);
       }
       function compareBoard() {
-        if (!comparePair.length) return null;
+        if (comparePair.length < 2) return null;
         const board = el("div", "compare-board");
-        const paint = (row) => {
+        comparePair.forEach((row) => {
           const col = el("div", "compare-col");
           col.append(el("b", null, row.name + (row.tag ? " #" + row.tag : "")));
           const rate = row.games ? Math.round((row.wins / row.games) * 100) + "%" : "—";
-          col.append(el("div", "sub", [row.rank, row.games + " games", rate + " wins"].filter(Boolean).join(" · ")));
+          col.append(el("div", "sub", [row.rank, row.games + " together", rate + " wins"].filter(Boolean).join(" · ")));
           col.append(el("div", "sub", row.kills + "/" + row.deaths + "/" + row.assists + (row.hs ? " · " + row.hs + "% HS" : "")));
           board.append(col);
-        };
-        comparePair.forEach(paint);
-        if (comparePair.length === 1) {
-          const wait = el("div", "compare-col");
-          wait.append(el("b", null, "Second player"));
-          wait.append(el("div", "sub", "Open someone else and press Compare."));
-          board.append(wait);
-        }
+        });
         return board;
       }
       function renderProfile(seed, data) {
@@ -2604,72 +2589,7 @@
         slot.replaceChildren();
         const hero = el("div", "hero");
         const img = face(seed && seed.agentIcon ? seed : (data && data.agentIcon ? data : seed));
-        const id = el("div");
-        const tools = el("div", "profile-tools");
-        const watchBtn = el("button", "tiny solid", onWatchList(seed) ? "On watchlist" : "Add to watchlist");
-        watchBtn.type = "button";
-        watchBtn.onclick = async (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const tag = (data && data.tag) || seed.tag || "";
-          const whoName = (data && data.name) || seed.name || "";
-          if (!whoName || !tag) {
-            watchBtn.textContent = "Needs a name#tag";
-            return;
-          }
-          watchBtn.textContent = "Saving…";
-          try {
-            const book = await (await fetch("/api/social?q=" + encodeURIComponent(whoName + "#" + tag), { method: "POST" })).json();
-            if (book && Array.isArray(book.watch)) watch = book.watch;
-            watchBtn.textContent = "On watchlist";
-          } catch {
-            watchBtn.textContent = "Add to watchlist";
-          }
-        };
-        const shared = el("button", "tiny", "Games together");
-        shared.type = "button";
-        shared.onclick = (event) => { event.preventDefault(); event.stopPropagation(); showShared(seed); };
-        tools.append(watchBtn, shared);
-        const riotID = (((data && data.name) || seed.name || "") + ((data && data.tag) || seed.tag ? "#" + ((data && data.tag) || seed.tag || "") : "")).replace(/#$/, "");
-        if ((data && data.name && data.tag) || (seed.name && seed.tag)) {
-          const copyID = el("button", "tiny", "Copy Riot ID");
-          copyID.type = "button";
-          copyID.onclick = (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            const done = () => { copyID.textContent = "Copied"; setTimeout(() => { copyID.textContent = "Copy Riot ID"; }, 900); };
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(riotID).then(done).catch(done);
-            else done();
-          };
-          tools.append(copyID);
-        }
-        const avoidBtn = el("button", "tiny", isAvoided(seed) ? "Avoiding" : "Avoid");
-        avoidBtn.type = "button";
-        avoidBtn.onclick = (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const whoName = ((data && data.name) || seed.name || "").trim();
-          const tag = ((data && data.tag) || seed.tag || "").trim();
-          const id = String((data && data.puuid) || seed.puuid || "").toLowerCase();
-          if (!whoName) return;
-          let rows = avoidList().filter((row) => !((id && String(row.puuid || "").toLowerCase() === id) || (String(row.name || "").toLowerCase() === whoName.toLowerCase() && String(row.tag || "").toLowerCase() === tag.toLowerCase())));
-          if (avoidBtn.textContent !== "Avoiding") rows = [{ name: whoName, tag, puuid: id }].concat(rows).slice(0, 40);
-          writeJSON("valvet-avoid", rows);
-          avoidBtn.textContent = isAvoided({ name: whoName, tag, puuid: id }) ? "Avoiding" : "Avoid";
-          if (latestState) paintAvoidLive(latestState);
-        };
-        tools.append(avoidBtn);
-        const compareBtn = el("button", "tiny", "Compare");
-        compareBtn.type = "button";
-        compareBtn.onclick = (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          rememberCompare(seed, data);
-          compareBtn.textContent = "Added";
-          setTimeout(() => { compareBtn.textContent = "Compare"; }, 800);
-        };
-        tools.append(compareBtn);
-        id.append(tools);
+        const id = el("div", "who");
         const mine = !!(seed && seed.you);
         const name = mine ? (seed.name || (data && data.name) || "You") : ((data && data.name) || seed.name || "Player");
         const tag = mine ? (seed.tag || (data && data.tag) || "") : ((data && data.tag) || seed.tag || "");
@@ -2682,9 +2602,9 @@
         const peak = (data && data.peak) || (seed && seed.peak) || "";
         const peakOnly = !!(seed && seed.rankPeak) || (!rr && peak && (!rank || rank === peak));
         const rankIcon = (data && String(data.rankIcon || "").indexOf("/pack/rank/") === 0 && data.rankIcon) || (seed && String(seed.rankIcon || "").indexOf("/pack/rank/") === 0 && seed.rankIcon) || (data && data.rankIcon) || (seed && seed.rankIcon) || "";
-        const paintRank = (text) => {
+        const paintRank = (text, peakLine) => {
           if (!text && !rankIcon) return;
-          const node = el("div", "rankline coin");
+          const node = el("div", "rankline coin" + (peakLine ? " peak" : ""));
           if (rankIcon) {
             const badge = document.createElement("img");
             badge.className = "rankimg";
@@ -2695,53 +2615,84 @@
           if (text) node.append(document.createTextNode(text));
           id.append(node);
         };
-        if (peakOnly && (rank || peak)) {
-          const line = el("div", "rankline coin");
-          bindHoverTip(line, (tip) => {
-            tip.append(el("div", "tip-kicker", "Peak"));
-            tip.append(el("b", null, peak || rank || "Peak"));
-            tip.append(el("div", "tip-line", "No active rank. This is their peak, not the current act rank."));
-          });
-          if (rankIcon) {
-            const badge = document.createElement("img");
-            badge.className = "rankimg";
-            badge.alt = "";
-            badge.src = String(rankIcon).indexOf("/pack/") === 0 ? rankIcon : cachedArt(rankIcon);
-            line.append(badge);
+        if (peakOnly && (rank || peak)) paintRank("Peak " + (peak || rank), true);
+        else paintRank([rank ? rank + (rr ? " · " + rr + " RR" : "") : data ? "" : "Loading rank…", peak && peak !== rank ? "Peak " + peak : ""].filter(Boolean).join(" · "));
+        const was = (data && data.was) || seed.was || "";
+        if (was) id.append(el("div", "sub", "Also " + was));
+        const tools = el("div", "profile-tools");
+        const watchBtn = el("button", "tiny", onWatchList(seed) ? "Watching" : "Watch");
+        watchBtn.type = "button";
+        watchBtn.onclick = async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const whoTag = (data && data.tag) || seed.tag || "";
+          const whoName = (data && data.name) || seed.name || "";
+          if (!whoName || !whoTag) {
+            watchBtn.textContent = "Needs a name#tag";
+            return;
           }
-          line.append(document.createTextNode("Peak " + (peak || rank)));
-          line.append(el("i", "peak-flag", "Not active"));
-          id.append(line);
-        } else {
-          const line = [rank ? rank + (rr ? " · " + rr + " RR" : "") : data ? "" : "Loading rank…", peak ? "Peak " + peak : ""].filter(Boolean).join("  ·  ");
-          paintRank(line);
-        }
-        const open = el("button", "tracker");
+          watchBtn.textContent = "Saving…";
+          try {
+            const book = await (await fetch("/api/social?q=" + encodeURIComponent(whoName + "#" + whoTag), { method: "POST" })).json();
+            if (book && Array.isArray(book.watch)) watch = book.watch;
+            watchBtn.textContent = "Watching";
+          } catch {
+            watchBtn.textContent = "Watch";
+          }
+        };
+        const shared = el("button", "tiny", "Together");
+        shared.type = "button";
+        shared.onclick = (event) => { event.preventDefault(); event.stopPropagation(); showShared(seed); };
+        const riotID = (name + (tag ? "#" + tag : "")).replace(/#$/, "");
+        const copyID = el("button", "tiny", "Copy ID");
+        copyID.type = "button";
+        copyID.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const done = () => { copyID.textContent = "Copied"; setTimeout(() => { copyID.textContent = "Copy ID"; }, 900); };
+          if (!riotID || riotID === "Player") return;
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(riotID).then(done).catch(done);
+          else done();
+        };
+        const avoidBtn = el("button", "tiny", isAvoided(seed) ? "Avoiding" : "Avoid");
+        avoidBtn.type = "button";
+        avoidBtn.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const whoName = ((data && data.name) || seed.name || "").trim();
+          const whoTag = ((data && data.tag) || seed.tag || "").trim();
+          const pid = String((data && data.puuid) || seed.puuid || "").toLowerCase();
+          if (!whoName) return;
+          let rows = avoidList().filter((row) => !((pid && String(row.puuid || "").toLowerCase() === pid) || (String(row.name || "").toLowerCase() === whoName.toLowerCase() && String(row.tag || "").toLowerCase() === whoTag.toLowerCase())));
+          if (avoidBtn.textContent !== "Avoiding") rows = [{ name: whoName, tag: whoTag, puuid: pid }].concat(rows).slice(0, 40);
+          writeJSON("valvet-avoid", rows);
+          avoidBtn.textContent = isAvoided({ name: whoName, tag: whoTag, puuid: pid }) ? "Avoiding" : "Avoid";
+          if (latestState) paintAvoidLive(latestState);
+        };
+        const compareBtn = el("button", "tiny", "Compare");
+        compareBtn.type = "button";
+        compareBtn.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          rememberCompare(seed, data);
+          compareBtn.textContent = "Added";
+          renderProfile(seed, data);
+        };
+        const open = el("button", "tiny", "vtl.lol");
         open.type = "button";
-        open.textContent = "Open on vtl.lol";
         open.onclick = () => openTracker(seed);
-        id.append(open);
-        hero.append(img, id);
+        tools.append(watchBtn, shared, copyID, avoidBtn, compareBtn, open);
+        hero.append(img, id, tools);
         slot.append(hero);
-        const scout = scoutCard(seed);
-        if (scout) slot.append(scout);
         const board = compareBoard();
         if (board) slot.append(board);
-        const was = (data && data.was) || seed.was || "";
-        if (was) {
-          const aka = el("div", "aka");
-          aka.append(el("div", "kicker", "Old names"));
-          for (const part of was.split(", ")) if (part) aka.append(el("div", null, part));
-          slot.append(aka);
-        }
         const apiGames = (data && data.matches) || [];
         const together = sharedGames(seed);
         const games = apiGames.length ? apiGames : together;
-        const head = el("div", "kicker", data && data.cached ? "On this PC" : apiGames.length ? "Recent games" : together.length ? "Games you were in" : data ? "Recent games" : "Loading games…");
-        slot.append(head);
+        slot.append(el("div", "kicker", games.length ? "Games" : data ? "Games" : "Games"));
         if (!games.length) {
           if (!data) return;
-          slot.append(el("div", "sub", data.error ? data.error : "No games came back."));
+          slot.append(el("div", "sub", data.error ? data.error : "No games yet."));
           return;
         }
         for (const match of games) slot.append(profileRow(match));

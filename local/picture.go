@@ -68,6 +68,9 @@ func saveUserFile(name, dataURL string, video, reveal bool) (string, error) {
 }
 
 func userPictureDir() (string, error) {
+	if dir := knownPictures(); dir != "" {
+		return filepath.Join(dir, "Valvet"), nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -172,14 +175,6 @@ func transcodeToMP4(src string) (string, error) {
 		_ = os.Remove(src)
 	}
 	return dst, nil
-}
-
-func revealFile(path string) {
-	if runtime.GOOS != "windows" {
-		return
-	}
-	cmd := exec.Command("explorer", "/select,"+path)
-	_ = cmd.Start()
 }
 
 func revealFolder(path string) {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.10
+
+Player cards use one layout.
+Deathmatch shows every player in columns.
+The act poster saves into the real Pictures folder and opens it.
+
 ## 1.9.9
 
 Sound controls share one column so Choose and None line up.

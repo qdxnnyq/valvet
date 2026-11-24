@@ -6,15 +6,16 @@
       .wl.l { color: #ffb3c4; border-color: rgba(255,77,109,.4); background: rgba(255,77,109,.1); }
       .game .line b { font-size: 26px; letter-spacing: -0.04em; }
       .game.shape-ffa .line .lbl, .game.shape-duo .line .lbl, .game.shape-pairs .line .lbl { letter-spacing: .08em; }
-      .ffa-strip, .pair-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
-      .ffa-chip, .pair { border: 1px solid var(--line); border-radius: 12px; background: #140c11; color: inherit; }
-      .ffa-chip { display: inline-flex; align-items: baseline; gap: 6px; height: 32px; padding: 0 10px; cursor: pointer; }
-      .ffa-chip b { font-size: 14px; font-variant-numeric: tabular-nums; }
-      .ffa-chip span, .ffa-more { color: var(--muted); font-size: 12px; }
-      .ffa-chip.me { box-shadow: inset 2px 0 0 var(--you); }
+      .ffa-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 2px 18px; margin: 0 0 10px; }
+      .ffa-chip { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; text-align: left; }
+      .ffa-chip:hover { background: rgba(255,255,255,.04); }
+      .ffa-chip i { color: var(--muted); font-style: normal; font-size: 11px; font-weight: 750; }
+      .ffa-chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+      .ffa-chip b { font-size: 13px; font-variant-numeric: tabular-nums; }
+      .ffa-chip.me span { color: var(--you); }
       .ffa-chip.top b { color: var(--accent); }
-      .ffa-more { align-self: center; }
-      .pair { min-width: 180px; padding: 6px 10px 8px; }
+      .pair-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+      .pair { min-width: 180px; padding: 6px 10px 8px; border: 1px solid var(--line); border-radius: 12px; background: #140c11; color: inherit; }
       .pair.mine { box-shadow: inset 2px 0 0 var(--you); }
       .pair-person { display: flex; justify-content: space-between; gap: 10px; width: 100%; border: 0; background: transparent; color: inherit; padding: 3px 0; cursor: pointer; text-align: left; }
       .pair-person.me { color: var(--you); }
@@ -157,6 +158,18 @@
       .set-card .set-row:has(input[type="number"]) span,
       .set-card .set-row:has(input[type="url"]) span,
       .set-card .set-row:has(input[type="email"]) span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 750; }
+      .set-card.sound-grid .set-row,
+      .set-card.sound-grid .set-row:has(select),
+      .set-card.sound-grid .set-row:has(input[type="text"]) { display: grid; flex-direction: unset; grid-template-columns: minmax(0, 1fr) 188px; align-items: center; }
+      .set-card.sound-grid .set-row > span { font-size: inherit; letter-spacing: 0; text-transform: none; color: inherit; font-weight: 650; }
+      #dossier .hero { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 4px 14px; align-items: center; margin: 8px 0 14px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: #140c11; }
+      #dossier .hero img { grid-row: 1; width: 76px; height: 76px; border-radius: 16px; }
+      #dossier .hero .who { min-width: 0; }
+      #dossier .hero h3 { font-size: 28px; }
+      #dossier .profile-tools { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; width: auto; margin: 8px 0 0; }
+      #dossier .profile-tools .tiny { width: auto; height: 30px; min-height: 30px; padding: 0 10px; white-space: nowrap; }
+      #dossier .compare-board { margin-top: 0; }
+      #dossier .kicker { margin-top: 14px; }
       .set-card .set-row:has(select) select,
       .set-card .set-row:has(select) input,
       .set-card .set-row:has(input[type="text"]) input,
