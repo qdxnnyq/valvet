@@ -203,12 +203,9 @@
             <div>
               <div class="eyebrow">Matches</div>
               <h1>History</h1>
-              <div class="friend-switch" id="hist-switch">
-              <button type="button" class="tiny solid" id="hist-matches">Matches</button>
-              <button type="button" class="tiny" id="hist-replays">Replay files</button>
+              <p class="sub">This act's matches, saved on this PC.</p>
             </div>
-            <p class="sub">This act's matches, saved on this PC. <button type="button" class="tiny" id="hist-act">Last act</button></p>
-            </div>
+            <button type="button" class="tiny" id="hist-act">Last act</button>
           </header>
           <div class="hist-bar">
             <div class="filters" id="filters"></div>
@@ -216,12 +213,6 @@
             <button type="button" class="tiny" id="hist-stats">Hide stats</button>
             <label class="query"><input id="match-query" placeholder="Player, map, or agent" spellcheck="false" /></label>
           </div>
-          <section class="desk-card" id="replay-card" hidden>
-            <h2>Replays</h2>
-            <p class="sub">Valvet keeps the replay files Valorant downloads. Valorant can open one only on the patch that made it. After a patch, Play the round still opens from the lines saved on this PC.</p>
-            <div id="replay-list"></div>
-            <div class="set-actions"><button type="button" class="tiny" id="replay-scan">Save replay files</button></div>
-          </section>
           <div id="recent"></div>
         </section>
         <section id="pane-loadout" hidden>

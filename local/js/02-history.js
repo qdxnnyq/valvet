@@ -40,7 +40,8 @@
         };
       }
       function youOf(match) {
-        return ((match && match.players) || []).find((player) => player.you) || null;
+        const players = match && match.players;
+        return (Array.isArray(players) ? players : []).find((player) => player.you) || null;
       }
       function withFriend(match) {
         const you = youOf(match);
@@ -307,6 +308,7 @@
         if (key === recentKey) return;
         recentKey = key;
         const recent = document.getElementById("recent");
+        if (!recent) return;
         const pane = document.getElementById("pane-history");
         const scroll = pane ? pane.scrollTop : 0;
         const ids = showing.map((match) => match.id || "").join(",");
@@ -662,6 +664,7 @@
         const stage = document.getElementById("stage");
         const pane = document.getElementById("pane-live");
         const inMatch = data.phase === "Agent select" || data.phase === "In game" || data.phase === "Loading lobby";
+        const demo = sampleLive && document.body.classList.contains("touring") && !inMatch;
         const party = (data.party || []).filter((person) => person && !isLeague(person));
         const stageWant = party.length >= 2 && !inMatch ? party.map((person) => [person.puuid, person.name, person.card, person.rank, person.state, person.partySize].join(":")).join("|") : "";
         if (stage && stageWant !== stageKey) {
@@ -670,10 +673,10 @@
           stage.hidden = !stageWant;
           if (stageWant) for (const person of party) stage.append(heroCard(person));
         }
-        if (pane) pane.classList.toggle("match", !!inMatch);
-        if (pane) pane.classList.toggle("party-live", party.length >= 2 && !inMatch);
+        if (pane) pane.classList.toggle("match", !!inMatch || demo);
+        if (pane) pane.classList.toggle("party-live", party.length >= 2 && !inMatch && !demo);
         if (wait) {
-          wait.hidden = !!inMatch;
+          wait.hidden = !!inMatch || demo;
           wait.classList.toggle("riot", !data.ok);
           const riotAsk = document.getElementById("riot-ask");
           const waitScene = wait.querySelector(".wait-scene");
@@ -692,13 +695,15 @@
           if (waitSub.textContent !== next) waitSub.textContent = next;
         }
         paintVeto(data);
-        if (!data.ok) {
+        if (!data.ok && !demo) {
           if (status) status.hidden = true;
           if (note) note.hidden = true;
           paintMapArt("");
           applyLiveLayout("");
           if (board && boardKey) { boardKey = ""; board.replaceChildren(); }
         } else if (inMatch) {
+          sampleLive = false;
+          if (board) board.dataset.sample = "";
           if (status) status.hidden = false;
           if (note) note.hidden = true;
           try {
@@ -751,6 +756,10 @@
           if (!wasLive && tab !== "live") {
             try { setTab("live"); } catch (err) {}
           }
+        } else if (demo) {
+          if (status) status.hidden = false;
+          if (note) note.hidden = true;
+          try { tourSampleLive(true); } catch (err) {}
         } else {
           status.hidden = true;
           note.hidden = true;

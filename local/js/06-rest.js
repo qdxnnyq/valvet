@@ -227,12 +227,12 @@
       setInterval(() => { if (tab === "store" || tab === "pass") paintNightClock(); }, 1000);
       const TOUR = [
         { tab: "live", mark: "you", kicker: "Start", title: "This is Valvet", body: "Valvet reads the Riot Client already open on this PC. It never asks for your password. Your name on the left opens your profile. Leave the client open and the pages fill in." },
-        { tab: "live", mark: "wait", kicker: "Live", title: "The match", body: "This is the live page. When a game is found, your side is on the left and the other side is on the right. Each row is the agent, the name, the rank, the peak, and the party." },
-        { tab: "live", mark: "board", kicker: "Live", title: "Party and peak", body: "The rank bubble is the current rank. The pink bubble is the peak. The letter bubble is the party. They pop in when they load. The rest of the row stays put." },
+        { tab: "live", mark: "wait", kicker: "Live", title: "The match", body: "This is a live game. Your side is on the left and the other side is on the right. Each row is the agent, the name, the rank, the peak, and the party. This example stays up until you are in a real match." },
+        { tab: "live", mark: "board", kicker: "Live", title: "Party and peak", body: "The rank bubble is the current rank. The pink bubble is the peak. The letter bubble is the party. They sit on the row. A party is only that bubble and a thin edge." },
         { tab: "live", mark: "post", kicker: "After the match", title: "The result", body: "When the match ends, this card shows the score. Copy card saves a picture. The cat is the win or the loss." },
         { tab: "friends", mark: "friend-switch", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. Online and offline are the switch. An empty list stays empty." },
-        { tab: "history", mark: "hist-switch", kicker: "History", title: "Matches and replays", body: "Matches is this act. Replay files is the other switch. Those are the .vrf files Valorant downloaded. Open in Valorant starts the game, not a file picker." },
-        { tab: "history", mark: "recent", kicker: "History", title: "A game", body: "Filters sit on top. Click a game to open it. The two teams are sorted, not one long row. Play the round draws the kill lines on the map and can save an mp4." },
+        { tab: "history", mark: "hist-picks", kicker: "History", title: "Matches", body: "This act's games. The filters sit on top. Last act is the previous act, when it is saved on this PC." },
+        { tab: "history", mark: "recent", kicker: "History", title: "A game", body: "Click a game to open it. The two teams are sorted, not one long row. Play the round draws the kill lines on the map and can save an mp4." },
         { tab: "session", mark: "session", kicker: "Session", title: "Time played", body: "The chart is the last 30 days. Click a day for the matches from that day. The clock is the length of today's games, from 6:00 am, not only the time this window was open." },
         { tab: "seen", mark: "seen", kicker: "Seen", title: "Who is around", body: "Green is on the client or in a game, with where they are. Yellow is AFK. The rest is the last time and place. Riot Mobile is ignored." },
         { tab: "store", mark: "store", kicker: "Store", title: "Today's store", body: "Daily offers, the night market, and Kingdom Credits. Wish sits under the price. Owned stays on the card." },
@@ -252,7 +252,7 @@
         { tab: "patches", mark: "patches", kicker: "Patches", title: "Patch notes", body: "Official notes. My agents filters them to the agents you play. Notes stay saved on this PC." },
         { tab: "alerts", mark: "watch-block", kicker: "Watch", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked. If they finish a game you were not in, Watch blinks with the map and the time." },
         { tab: "crosshairs", mark: "pane-crosshairs", kicker: "Crosshairs", title: "Crosshairs", body: "Paste a code, name it, and keep a set on this PC. Pro codes are a button on this page. Valvet does not read the crosshair out of Valorant." },
-        { tab: "game", mark: "game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Type your mouse DPI for eDPI, cm/360, and a target eDPI." },
+        { tab: "game", mark: "game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Your eDPI is on the left. Type a friend's eDPI on the right to compare." },
         { tab: "settings", mark: "sample-swatches", set: "look", kicker: "Look", title: "Colour", body: "Pick a preset, or upload a picture and Valvet takes the colours from it. Corners, motion, and glass are on this same card." },
         { tab: "settings", mark: "sound-card", set: "sound", kicker: "Sounds", title: "Sounds", body: "Sounds are a tab in Settings, not a page of their own. Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume." },
         { tab: "settings", mark: "window-card", set: "window", kicker: "Window", title: "Window", body: "Size, start with Windows, and Live only. Live only keeps the match and leaves the other pages off. Pause lookups waits on headshot, damage, and combat score. Parties, names, and the live board stay." },
@@ -262,6 +262,69 @@
         { tab: "settings", mark: "feedback-card", set: "backup", kicker: "Contact", title: "Feedback", body: "Write what happened and press Send. The same card opens Twitter." },
       ];
       let tourAt = 0;
+      let tourSteps = [];
+      let sampleLive = false;
+      function sampleRoster() {
+        const youName = String((latestState && latestState.you) || "You").split("#")[0] || "You";
+        const row = (name, agent, team, you, enemy, rank, peak, party) => ({ name, agent, team, you, enemy, rank, peak, party, puuid: "sample-" + name.toLowerCase(), rankPeak: false });
+        return [
+          row(youName, "Jett", "Attackers", true, false, "Diamond 2", "Ascendant 1", "alpha"),
+          row("Mina", "Killjoy", "Attackers", false, false, "Diamond 1", "Diamond 3", "alpha"),
+          row("Rin", "Omen", "Attackers", false, false, "Platinum 3", "Diamond 1", ""),
+          row("Sol", "Sova", "Attackers", false, false, "Diamond 2", "Diamond 2", ""),
+          row("Ash", "Sage", "Attackers", false, false, "Platinum 1", "Platinum 3", ""),
+          row("Nova", "Reyna", "Defenders", false, true, "Ascendant 2", "Immortal 1", "bravo"),
+          row("Kai", "Phoenix", "Defenders", false, true, "Diamond 3", "Ascendant 1", "bravo"),
+          row("Eve", "Cypher", "Defenders", false, true, "Diamond 1", "Diamond 2", ""),
+          row("Lux", "Raze", "Defenders", false, true, "Platinum 2", "Diamond 1", ""),
+          row("Ivy", "Neon", "Defenders", false, true, "Diamond 2", "Ascendant 3", ""),
+        ];
+      }
+      function tourSampleLive(on) {
+        const real = latestState && (latestState.phase === "Agent select" || latestState.phase === "In game" || latestState.phase === "Loading lobby");
+        const pane = document.getElementById("pane-live");
+        const board = document.getElementById("board");
+        const wait = document.getElementById("wait");
+        const status = document.getElementById("status");
+        if (!on || real || !document.body.classList.contains("touring")) {
+          const was = sampleLive;
+          sampleLive = false;
+          if (was && !real) {
+            if (pane) pane.classList.remove("match");
+            if (wait) wait.hidden = false;
+            if (status) status.hidden = true;
+            if (board) { board.dataset.sample = ""; board.replaceChildren(); }
+            boardKey = "";
+            const scoreEl = document.getElementById("score");
+            if (scoreEl) scoreEl.dataset.sample = "";
+            if (typeof paintMapArt === "function") paintMapArt("");
+            if (typeof applyLiveLayout === "function") applyLiveLayout("");
+          }
+          return;
+        }
+        sampleLive = true;
+        if (pane) pane.classList.add("match");
+        if (wait) wait.hidden = true;
+        if (status) status.hidden = false;
+        const modeEl = document.getElementById("mode");
+        const mapEl = document.getElementById("map");
+        const phaseEl = document.getElementById("phase");
+        if (modeEl) modeEl.textContent = "Competitive";
+        if (mapEl) mapEl.textContent = "Ascent";
+        if (phaseEl) phaseEl.textContent = "Agent select · example";
+        if (typeof paintMapArt === "function") paintMapArt("Ascent");
+        if (board && board.dataset.sample !== "1") {
+          board.dataset.sample = "1";
+          boardKey = "sample";
+          board.replaceChildren(roster(sampleRoster(), "Competitive"));
+          board.classList.add("select-stage");
+        }
+        const scoreEl = document.getElementById("score");
+        if (scoreEl && scoreEl.dataset.sample !== "1") {
+          scoreEl.dataset.sample = "1";
+          scoreEl.replaceChildren(tally(0, 0, "Attackers", "Defenders", "Attackers"));
+        }
+      }
       function tourList() {
         return TOUR.filter((step) => step && !tabHidden(step.tab) && document.getElementById(step.mark));
       }
@@ -273,21 +336,26 @@
         return "live";
       }
       function jumpTour(part) {
-        const steps = tourList();
+        const steps = tourSteps.length ? tourSteps : tourList();
         const index = steps.findIndex((step) => tourPart(step) === part);
         if (index < 0) return;
         tourAt = index;
         renderTour();
       }
       function renderTour() {
-        const steps = tourList();
+        const steps = tourSteps.length ? tourSteps : tourList();
         if (!steps.length || tourAt >= steps.length) { closeTour(); return; }
         const step = steps[tourAt];
-        document.getElementById("tour-kicker").textContent = (tourAt + 1) + " / " + steps.length + " · " + step.kicker;
-        document.getElementById("tour-title").textContent = step.title;
-        document.getElementById("tour-body").textContent = step.body;
-        document.getElementById("tour-next").textContent = tourAt === steps.length - 1 ? "Done" : "Next";
+        const kicker = document.getElementById("tour-kicker");
+        const title = document.getElementById("tour-title");
+        const body = document.getElementById("tour-body");
+        const next = document.getElementById("tour-next");
         const dots = document.getElementById("tour-dots");
+        if (!kicker || !title || !body || !next || !dots) return;
+        kicker.textContent = (tourAt + 1) + " / " + steps.length + " · " + step.kicker;
+        title.textContent = step.title;
+        body.textContent = step.body;
+        next.textContent = tourAt === steps.length - 1 ? "Done" : "Next";
         dots.replaceChildren();
         steps.forEach((_, index) => {
           const dot = document.createElement("i");
@@ -296,9 +364,13 @@
         });
         document.querySelectorAll(".tour-mark").forEach((node) => node.classList.remove("tour-mark"));
         quietNav = true;
-        setTab(step.tab);
-        if (step.set) applySetTab(step.set);
+        try { setTab(step.tab); } catch (err) {}
+        try { if (step.set) applySetTab(step.set); } catch (err) {}
         quietNav = false;
+        const liveDemo = step.tab === "live" && (step.mark === "wait" || step.mark === "board");
+        try { tourSampleLive(liveDemo); } catch (err) {}
+        if (step.mark === "post") showSampleCard();
+        else if (typeof samplePost !== "undefined" && samplePost) hideSampleCard();
         const post = document.getElementById("post");
         if (post && post.dataset.tourOpen === "1" && step.mark !== "post") {
           post.hidden = true;
@@ -315,7 +387,11 @@
         }
         const tabBtn = document.getElementById("tab-" + step.tab);
         if (tabBtn) tabBtn.classList.add("tour-mark");
-        const mark = document.getElementById(markId);
+        let mark = document.getElementById(markId);
+        if (markId === "recent") {
+          const game = document.querySelector("#recent article.game");
+          if (game) mark = game;
+        }
         if (mark && mark !== tabBtn) mark.classList.add("tour-mark");
         requestAnimationFrame(() => scrollTour(mark || tabBtn));
       }
@@ -334,6 +410,7 @@
       }
       function openTour() {
         tourAt = 0;
+        tourSteps = tourList();
         document.body.classList.add("touring");
         document.getElementById("tour").hidden = false;
         renderTour();
@@ -374,6 +451,7 @@
           post.dataset.tourOpen = "";
         }
         hideSampleCard();
+        try { tourSampleLive(false); } catch (err) {}
         document.querySelectorAll(".tour-mark").forEach((node) => node.classList.remove("tour-mark"));
         quietNav = true;
         setTab(replay ? "settings" : "live");
@@ -384,7 +462,8 @@
         button.onclick = () => jumpTour(button.dataset.part);
       });
       document.getElementById("tour-next").onclick = () => {
-        if (tourAt >= tourList().length - 1) closeTour();
+        const steps = tourSteps.length ? tourSteps : tourList();
+        if (tourAt >= steps.length - 1) closeTour();
         else { tourAt += 1; renderTour(); }
       };
       document.getElementById("tour-again").onclick = openTour;

@@ -53,9 +53,6 @@
       #engine { position: fixed; inset: 0; z-index: 18; pointer-events: none; display: none; }
       #depth { display: none; }
       .mote { position: fixed; width: 7px; height: 7px; border-radius: 50%; background: #ffd27a; pointer-events: none; z-index: 40; }
-      body:not([data-hist="replays"]) #replay-card { display: none !important; }
-      body[data-hist="replays"] #pane-history #recent,
-      body[data-hist="replays"] #pane-history .hist-bar { display: none !important; }
       .hist-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; }
       .hist-bar .filters { margin: 0; flex: 1 1 280px; }
       .query { margin: 0; }

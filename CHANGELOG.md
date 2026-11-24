@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.26
+
+First time: ValvetSetup.exe. After that, the pink bar.
+
+The tutorial shows an example lobby until a real match starts. The replay file list is gone. A friend's eDPI sits next to yours.
+
 ## 1.9.25
 
 First time: ValvetSetup.exe. After that, the pink bar.

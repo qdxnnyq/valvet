@@ -343,7 +343,6 @@
       .tour-jumps { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
       .tour-jumps button { height: 28px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 0 10px; cursor: pointer; }
       .tour-jumps button:hover { border-color: var(--accent); }
-      #replay-list h2 { margin: 12px 0 6px; }
 
     
 

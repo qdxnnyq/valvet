@@ -40,10 +40,11 @@
         pane.classList.toggle("layout-pairs", shape === "pairs");
       }
       function partyColors(players) {
+        const list = Array.isArray(players) ? players : [];
         const order = [];
-        const you = (players || []).find((player) => player && player.you && player.party);
+        const you = list.find((player) => player && player.you && player.party);
         if (you) order.push(you.party);
-        for (const player of players || []) if (player && player.party && !order.includes(player.party)) order.push(player.party);
+        for (const player of list) if (player && player.party && !order.includes(player.party)) order.push(player.party);
         const palette = "ABCDEFGH";
         const map = {};
         order.forEach((id, index) => { map[id] = palette[index] || "H"; });
@@ -160,7 +161,7 @@
         return ((kills + assists) / Math.max(1, deaths)) * 1000 + kills * 3 + assists;
       }
       function byKDA(list) {
-        return [...(list || [])].sort((a, b) => kdaValue(b) - kdaValue(a) || String(a.puuid || a.name || "").localeCompare(String(b.puuid || b.name || "")));
+        return [...(Array.isArray(list) ? list : [])].sort((a, b) => kdaValue(b) - kdaValue(a) || String(a.puuid || a.name || "").localeCompare(String(b.puuid || b.name || "")));
       }
       function markAwards(match) {
         const players = (match && match.players) || [];

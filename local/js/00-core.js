@@ -1099,7 +1099,7 @@
       function groups(players) {
         const order = [];
         const map = new Map();
-        for (const player of players || []) {
+        for (const player of Array.isArray(players) ? players : []) {
           if (!player) continue;
           const team = player.team || "Lobby";
           if (!map.has(team)) { map.set(team, []); order.push(team); }

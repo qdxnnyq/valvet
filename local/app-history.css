@@ -204,6 +204,18 @@
       .edpi-out span { display: block; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
       .edpi-out b { display: block; margin-top: 4px; font-size: 22px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
       .edpi .hint { margin: 8px 0 0; }
+      .edpi-vs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+      .edpi-vs article { min-width: 0; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 10%, #140910); border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); }
+      .edpi-vs span { display: block; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+      .edpi-vs b { display: block; margin-top: 4px; font-size: 28px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+      .edpi-vs em { display: block; margin-top: 6px; color: var(--muted); font-style: normal; font-size: 12px; }
+      .edpi-vs input { width: 100%; height: 40px; margin-top: 4px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); background: #140910; color: var(--ink); font-size: 28px; font-weight: 760; letter-spacing: -0.04em; padding: 0 8px; font-variant-numeric: tabular-nums; appearance: textfield; }
+      .edpi-vs input:focus { outline: none; border-color: var(--accent); }
+      .edpi-vs input::-webkit-outer-spin-button, .edpi-vs input::-webkit-inner-spin-button { appearance: none; margin: 0; }
+      .edpi-meter { display: grid; gap: 6px; margin: 0 0 10px; }
+      .edpi-meter i { display: block; height: 8px; border-radius: 99px; min-width: 8px; }
+      .edpi-meter i.you { background: var(--accent); }
+      .edpi-meter i.them { background: var(--you, #7dffb3); }
       .event-row { display: flex; align-items: center; gap: 8px; }
       .event-row .event-window { flex: 1; min-width: 0; }
       .event-arrow { width: 36px; height: 84px; border: 0; border-radius: 12px; background: #140c11; color: var(--ink); font-size: 26px; cursor: pointer; flex: none; }

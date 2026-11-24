@@ -15,8 +15,8 @@ import (
 
 // appVersion is only the update counter, so older builds can still see a newer one.
 // appLabel is the version people see. A small change adds 0.0.1. A big change bumps the minor or major.
-const appVersion = 215
-const appLabel = "1.9.25"
+const appVersion = 216
+const appLabel = "1.9.26"
 
 const updateMetaURL = "https://raw.githubusercontent.com/qdxnnyq/valvet/main/version.json"
 

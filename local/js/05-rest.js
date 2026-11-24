@@ -1004,7 +1004,6 @@
         }
         if (next === "history" || next === "deaths" || next === "clutches" || next === "queues" || next === "profile" || next === "records" || next === "session") loadAct(false);
         if (next === "history") drawRecent(modeQueue ? modeMatches || [] : history);
-        if (next === "history" && document.body.dataset.hist === "replays") loadReplays(false);
         if (next === "store" && lastShop) drawStore(lastShop);
         if (next === "live") {
           const party = ((latestState && latestState.party) || []).filter((person) => person && !isLeague(person));
@@ -1033,90 +1032,6 @@
         if (next === "game") loadGame(!!user);
         if (next === "settings") loadStorage();
         applyHiddenNav();
-      }
-      function showHistoryView(which) {
-        const replays = which === "replays";
-        document.body.dataset.hist = replays ? "replays" : "matches";
-        const card = document.getElementById("replay-card");
-        const recent = document.getElementById("recent");
-        const bar = document.querySelector("#pane-history .hist-bar");
-        if (card) card.hidden = !replays;
-        if (recent) recent.hidden = replays;
-        if (bar) bar.hidden = replays;
-        const blurb = document.querySelector("#pane-history .page-hero .sub");
-        if (blurb) blurb.textContent = replays ? "Replay files saved on this PC. Matches are the other switch." : "This act's matches, saved on this PC.";
-        const matches = document.getElementById("hist-matches");
-        const button = document.getElementById("hist-replays");
-        if (matches) matches.classList.toggle("solid", !replays);
-        if (button) button.classList.toggle("solid", replays);
-        if (replays) loadReplays(false);
-      }
-      const histMatches = document.getElementById("hist-matches");
-      const histReplays = document.getElementById("hist-replays");
-      if (histMatches && histReplays && !histMatches.dataset.bound) {
-        histMatches.dataset.bound = "1";
-        histMatches.onclick = () => showHistoryView("matches");
-        histReplays.onclick = () => showHistoryView("replays");
-      }
-      showHistoryView("matches");
-      async function loadReplays(force) {
-        const root = document.getElementById("replay-list");
-        if (!root) return;
-        const scan = document.getElementById("replay-scan");
-        if (scan && !scan.dataset.bound) {
-          scan.dataset.bound = "1";
-          scan.onclick = () => loadReplays(true);
-        }
-        try {
-          const data = await (await fetch("/api/replays", force ? { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" } : { cache: "no-store" })).json();
-          const rows = (data && data.replays) || [];
-          root.replaceChildren();
-          if (!rows.length) {
-            root.append(el("p", "sub", "No replay files saved yet. They copy over after Valorant downloads one."));
-            return;
-          }
-          const groups = new Map();
-          for (const row of rows) {
-            const name = String(row.name || "").toLowerCase();
-            const hit = (history || []).find((match) => {
-              const id = String(match.id || "").toLowerCase();
-              return id && name.includes(id);
-            });
-            const map = hit ? (mapName(hit.map) || hit.map || "Map") : (row.patch ? "Patch " + row.patch : "Other");
-            const score = hit && hit.score1 != null && hit.score2 != null ? hit.score1 + "–" + hit.score2 : "";
-            const list = groups.get(map) || [];
-            list.push({ row, score, map });
-            groups.set(map, list);
-          }
-          for (const [map, list] of groups) {
-            root.append(el("h2", null, map));
-            for (const item of list) {
-              const row = item.row;
-              const line = el("div", "status-line");
-              const label = el("b", null, row.name || "Replay");
-              const meta = el("span", "subline", [item.score, row.patch || "Patch unknown", row.saved ? "saved" : ""].filter(Boolean).join(" · "));
-              line.append(label, meta);
-            if (data && data.game) {
-              const open = el("button", "tiny", "Open in Valorant");
-              open.type = "button";
-              open.onclick = async () => {
-                open.disabled = true;
-                open.textContent = "Asking Valorant…";
-                try {
-                  const result = await (await fetch("/api/replays", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: row.name }) })).json();
-                  open.textContent = result && result.ok ? "Sent to Valorant" : "In your Demos folder";
-                } catch {
-                  open.textContent = "In your Demos folder";
-                }
-              };
-              line.append(open);
-            }
-            root.append(line);
-            }
-          }
-        } catch {
-          root.replaceChildren(el("p", "sub", "Replay files could not be read."));
-        }
       }
       async function loadGame(live) {
         const root = document.getElementById("game");
@@ -1218,17 +1133,18 @@
         target.placeholder = "280";
         target.value = localStorage.getItem("valvet-edpi-target") || "";
         want.append(target);
-        const pal = el("label", "edpi-in");
-        pal.append(el("span", null, "Friend eDPI"));
         const friend = document.createElement("input");
         friend.type = "number";
         friend.min = "1";
         friend.max = "20000";
         friend.step = "1";
-        friend.placeholder = "Their eDPI";
+        friend.placeholder = "eDPI";
+        friend.setAttribute("aria-label", "Friend eDPI");
         friend.value = localStorage.getItem("valvet-friend-edpi") || "";
-        pal.append(friend);
         const out = el("div", "edpi-out");
+        const versus = el("div", "edpi-vs");
+        const meter = el("div", "edpi-meter");
+        meter.hidden = true;
         const pretty = (n) => {
           if (!Number.isFinite(n)) return "—";
           const text = n >= 100 ? String(Math.round(n)) : String(Math.round(n * 100) / 100);
@@ -1245,28 +1161,44 @@
             card.append(el("span", null, k), el("b", null, v));
             return card;
           };
-          if (!Number.isFinite(sens) || sens <= 0 || !Number.isFinite(dpi) || dpi <= 0) {
-            out.append(chip("eDPI", "—"));
-            return;
+          const ready = Number.isFinite(sens) && sens > 0 && Number.isFinite(dpi) && dpi > 0;
+          const edpi = ready ? dpi * sens : 0;
+          if (!ready) out.append(chip("eDPI", "—"));
+          else {
+            const cm = (2.54 * 360) / (dpi * sens * 0.07);
+            out.append(chip("eDPI", pretty(edpi)));
+            out.append(chip("cm/360", pretty(cm) + " cm"));
+            out.append(chip("in/360", pretty(cm / 2.54) + " in"));
+            if (scoped && scoped !== 1) out.append(chip("Scoped eDPI", pretty(edpi * scoped)));
+            const goal = Number(target.value);
+            if (Number.isFinite(goal) && goal > 0) out.append(chip("Set sens", pretty(goal / dpi)));
           }
-          const edpi = dpi * sens;
-          const cm = (2.54 * 360) / (dpi * sens * 0.07);
-          out.append(chip("eDPI", pretty(edpi)));
-          out.append(chip("cm/360", pretty(cm) + " cm"));
-          out.append(chip("in/360", pretty(cm / 2.54) + " in"));
-          if (scoped && scoped !== 1) out.append(chip("Scoped eDPI", pretty(edpi * scoped)));
-          const goal = Number(target.value);
-          if (Number.isFinite(goal) && goal > 0) out.append(chip("Set sens", pretty(goal / dpi)));
           const theirs = Number(friend.value);
-          if (Number.isFinite(theirs) && theirs > 0) {
-            const gap = Math.round(edpi - theirs);
-            out.append(chip("Friend", pretty(theirs) + (gap ? " · you " + (gap > 0 ? "+" : "") + gap : "")));
+          const youCard = el("article");
+          youCard.append(el("span", null, "You"));
+          youCard.append(el("b", null, edpi ? pretty(edpi) : "—"));
+          youCard.append(el("em", null, ready ? pretty(dpi) + " DPI" : "Your eDPI"));
+          const themCard = el("article");
+          themCard.append(el("span", null, "Friend"));
+          themCard.append(friend);
+          const gap = Number.isFinite(theirs) && theirs > 0 && edpi ? Math.round(edpi - theirs) : null;
+          themCard.append(el("em", null, gap == null ? "Type their eDPI" : gap === 0 ? "Same as you" : gap > 0 ? "You are " + gap + " higher" : "They are " + Math.abs(gap) + " higher"));
+          versus.replaceChildren(youCard, themCard);
+          meter.hidden = gap == null;
+          meter.replaceChildren();
+          if (gap != null) {
+            const top = Math.max(edpi, theirs, 1);
+            const youBar = el("i", "you");
+            const themBar = el("i", "them");
+            youBar.style.width = Math.round((edpi / top) * 100) + "%";
+            themBar.style.width = Math.round((theirs / top) * 100) + "%";
+            meter.append(youBar, themBar);
           }
         };
         input.oninput = draw;
         target.oninput = draw;
         friend.oninput = draw;
-        box.append(field, chips, want, pal, out, el("p", "sub hint", "eDPI is DPI × sensitivity. cm/360 uses Valorant's 0.07 yaw."));
+        box.append(field, chips, want, versus, meter, out, el("p", "sub hint", "eDPI is DPI × sensitivity. cm/360 uses Valorant's 0.07 yaw."));
         draw();
         return box;
       }
