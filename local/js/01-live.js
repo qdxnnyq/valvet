@@ -113,7 +113,7 @@
             const tone = colors[player.party] || "";
             const row = el("div", "row" + (playerTracked(player) ? " tracked" : "") + (tone ? " p" + tone : ""));
             const img = face(player);
-            img.className = "agent";
+            img.className = "agent" + (player.locked ? " just-locked" : "");
             const id = el("div", "live-id");
             const top = el("div", "live-sub");
             top.append(nameButton(player));
@@ -129,11 +129,9 @@
               if (player.locked) line.append(el("i", "lock-flag", "Lock"));
               id.append(line);
             } else if (player.locked) id.append(el("div", "live-agent", "Locked"));
-            const partyCell = el("div", "live-party");
-            if (tone) partyCell.append(el("span", "squad s" + tone, "Party " + tone));
             const side = el("div", "live-side");
             side.append(liveRank(player));
-            row.append(img, id, partyCell, side);
+            row.append(img, id, side);
             host.append(row);
           }
           grid.append(card);
@@ -260,7 +258,7 @@
       }
       function rankMark(player) {
         if (!player || !player.rank) return null;
-        const wrap = el("span", "hrank" + (player.rankPeak ? " peak" : ""));
+        const wrap = el("span", "hrank coin" + (player.rankPeak ? " peak" : ""));
         if (player.rankPeak) bindHoverTip(wrap, (tip) => {
           tip.append(el("div", "tip-kicker", "Peak"));
           tip.append(el("b", null, player.rank || "Peak"));
@@ -631,7 +629,7 @@
         ownedBtn.type = "button";
         ownedBtn.onclick = () => {
           hideOwned = !hideOwned;
-          localStorage.setItem("velvet-hide-owned", hideOwned ? "on" : "off");
+          localStorage.setItem("valvet-hide-owned", hideOwned ? "on" : "off");
           storeKey = "";
           const wishRoot = document.getElementById("wish-list");
           if (wishRoot) wishRoot.dataset.key = "";
@@ -678,7 +676,7 @@
       }
       function localOwned() {
         try {
-          const rows = JSON.parse(localStorage.getItem("velvet-bought") || "[]");
+          const rows = JSON.parse(localStorage.getItem("valvet-bought") || "[]");
           return Array.isArray(rows) ? rows : [];
         } catch { return []; }
       }
@@ -687,7 +685,7 @@
         if (!key) return;
         const rows = localOwned().filter((item) => ownedKey(item) !== key);
         rows.push(String(name).trim());
-        localStorage.setItem("velvet-bought", JSON.stringify(rows.slice(-200)));
+        localStorage.setItem("valvet-bought", JSON.stringify(rows.slice(-200)));
       }
       function owns(name) {
         const key = ownedKey(name);
@@ -703,15 +701,15 @@
         });
       }
       function loadWish() {
-        try { return JSON.parse(localStorage.getItem("velvet-wish") || "[]"); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem("valvet-wish") || "[]"); } catch { return []; }
       }
       function toggleWish(name) {
         const clean = String(name || "").trim();
         if (!clean) return;
         const next = loadWish().filter((item) => item.toLowerCase() !== clean.toLowerCase());
         if (next.length === loadWish().length) next.push(clean);
-        localStorage.setItem("velvet-wish", JSON.stringify(next.slice(0, 24)));
-        localStorage.removeItem("velvet-wish-sig");
+        localStorage.setItem("valvet-wish", JSON.stringify(next.slice(0, 24)));
+        localStorage.removeItem("valvet-wish-sig");
       }
       function wishMatches(shop) {
         const want = new Set(loadWish().map((item) => item.toLowerCase()));
@@ -724,10 +722,10 @@
       function wishlistHits(shop) {
         const hits = wishMatches(shop);
         const sig = hits.slice().sort().join("|") + "|" + ((shop && shop.resets) || "");
-        if (hits.length && localStorage.getItem("velvet-wish-sig") !== sig) {
-          localStorage.setItem("velvet-wish-sig", sig);
+        if (hits.length && localStorage.getItem("valvet-wish-sig") !== sig) {
+          localStorage.setItem("valvet-wish-sig", sig);
           playWish();
-          if (localStorage.getItem("velvet-wish-note") === "on") {
+          if (localStorage.getItem("valvet-wish-note") === "on") {
             fetch("/api/notify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -739,7 +737,7 @@
       }
       let kcItems = [];
       let wishAll = false;
-      let hideOwned = localStorage.getItem("velvet-hide-owned") === "on";
+      let hideOwned = localStorage.getItem("valvet-hide-owned") === "on";
       function wishPool(shop) {
         const map = new Map();
         const add = (item, tag) => {
@@ -785,7 +783,7 @@
           ownedBtn.type = "button";
           ownedBtn.onclick = () => {
             hideOwned = !hideOwned;
-            localStorage.setItem("velvet-hide-owned", hideOwned ? "on" : "off");
+            localStorage.setItem("valvet-hide-owned", hideOwned ? "on" : "off");
             root.dataset.key = "";
             storeKey = "";
             if (lastShop) drawStore(lastShop);

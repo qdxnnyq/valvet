@@ -40,7 +40,7 @@ func saveUserFile(name, dataURL string, video bool) (string, error) {
 		if video {
 			clean = "valvet-round.mp4"
 		} else {
-			clean = "velvet.png"
+			clean = "valvet.png"
 		}
 	}
 	if video && isMP4(buf) && !strings.HasSuffix(strings.ToLower(clean), ".mp4") {

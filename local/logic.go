@@ -28,6 +28,8 @@ type player struct {
 	Deaths    string `json:"deaths,omitempty"`
 	Assists   string `json:"assists,omitempty"`
 	HS        string `json:"hs,omitempty"`
+	Body      string `json:"body,omitempty"`
+	Legs      string `json:"legs,omitempty"`
 	ADR       string `json:"adr,omitempty"`
 	ACS       string `json:"acs,omitempty"`
 	Damage    string `json:"damage,omitempty"`
@@ -328,662 +330,6 @@ func matchScores(match map[string]any) (int, int, bool) {
 		return ally, enemy, true
 	}
 	return 0, 0, false
-}
-
-func prettyMode(queue string) string {
-	key := strings.ToLower(strings.TrimSpace(queue))
-	names := map[string]string{
-		"competitive": "Competitive", "unrated": "Unrated", "swiftplay": "Swiftplay",
-		"spikerush": "Spike Rush", "ggteam": "Escalation", "deathmatch": "Deathmatch",
-		"hurm": "Team Deathmatch", "premier": "Premier", "custom": "Custom",
-		"onefa": "Replication", "newmap": "New Map", "snowball": "Snowball",
-		"skirmish": "Skirmish", "gauntlet": "Gauntlet", "glitched": "Gauntlet",
-		"practice": "Practice",
-	}
-	if name, ok := names[key]; ok {
-		return name
-	}
-	return "Match"
-}
-
-func sidesSwapped(queue string, rounds int) bool {
-	low := strings.ToLower(queue)
-	switch low {
-	case "hurm", "ggteam", "practice", "snowball", "deathmatch":
-		return false
-	}
-	if rounds <= 0 {
-		return false
-	}
-	half := 12
-	switch low {
-	case "spikerush":
-		half = 3
-	case "swiftplay":
-		half = 4
-	}
-	if rounds < half {
-		return false
-	}
-	if rounds < half*2 {
-		return true
-	}
-	return (rounds-half*2)%2 == 1
-}
-
-func ffaQueue(queue string) bool {
-	low := strings.ToLower(queue)
-	return low == "deathmatch" || low == "practice"
-}
-
-func gauntletQueue(queue string) bool {
-	low := strings.ToLower(queue)
-	return strings.Contains(low, "gauntlet") || strings.Contains(low, "glitched")
-}
-
-func rawTeamQueue(queue string) bool {
-	switch strings.ToLower(queue) {
-	case "hurm", "ggteam", "gauntlet", "glitched", "skirmish", "snowball":
-		return true
-	default:
-		return false
-	}
-}
-
-func teamSide(team, queue string, rounds int) string {
-	if ffaQueue(queue) {
-		return prettyMode(queue)
-	}
-	if rawTeamQueue(queue) {
-		if strings.TrimSpace(team) == "" {
-			return "Team"
-		}
-		return team
-	}
-	low := strings.ToLower(team)
-	var side string
-	switch low {
-	case "red":
-		side = "Attackers"
-	case "blue":
-		side = "Defenders"
-	default:
-		if strings.TrimSpace(team) == "" {
-			return "Lobby"
-		}
-		return team
-	}
-	if sidesSwapped(queue, rounds) {
-		if side == "Attackers" {
-			return "Defenders"
-		}
-		return "Attackers"
-	}
-	return side
-}
-
-func prettyServer(raw string) string {
-	text := strings.ToLower(strings.TrimSpace(raw))
-	parts := strings.FieldsFunc(text, func(r rune) bool { return r == '.' || r == '-' || r == '_' })
-	skip := map[string]bool{"prod": true, "aws": true, "gp": true, "aresriot": true, "1": true, "2": true, "3": true, "4": true}
-	for i := len(parts) - 1; i >= 0; i-- {
-		part := parts[i]
-		if skip[part] || len(part) < 4 {
-			continue
-		}
-		if strings.HasPrefix(part, "eu") || strings.HasPrefix(part, "na") || strings.HasPrefix(part, "ap") || strings.HasPrefix(part, "kr") || strings.HasPrefix(part, "br") || strings.HasPrefix(part, "latam") {
-			continue
-		}
-		return strings.ToUpper(part[:1]) + part[1:]
-	}
-	if text == "" {
-		return ""
-	}
-	return raw
-}
-
-func prettyMap(path string) string {
-	text := strings.Trim(strings.TrimSpace(path), "/")
-	if text == "" {
-		return ""
-	}
-	parts := strings.Split(strings.ReplaceAll(text, "\\", "/"), "/")
-	clean := make([]string, 0, len(parts))
-	for _, part := range parts {
-		if part != "" {
-			clean = append(clean, part)
-		}
-	}
-	if len(clean) == 0 {
-		return ""
-	}
-	if nice, ok := mapLabel(clean[len(clean)-1]); ok {
-		return nice
-	}
-	if len(clean) >= 2 {
-		if nice, ok := mapLabel(clean[len(clean)-2]); ok {
-			return nice
-		}
-	}
-	name := clean[len(clean)-1]
-	return strings.ToUpper(name[:1]) + name[1:]
-}
-
-var mapNames = map[string]string{
-	"ascent": "Ascent", "bind": "Bind", "haven": "Haven", "split": "Split", "icebox": "Icebox",
-	"breeze": "Breeze", "fracture": "Fracture", "pearl": "Pearl", "lotus": "Lotus", "sunset": "Sunset",
-	"abyss": "Abyss", "corrode": "Corrode", "summit": "Summit",
-	"bonsai": "Split", "canyon": "Fracture", "duality": "Bind", "foxtrot": "Breeze",
-	"infinity": "Abyss", "jam": "Lotus", "juliett": "Sunset", "pitt": "Pearl", "port": "Icebox",
-	"triad": "Haven", "rook": "Corrode", "plummet": "Summit",
-	"range": "Range", "poveglia": "The Range", "povegliav2": "The Range", "rangev2": "The Range",
-	"basictraining": "The Range", "npev2": "Basic Training",
-	"hurm_alley": "District", "hurm_bowl": "Kasbah", "hurm_helix": "Drift",
-	"hurm_hightide": "Glitch", "hurm_yard": "Piazza",
-	"district": "District", "kasbah": "Kasbah", "drift": "Drift", "glitch": "Glitch", "piazza": "Piazza",
-}
-
-func mapNamesJSON() []byte {
-	raw, err := json.Marshal(mapNames)
-	if err != nil || len(raw) == 0 {
-		return []byte("{}")
-	}
-	return raw
-}
-
-func mapLabel(name string) (string, bool) {
-	nice, ok := mapNames[strings.ToLower(name)]
-	return nice, ok
-}
-
-func stacksFromArchive(rows []recentMatch, players []player) map[string]partyHint {
-	live := map[string]string{}
-	for _, p := range players {
-		id := strings.ToLower(p.PUUID)
-		if looksUUID(id) {
-			live[id] = p.Team
-		}
-	}
-	for _, row := range rows {
-		groups := map[string][]string{}
-		for _, p := range row.Players {
-			id := strings.ToLower(p.PUUID)
-			if !looksUUID(id) || p.Party == "" || live[id] == "" {
-				continue
-			}
-			groups[p.Party] = append(groups[p.Party], id)
-		}
-		out := map[string]partyHint{}
-		for label, ids := range groups {
-			if len(ids) < 2 || len(ids) > 5 {
-				continue
-			}
-			team := ""
-			ok := true
-			seen := map[string]bool{}
-			for _, id := range ids {
-				if seen[id] || live[id] == "" || (team != "" && live[id] != team) {
-					ok = false
-					break
-				}
-				seen[id] = true
-				team = live[id]
-			}
-			if !ok {
-				continue
-			}
-			for id := range seen {
-				out[id] = partyHint{id: "arch-" + strings.ToLower(label), size: len(seen)}
-			}
-		}
-		if len(out) > 0 {
-			return out
-		}
-	}
-	return map[string]partyHint{}
-}
-
-func partyGrouped(hints map[string]partyHint) bool {
-	count := map[string]int{}
-	for _, hint := range hints {
-		if hint.id == "" {
-			continue
-		}
-		count[hint.id]++
-		if count[hint.id] >= 2 {
-			return true
-		}
-	}
-	return false
-}
-
-func sharedHints(in map[string]partyHint) map[string]partyHint {
-	count := map[string]int{}
-	for _, hint := range in {
-		if hint.id != "" {
-			count[hint.id]++
-		}
-	}
-	out := map[string]partyHint{}
-	for id, hint := range in {
-		if count[hint.id] >= 2 {
-			out[id] = hint
-		}
-	}
-	return out
-}
-
-func groupsOf(in map[string]partyHint) map[string]partyHint {
-	count := map[string]int{}
-	for _, hint := range in {
-		if hint.id != "" {
-			count[hint.id]++
-		}
-	}
-	out := map[string]partyHint{}
-	for id, hint := range in {
-		n := count[hint.id]
-		if n >= 2 && n <= 5 {
-			out[id] = hint
-		}
-	}
-	return out
-}
-
-func overlayParties(dst, src map[string]partyHint) {
-	if dst == nil || len(src) == 0 {
-		return
-	}
-	src = groupsOf(src)
-	byID := map[string][]string{}
-	for id, hint := range src {
-		if hint.id == "" {
-			continue
-		}
-		byID[hint.id] = append(byID[hint.id], id)
-	}
-	for partyID, members := range byID {
-		if len(members) < 2 || len(members) > 5 {
-			continue
-		}
-		for _, id := range members {
-			dst[id] = partyHint{id: partyID, size: len(members)}
-		}
-	}
-}
-
-func fillGroups(dst, src map[string]partyHint) {
-	if dst == nil || len(src) == 0 {
-		return
-	}
-	src = groupsOf(src)
-	byID := map[string][]string{}
-	for id, hint := range src {
-		byID[hint.id] = append(byID[hint.id], id)
-	}
-	for partyID, members := range byID {
-		blocked := false
-		for _, id := range members {
-			if prev := dst[id]; prev.id != "" && prev.id != partyID {
-				blocked = true
-				break
-			}
-		}
-		if blocked {
-			continue
-		}
-		for _, id := range members {
-			dst[id] = partyHint{id: partyID, size: len(members)}
-		}
-	}
-}
-
-func forceParty(dst map[string]partyHint, partyID string, members []string, roster map[string]bool) {
-	if dst == nil || partyID == "" {
-		return
-	}
-	partyID = strings.ToLower(partyID)
-	in := make([]string, 0, len(members))
-	seen := map[string]bool{}
-	for _, id := range members {
-		id = strings.ToLower(id)
-		if !looksUUID(id) || !roster[id] || seen[id] {
-			continue
-		}
-		seen[id] = true
-		in = append(in, id)
-	}
-	free := make([]string, 0, len(in))
-	for _, id := range in {
-		if prev := dst[id]; prev.id != "" && prev.id != partyID {
-			continue
-		}
-		free = append(free, id)
-	}
-	if len(free) < 2 || len(free) > 5 {
-		return
-	}
-	for _, id := range free {
-		dst[id] = partyHint{id: partyID, size: len(free)}
-	}
-}
-
-func pinMembers(dst map[string]partyHint, partyID string, members []string, roster map[string]bool) {
-	if dst == nil || partyID == "" {
-		return
-	}
-	partyID = strings.ToLower(partyID)
-	in := make([]string, 0, len(members))
-	seen := map[string]bool{}
-	for _, id := range members {
-		id = strings.ToLower(id)
-		if !looksUUID(id) || !roster[id] || seen[id] {
-			continue
-		}
-		if prev := dst[id]; prev.id != "" && prev.id != partyID {
-			continue
-		}
-		seen[id] = true
-		in = append(in, id)
-	}
-	if len(in) < 2 || len(in) > 5 {
-		return
-	}
-	for _, id := range in {
-		dst[id] = partyHint{id: partyID, size: len(in)}
-	}
-}
-
-func partyMemberIDs(body map[string]any) []string {
-	if body == nil {
-		return nil
-	}
-	rows := asArr(pick(body, "Members", "members"))
-	if len(rows) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(rows))
-	for _, item := range rows {
-		row := asMap(item)
-		id := strings.ToLower(str(pick(row, "Subject", "subject", "puuid", "PUUID")))
-		if looksUUID(id) {
-			out = append(out, id)
-		}
-	}
-	return out
-}
-
-func stackHints(nowTeam map[string]string, groups [][]string) map[string]partyHint {
-	taken := map[string]bool{}
-	out := map[string]partyHint{}
-	n := 0
-	for _, group := range groups {
-		seen := map[string]bool{}
-		list := []string{}
-		team := ""
-		ok := true
-		for _, raw := range group {
-			id := strings.ToLower(raw)
-			if id == "" || seen[id] || taken[id] {
-				ok = false
-				break
-			}
-			if nowTeam != nil {
-				if nowTeam[id] == "" || (team != "" && nowTeam[id] != team) {
-					ok = false
-					break
-				}
-				team = nowTeam[id]
-			}
-			seen[id] = true
-			list = append(list, id)
-		}
-		if !ok || len(list) < 2 || len(list) > 5 {
-			continue
-		}
-		n++
-		label := "stack-" + strconv.Itoa(n)
-		for _, id := range list {
-			taken[id] = true
-			out[id] = partyHint{id: label, size: len(list)}
-		}
-	}
-	return out
-}
-
-func markParties(players []player, hints map[string]partyHint) {
-	groups := map[string][]int{}
-	for i, p := range players {
-		hint, ok := hints[strings.ToLower(p.PUUID)]
-		if !ok || hint.id == "" {
-			continue
-		}
-		groups[hint.id] = append(groups[hint.id], i)
-	}
-	ids := make([]string, 0, len(groups))
-	for id, idxs := range groups {
-		if len(idxs) < 2 || len(idxs) > 5 {
-			continue
-		}
-		ids = append(ids, id)
-	}
-	sort.Slice(ids, func(i, j int) bool {
-		you := func(id string) bool {
-			for _, idx := range groups[id] {
-				if players[idx].You {
-					return true
-				}
-			}
-			return false
-		}
-		if you(ids[i]) != you(ids[j]) {
-			return you(ids[i])
-		}
-		return ids[i] < ids[j]
-	})
-	for n, id := range ids {
-		label := strconv.Itoa(n + 1)
-		if n < 26 {
-			label = string(rune('A' + n))
-		}
-		for _, i := range groups[id] {
-			players[i].Party = label
-			players[i].PartyN = len(groups[id])
-		}
-	}
-}
-
-func harvestParties(node any, acc map[string]string) {
-	switch n := node.(type) {
-	case []any:
-		for _, item := range n {
-			harvestParties(item, acc)
-		}
-	case map[string]any:
-		id := strings.ToLower(playerID(n))
-		if !looksUUID(id) {
-			id = strings.ToLower(str(pick(n, "Subject", "subject", "puuid", "PUUID")))
-		}
-		if party := partyKey(n); looksUUID(id) && party != "" {
-			acc[id] = party
-		}
-		for _, value := range n {
-			switch child := value.(type) {
-			case map[string]any, []any:
-				harvestParties(child, acc)
-			}
-		}
-	}
-}
-
-func hintsFromIDs(ids map[string]string) map[string]partyHint {
-	out := map[string]partyHint{}
-	for id, party := range ids {
-		if party != "" {
-			out[id] = partyHint{id: strings.ToLower(party)}
-		}
-	}
-	return sharedHints(out)
-}
-
-func partyKey(m map[string]any) string {
-	if m == nil {
-		return ""
-	}
-	if id := str(pick(m, "PartyID", "partyId", "PartyId", "CurrentPartyID", "currentPartyID")); looksUUID(id) {
-		return strings.ToLower(id)
-	}
-	for key, value := range m {
-		if !strings.Contains(strings.ToLower(key), "party") {
-			continue
-		}
-		if id := str(value); looksUUID(id) {
-			return strings.ToLower(id)
-		}
-		if child := asMap(value); child != nil {
-			if id := str(pick(child, "ID", "id", "PartyID", "partyId")); looksUUID(id) {
-				return strings.ToLower(id)
-			}
-		}
-	}
-	return ""
-}
-
-func partyHintsFrom(players []player) map[string]partyHint {
-	hints := map[string]partyHint{}
-	for _, p := range players {
-		if p.PUUID == "" || p.PartyID == "" {
-			continue
-		}
-		hints[strings.ToLower(p.PUUID)] = partyHint{id: strings.ToLower(p.PartyID)}
-	}
-	return hints
-}
-
-func partyFields(m map[string]any) (string, int) {
-	if m == nil {
-		return "", 0
-	}
-	id := str(pick(m, "partyId", "partyID", "PartyID", "PartyId", "CurrentPartyID", "currentPartyID", "party_id"))
-	if !looksUUID(id) {
-		return "", 0
-	}
-	return strings.ToLower(id), num(pick(m, "partySize", "PartySize", "party_size"))
-}
-
-func jsonObject(v any) map[string]any {
-	if m := asMap(v); m != nil {
-		return m
-	}
-	s, ok := v.(string)
-	if !ok {
-		return nil
-	}
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return nil
-	}
-	if strings.HasPrefix(s, "{") {
-		var out map[string]any
-		if json.Unmarshal([]byte(s), &out) == nil {
-			return out
-		}
-	}
-	return decodePrivate(s)
-}
-
-func findParty(v any) (string, int) {
-	if m := jsonObject(v); m != nil {
-		for _, key := range []string{"partyPresenceData", "PartyPresenceData"} {
-			if id, size := partyFields(jsonObject(m[key])); id != "" {
-				return id, size
-			}
-		}
-	}
-	return walkParty(v)
-}
-
-func walkParty(v any) (string, int) {
-	if m := jsonObject(v); m != nil {
-		if id, size := partyFields(m); id != "" {
-			return id, size
-		}
-		for _, child := range m {
-			if id, size := walkParty(child); id != "" {
-				return id, size
-			}
-		}
-	}
-	if arr := asArr(v); len(arr) > 0 {
-		for _, child := range arr {
-			if id, size := walkParty(child); id != "" {
-				return id, size
-			}
-		}
-	}
-	return "", 0
-}
-
-func decodePrivate(raw string) map[string]any {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return nil
-	}
-	if strings.HasPrefix(raw, "{") {
-		var out map[string]any
-		if json.Unmarshal([]byte(raw), &out) == nil {
-			return out
-		}
-	}
-	if strings.Count(raw, ".") >= 2 {
-		parts := strings.Split(raw, ".")
-		order := []int{}
-		if len(parts) > 1 {
-			order = append(order, 1)
-		}
-		for i := range parts {
-			if i != 1 {
-				order = append(order, i)
-			}
-		}
-		for _, i := range order {
-			if m := decodeB64JSON(parts[i]); m != nil {
-				return m
-			}
-		}
-	}
-	return decodeB64JSON(raw)
-}
-
-func decodeB64JSON(raw string) map[string]any {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return nil
-	}
-	var data []byte
-	var err error
-	padded := raw
-	if m := len(padded) % 4; m != 0 {
-		padded += strings.Repeat("=", 4-m)
-	}
-	for _, dec := range []*base64.Encoding{base64.RawURLEncoding, base64.URLEncoding, base64.RawStdEncoding, base64.StdEncoding} {
-		data, err = dec.DecodeString(raw)
-		if err == nil {
-			break
-		}
-		data, err = dec.DecodeString(padded)
-		if err == nil {
-			break
-		}
-	}
-	if err != nil || len(data) == 0 || data[0] != '{' {
-		return nil
-	}
-	var out map[string]any
-	if json.Unmarshal(data, &out) != nil {
-		return nil
-	}
-	return out
 }
 
 func isRosterPlayer(m map[string]any) bool {
@@ -1787,6 +1133,8 @@ func applyCombat(p *player, tot combat) {
 	shots := tot.hs + tot.body + tot.leg
 	if shots > 0 && p.HS == "" {
 		p.HS = strconv.Itoa(tot.hs*100/shots) + "%"
+		p.Body = strconv.Itoa(tot.body*100/shots) + "%"
+		p.Legs = strconv.Itoa(tot.leg*100/shots) + "%"
 		p.Heads = tot.hs
 		p.Shots = shots
 	}
@@ -1889,26 +1237,46 @@ func matchRounds(detail map[string]any, players []player) []roundBeat {
 			break
 		}
 	}
+	items := asArr(pick(detail, "roundResults", "RoundResults"))
+	lastN := 0
+	if n := len(items); n > 0 {
+		lastN = num(pick(asMap(items[n-1]), "roundNum", "RoundNum"))
+	}
 	var out []roundBeat
 	ys, ns := 0, 0
-	for _, item := range asArr(pick(detail, "roundResults", "RoundResults")) {
+	queue := queueOf(detail)
+	for _, item := range items {
 		round := asMap(item)
 		n := num(pick(round, "roundNum", "RoundNum"))
 		winner := str(pick(round, "winningTeam", "WinningTeam"))
-		you := mine != "" && (strings.EqualFold(winner, mine) || strings.EqualFold(roleWord(winner), mine) || strings.EqualFold(teamSide(winner, queueOf(detail), n), mine))
+		you := mine != "" && (strings.EqualFold(winner, mine) || strings.EqualFold(roleWord(winner), mine) || strings.EqualFold(teamSide(winner, queue, n), mine))
 		if you {
 			ys++
 		} else if winner != "" {
 			ns++
 		}
-		side := mine
-		if rawMine != "" {
-			side = teamSide(rawMine, queueOf(detail), n)
-		}
+		side := roundSide(rawMine, mine, queue, n, lastN)
 		vs := clutchCount(round, me, players)
 		out = append(out, roundBeat{N: n, You: you, How: roundHow(round), Side: side, ScoreY: ys, ScoreN: ns, Vs: vs, Fail: vs > 0 && !you})
 	}
 	return out
+}
+
+func roundSide(raw, labeled, queue string, roundN, lastN int) string {
+	if strings.TrimSpace(raw) != "" {
+		return teamSide(raw, queue, roundN)
+	}
+	labeled = strings.TrimSpace(labeled)
+	if labeled != "Attackers" && labeled != "Defenders" {
+		return labeled
+	}
+	if sidesSwapped(queue, roundN) == sidesSwapped(queue, lastN) {
+		return labeled
+	}
+	if labeled == "Attackers" {
+		return "Defenders"
+	}
+	return "Attackers"
 }
 
 func roundHow(round map[string]any) string {
@@ -1992,6 +1360,33 @@ func clutchCount(round map[string]any, me string, players []player) int {
 	return best
 }
 
+func notePlants(detail map[string]any, players []player) {
+	plants := map[string]int{}
+	defuses := map[string]int{}
+	for _, item := range asArr(pick(detail, "roundResults", "RoundResults")) {
+		round := asMap(item)
+		if id := strings.ToLower(str(pick(round, "bombPlanter", "BombPlanter"))); looksUUID(id) {
+			plants[id]++
+		}
+		plant := asMap(pick(round, "plantPlayerLocations", "PlantPlayerLocations"))
+		if id := strings.ToLower(str(pick(plant, "subject", "Subject"))); looksUUID(id) && plants[id] == 0 {
+			plants[id]++
+		}
+		if id := strings.ToLower(str(pick(round, "bombDefuser", "BombDefuser"))); looksUUID(id) {
+			defuses[id]++
+		}
+	}
+	for i := range players {
+		id := strings.ToLower(players[i].PUUID)
+		if n := plants[id]; n > 0 {
+			players[i].Plants = strconv.Itoa(n)
+		}
+		if n := defuses[id]; n > 0 {
+			players[i].Defuses = strconv.Itoa(n)
+		}
+	}
+}
+
 func scoreForSide(detail map[string]any, side string) int {
 	for _, item := range asArr(pick(detail, "teams", "Teams")) {
 		team := asMap(item)
@@ -2012,6 +1407,7 @@ func finalizeRecent(detail map[string]any, self string, agents map[string]agentI
 		return nil
 	}
 	addCombatStats(detail, row.Players)
+	notePlants(detail, row.Players)
 	row.Edges = matchEdges(detail, row.Players)
 	row.Rounds = matchRounds(detail, row.Players)
 	row.Buys = matchBuys(detail, row.Players)

@@ -131,7 +131,7 @@
       #pane-live.match .team h2, #pane-live.match .team-name { flex: none; margin: 0; font-size: 22px; letter-spacing: -0.04em; text-transform: none; color: var(--ink); font-weight: 740; }
       #pane-live.match .team.ally h2, #pane-live.match .team.ally .team-name { color: var(--you); }
       #pane-live.match .team.enemy h2, #pane-live.match .team.enemy .team-name { color: var(--enemy); }
-      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 10px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) 78px 128px; align-items: center; gap: 10px; }
+      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 12px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) 128px; align-items: center; gap: 10px; }
       #pane-live.match .agent { width: 56px; height: 56px; border-radius: 14px; object-fit: contain; object-position: center; background: #1a1016; padding: 2px; box-sizing: border-box; }
       #pane-live.match .squad { margin: 0; font-size: 11px; padding: 3px 8px; }
       #pane-live.match .who { display: block; max-width: 100%; font-size: 14px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
@@ -309,4 +309,15 @@
       .delta.down { color: #ff4d6d; }
       .match { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; border: 0; background: transparent; padding: 14px 0 10px; cursor: pointer; text-align: left; }
       .result { display: flex; align-items: center; gap: 8px; }
+      #pane-live.match .row.pA { box-shadow: inset 4px 0 0 #ff5fa2; }
+      #pane-live.match .row.pB { box-shadow: inset 4px 0 0 #7eb6ff; }
+      #pane-live.match .row.pC { box-shadow: inset 4px 0 0 #e2b657; }
+      #pane-live.match .row.pD { box-shadow: inset 4px 0 0 #7dcea0; }
+      #pane-live.match .row.pE { box-shadow: inset 4px 0 0 #c39bff; }
+      #pane-live.match .row.pF { box-shadow: inset 4px 0 0 #ff9b6a; }
+      #pane-live.match .row.pG { box-shadow: inset 4px 0 0 #3dfff2; }
+      #pane-live.match .row.pH { box-shadow: inset 4px 0 0 #d6ff4a; }
+      @keyframes lockflip { from { transform: rotateY(78deg); } to { transform: none; } }
+      #pane-live .agent.just-locked { animation: lockflip .48s ease; transform-origin: center; }
+      .hrank.coin .rankimg, .rankline.coin .rankimg { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; filter: drop-shadow(0 8px 8px rgba(0,0,0,.55)); background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.5), transparent 46%); }
       .mood { display: block; flex: none; pointer-events: none; }

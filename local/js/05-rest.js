@@ -9,7 +9,7 @@
       async function paintDeaths() {
         const root = document.getElementById("deaths");
         if (!root) return;
-        const mode = localStorage.getItem("velvet-heat") === "kills" ? "kills" : "deaths";
+        const mode = localStorage.getItem("valvet-heat") === "kills" ? "kills" : "deaths";
         const groups = {};
         for (const match of history || []) {
           const spots = heatSpots(match, mode);
@@ -28,7 +28,7 @@
           const button = el("button", "tiny" + (mode === id ? " solid" : ""), label);
           button.type = "button";
           button.onclick = () => {
-            localStorage.setItem("velvet-heat", id);
+            localStorage.setItem("valvet-heat", id);
             root.dataset.sig = "";
             paintDeaths();
           };
@@ -175,11 +175,11 @@
         root.append(strip);
       }
       function loadTeam() {
-        const saved = readJSON("velvet-team");
+        const saved = readJSON("valvet-team");
         return saved && typeof saved === "object" ? { name: saved.name || "", roster: saved.roster || [] } : { name: "", roster: [] };
       }
       function saveTeam(team) {
-        writeJSON("velvet-team", team);
+        writeJSON("valvet-team", team);
       }
       function rankFor(riot) {
         const needle = String(riot || "").toLowerCase();
@@ -268,6 +268,37 @@
         root.append(list);
         paintTeamList();
       }
+      async function loadPremier() {
+        const root = document.getElementById("team");
+        if (!root) return;
+        paintTeam();
+        let data = {};
+        try { data = await (await fetch("/api/premier", { cache: "no-store" })).json(); }
+        catch { data = { error: "No Premier team on this client" }; }
+        let card = document.getElementById("premier-card");
+        if (!card) {
+          card = el("section", "set-card");
+          card.id = "premier-card";
+          root.prepend(card);
+        }
+        card.replaceChildren();
+        card.append(el("div", "eyebrow", "Premier"));
+        const roster = (data && data.roster) || [];
+        if (!data || (!data.name && !roster.length)) {
+          card.append(el("h2", null, "Not in a Premier team"));
+          card.append(el("p", "sub", (data && data.error) || "The roster below is only for when this client has no Premier team."));
+          return;
+        }
+        const typed = root.querySelector(".set-card:not(#premier-card)");
+        if (typed) typed.hidden = true;
+        const list = document.getElementById("team-list");
+        if (list) list.hidden = true;
+        card.append(el("h2", null, [data.name || "Premier", data.tag ? "#" + data.tag : ""].filter(Boolean).join(" ")));
+        const bits = [data.division, data.points ? data.points + " pts" : ""].filter(Boolean).join(" · ");
+        if (bits) card.append(el("p", "sub", bits));
+        if (!roster.length) card.append(el("p", "sub", "The client named the team and did not send the roster."));
+        for (const mate of roster) card.append(el("div", "sub", [mate.name || "Player", mate.tag ? "#" + mate.tag : "", mate.role].filter(Boolean).join(" ")));
+      }
       function guessMatchLength(match) {
         const mode = String((match && match.mode) || "").toLowerCase();
         if (/deathmatch|escalation|replication/.test(mode)) return 10 * 60000;
@@ -286,13 +317,13 @@
           session[key] = 0;
           matches[key] = 0;
         }
-        for (const row of readJSON("velvet-sessions") || []) {
+        for (const row of readJSON("valvet-sessions") || []) {
           if (!row || !row.end) continue;
           const key = dayStart(row.start || row.end);
           if (session[key] == null) continue;
           session[key] += Math.max(0, row.end - row.start);
         }
-        const open = readJSON("velvet-session-open");
+        const open = readJSON("valvet-session-open");
         let liveKey = 0;
         let liveMs = 0;
         if (open && open.start) {
@@ -425,8 +456,8 @@
         const root = document.getElementById("session");
         if (!root) return;
         const start = dayStart(Date.now());
-        const rows = (readJSON("velvet-sessions") || []).filter((row) => row && row.end >= start);
-        const open = readJSON("velvet-session-open");
+        const rows = (readJSON("valvet-sessions") || []).filter((row) => row && row.end >= start);
+        const open = readJSON("valvet-session-open");
         let total = 0;
         const items = [];
         for (const row of rows) {
@@ -513,7 +544,7 @@
         }
       }
       function stampSeen(people, fresh) {
-        const book = readJSON("velvet-last-seen") || {};
+        const book = readJSON("valvet-last-seen") || {};
         const now = Date.now();
         const here = new Set();
         for (const person of people || []) {
@@ -552,12 +583,12 @@
             if (!here.has(id) && book[id] && book[id].live) book[id] = { ...book[id], live: false };
           }
         }
-        writeJSON("velvet-last-seen", book);
+        writeJSON("valvet-last-seen", book);
       }
       function paintSeen() {
         const root = document.getElementById("seen");
         if (!root) return;
-        const book = readJSON("velvet-last-seen") || {};
+        const book = readJSON("valvet-last-seen") || {};
         const rows = Object.entries(book).map(([id, row]) => ({ ...row, id })).filter((row) => row && row.at && String(row.state || "").toLowerCase() !== "mobile").sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.at || 0) - (a.at || 0));
         const sig = rows.map((row) => [row.name, row.live ? 1 : 0, row.state, row.map, row.mode, row.product, row.at, row.playSince || 0].join(":")).join("|");
         if (root.dataset.sig === sig) return;
@@ -733,22 +764,22 @@
       function noteSession(data) {
         const phase = (data && data.phase) || "";
         const playing = phase === "In game" || phase === "Agent select" || phase === "Loading lobby";
-        const open = readJSON("velvet-session-open");
+        const open = readJSON("valvet-session-open");
         const now = Date.now();
         if (playing) {
-          if (!open) writeJSON("velvet-session-open", { start: now, queue: data.queue || data.mode || "Game", map: data.map || "" });
+          if (!open) writeJSON("valvet-session-open", { start: now, queue: data.queue || data.mode || "Game", map: data.map || "" });
           else {
             const next = { ...open, map: data.map || open.map || "", queue: data.queue || data.mode || open.queue || "Game" };
-            if (next.map !== open.map || next.queue !== open.queue) writeJSON("velvet-session-open", next);
+            if (next.map !== open.map || next.queue !== open.queue) writeJSON("valvet-session-open", next);
           }
           return;
         }
         if (!open || !open.start) return;
-        const rows = readJSON("velvet-sessions") || [];
+        const rows = readJSON("valvet-sessions") || [];
         rows.push({ start: open.start, end: now, queue: open.queue || data.mode || "Game", map: open.map || "" });
         const cut = dayStart(now) - 29 * 86400000;
-        writeJSON("velvet-sessions", rows.filter((row) => row && row.end >= cut).slice(-400));
-        localStorage.removeItem("velvet-session-open");
+        writeJSON("valvet-sessions", rows.filter((row) => row && row.end >= cut).slice(-400));
+        localStorage.removeItem("valvet-session-open");
       }
       function paintDesk() {
         if (tab === "records") paintRecords();
@@ -763,7 +794,7 @@
       async function loadNews(live) {
         const root = document.getElementById("news");
         if (!root) return;
-        const key = "velvet-cache-news2";
+        const key = "valvet-cache-news2";
         const saved = readJSON(key);
         const ok = Array.isArray(saved) && saved.length;
         if (ok) paintNews(saved);
@@ -790,7 +821,7 @@
         if (!root) return;
         root.className = "";
         root.replaceChildren();
-        savedBar(root, "velvet-cache-news2", () => loadNews("force"));
+        savedBar(root, "valvet-cache-news2", () => loadNews("force"));
         const bundles = notes.filter((note) => note.bundle);
         const rest = notes.filter((note) => !note.bundle);
         const gridFor = (title, rows) => {
@@ -826,19 +857,19 @@
         if (!sig) return;
         freshSig[name] = sig;
         const button = document.getElementById("tab-" + name);
-        const seen = localStorage.getItem("velvet-seen-" + name) || "";
+        const seen = localStorage.getItem("valvet-seen-" + name) || "";
         if (!seen) {
-          localStorage.setItem("velvet-seen-" + name, sig);
+          localStorage.setItem("valvet-seen-" + name, sig);
           if (button) button.classList.remove("fresh");
           return;
         }
         const show = seen !== sig && tab !== name;
-        if (tab === name) localStorage.setItem("velvet-seen-" + name, sig);
+        if (tab === name) localStorage.setItem("valvet-seen-" + name, sig);
         if (button) button.classList.toggle("fresh", show);
       }
       function hiddenTabs() {
         try {
-          const rows = JSON.parse(localStorage.getItem("velvet-hidden-tabs") || "[]");
+          const rows = JSON.parse(localStorage.getItem("valvet-hidden-tabs") || "[]");
           return Array.isArray(rows) ? rows : [];
         } catch { return []; }
       }
@@ -870,7 +901,7 @@
         if (tabHidden(next)) next = "live";
         if (document.body.classList.contains("minimal") && next !== "live" && next !== "settings") next = "live";
         tab = next;
-        localStorage.setItem("velvet-tab", next);
+        localStorage.setItem("valvet-tab", next);
         for (const name of TABS) {
           const pane = document.getElementById("pane-" + name);
           const button = document.getElementById("tab-" + name);
@@ -879,8 +910,8 @@
           pane.hidden = !on;
           button.hidden = tabHidden(name);
           button.className = on ? "on" : "";
-          if (!on && freshSig[name] && localStorage.getItem("velvet-seen-" + name) !== freshSig[name]) button.classList.add("fresh");
-          if (on && freshSig[name]) localStorage.setItem("velvet-seen-" + name, freshSig[name]);
+          if (!on && freshSig[name] && localStorage.getItem("valvet-seen-" + name) !== freshSig[name]) button.classList.add("fresh");
+          if (on && freshSig[name]) localStorage.setItem("valvet-seen-" + name, freshSig[name]);
           if (on) {
             pane.classList.remove("enter");
             void pane.offsetWidth;
@@ -911,6 +942,7 @@
         if (next === "bundle" && lastShop) { bundleKey = ""; drawBundle(lastShop); }
         if (next === "patches") loadPatches(!!user);
         if (next === "esports") loadEsports(!!user);
+        if (next === "team") loadPremier();
         if (next === "agents") loadAgents(!!user);
         if (next === "profile") {
           loadProfile(!!user);
@@ -992,7 +1024,7 @@
       }
       async function loadGame(live) {
         const root = document.getElementById("game");
-        const key = "velvet-cache-game";
+        const key = "valvet-cache-game";
         const saved = readJSON(key);
         const ok = saved && (saved.rows || []).length;
         if (ok) paintGame(saved);
@@ -1061,7 +1093,7 @@
         input.min = "50";
         input.max = "36000";
         input.step = "50";
-        input.value = localStorage.getItem("velvet-dpi") || "800";
+        input.value = localStorage.getItem("valvet-dpi") || "800";
         field.append(input);
         const chips = el("div", "edpi-chips");
         for (const dpi of [400, 800, 1600, 3200]) {
@@ -1078,7 +1110,7 @@
         target.max = "20000";
         target.step = "1";
         target.placeholder = "280";
-        target.value = localStorage.getItem("velvet-edpi-target") || "";
+        target.value = localStorage.getItem("valvet-edpi-target") || "";
         want.append(target);
         const out = el("div", "edpi-out");
         const pretty = (n) => {
@@ -1088,8 +1120,8 @@
         };
         const draw = () => {
           const dpi = Number(input.value);
-          localStorage.setItem("velvet-dpi", input.value || "");
-          localStorage.setItem("velvet-edpi-target", target.value || "");
+          localStorage.setItem("valvet-dpi", input.value || "");
+          localStorage.setItem("valvet-edpi-target", target.value || "");
           out.replaceChildren();
           const chip = (k, v) => {
             const card = el("article");
@@ -1146,7 +1178,7 @@
       function paintSocialBook(data) {
         watch = data.watch || [];
         const nextGone = data.unfriends || [];
-        if (unfriendReady && localStorage.getItem("velvet-discord-unfriend") !== "off") {
+        if (unfriendReady && localStorage.getItem("valvet-discord-unfriend") !== "off") {
           const prev = new Set(unfriends.map((item) => (item.puuid || trackKey(item.name, item.tag)).toLowerCase()));
           for (const item of nextGone) {
             const id = (item.puuid || trackKey(item.name, item.tag)).toLowerCase();
@@ -1249,15 +1281,15 @@
       function applySize(name) {
         const allowed = { compact: 1, standard: 1, wide: 1, large: 1 };
         const size = allowed[name] ? name : "standard";
-        localStorage.setItem("velvet-size", size);
+        localStorage.setItem("valvet-size", size);
         document.body.dataset.size = size;
         document.querySelectorAll("#sizes button").forEach((button) => button.classList.toggle("on", button.dataset.size === size));
-        if (typeof velvetResize === "function") velvetResize(size).catch(() => {});
+        if (typeof valvetResize === "function") valvetResize(size).catch(() => {});
       }
       document.querySelectorAll("#sizes button").forEach((button) => {
         button.onclick = () => applySize(button.dataset.size);
       });
-      applySize(localStorage.getItem("velvet-size") || "standard");
+      applySize(localStorage.getItem("valvet-size") || "standard");
       async function paintLaunch() {
         let mode = "off";
         try { mode = (await (await fetch("/api/launch", { cache: "no-store" })).json()).mode || "off"; } catch {}
@@ -1272,11 +1304,11 @@
       paintLaunch();
       const goal = document.getElementById("set-goal");
       if (goal) {
-        goal.value = localStorage.getItem("velvet-rr-goal") || "";
+        goal.value = localStorage.getItem("valvet-rr-goal") || "";
         goal.onchange = () => {
           const n = Math.max(0, Math.min(500, Number(goal.value) || 0));
-          if (n) localStorage.setItem("velvet-rr-goal", String(n));
-          else localStorage.removeItem("velvet-rr-goal");
+          if (n) localStorage.setItem("valvet-rr-goal", String(n));
+          else localStorage.removeItem("valvet-rr-goal");
           const slot = document.getElementById("rr-slot");
           if (slot) paintRR(slot);
         };
@@ -1317,10 +1349,10 @@
       loadStorage();
       document.getElementById("set-export").onclick = async () => {
         const social = await (await fetch("/api/social", { cache: "no-store" })).json().catch(() => ({}));
-        const bag = { velvet: 27, watch: social.watch || [] };
+        const bag = { valvet: 27, watch: social.watch || [] };
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (key.startsWith("valvet-") || key.startsWith("velvet-"))) bag[key] = localStorage.getItem(key);
+          if (key && key.startsWith("valvet-")) bag[key] = localStorage.getItem(key);
         }
         const button = document.getElementById("set-export");
         const blob = new Blob([JSON.stringify(bag, null, 2)], { type: "application/json" });
@@ -1344,12 +1376,14 @@
         catch { return; }
         if (!bag || typeof bag !== "object") return;
         Object.keys(bag).forEach((key) => {
-          if ((key.startsWith("valvet-") || key.startsWith("velvet-")) && typeof bag[key] === "string") localStorage.setItem(key, bag[key]);
+          if (typeof bag[key] !== "string") return;
+          const next = key.startsWith("velvet-") ? "valvet-" + key.slice(7) : key;
+          if (next.startsWith("valvet-")) localStorage.setItem(next, bag[key]);
         });
         const social = await (await fetch("/api/social", { cache: "no-store" })).json().catch(() => ({ watch: [] }));
         for (const item of social.watch || []) await fetch("/api/social?q=" + encodeURIComponent(item.name + "#" + item.tag), { method: "DELETE" });
         for (const item of bag.watch || []) await fetch("/api/social?q=" + encodeURIComponent(item.name + "#" + item.tag), { method: "POST" });
-        applySize(localStorage.getItem("velvet-size") || "standard");
+        applySize(localStorage.getItem("valvet-size") || "standard");
         loadSocial();
         location.reload();
       };
@@ -1360,26 +1394,26 @@
         const noteEl = document.getElementById("board-note");
         const genderEl = document.getElementById("board-gender");
         const queueEl = document.getElementById("board-queue");
-        if (ageEl) localStorage.setItem("velvet-age", ageEl.value.trim());
-        if (noteEl) localStorage.setItem("velvet-note", noteEl.value.trim());
-        if (genderEl) localStorage.setItem("velvet-gender", genderEl.value);
-        if (queueEl) localStorage.setItem("velvet-queue", queueEl.value);
+        if (ageEl) localStorage.setItem("valvet-age", ageEl.value.trim());
+        if (noteEl) localStorage.setItem("valvet-note", noteEl.value.trim());
+        if (genderEl) localStorage.setItem("valvet-gender", genderEl.value);
+        if (queueEl) localStorage.setItem("valvet-queue", queueEl.value);
         const on = !lookingOn();
         if (on) {
-          const age = Number(localStorage.getItem("velvet-age") || 0);
+          const age = Number(localStorage.getItem("valvet-age") || 0);
           if (age && age < 16) {
             const state = document.getElementById("look-state");
             if (state) state.textContent = "Leave age empty, or enter 16 or older.";
             return;
           }
         }
-        localStorage.setItem("velvet-looking", on ? "on" : "off");
-        localStorage.setItem("velvet-ready", "off");
+        localStorage.setItem("valvet-looking", on ? "on" : "off");
+        localStorage.setItem("valvet-ready", "off");
         if (on) {
           const mins = Number((document.getElementById("look-for") || {}).value || 0);
-          if (mins) localStorage.setItem("velvet-until", String(Date.now() + mins * 60000));
-          else localStorage.removeItem("velvet-until");
-        } else localStorage.removeItem("velvet-until");
+          if (mins) localStorage.setItem("valvet-until", String(Date.now() + mins * 60000));
+          else localStorage.removeItem("valvet-until");
+        } else localStorage.removeItem("valvet-until");
         paintLooking();
         rememberPrefs();
         pushRoom(true);
@@ -1479,22 +1513,22 @@
         select.value = localStorage.getItem(key) || "";
         select.onchange = () => { localStorage.setItem(key, select.value); pushRoom(lookingOn()); refreshRoom(); };
       }
-      fillRanks("rank-low", "velvet-rank-low");
-      fillRanks("rank-high", "velvet-rank-high");
+      fillRanks("rank-low", "valvet-rank-low");
+      fillRanks("rank-high", "valvet-rank-high");
       const serverPick = document.getElementById("stack-server");
       if (serverPick) {
-        serverPick.value = localStorage.getItem("velvet-server") || "";
-        serverPick.onchange = () => { localStorage.setItem("velvet-server", serverPick.value); pushRoom(lookingOn()); refreshRoom(); };
+        serverPick.value = localStorage.getItem("valvet-server") || "";
+        serverPick.onchange = () => { localStorage.setItem("valvet-server", serverPick.value); pushRoom(lookingOn()); refreshRoom(); };
       }
       const lookFor = document.getElementById("look-for");
       if (lookFor) {
-        lookFor.value = localStorage.getItem("velvet-look-for") || "0";
+        lookFor.value = localStorage.getItem("valvet-look-for") || "0";
         lookFor.onchange = () => {
-          localStorage.setItem("velvet-look-for", lookFor.value);
-          if (localStorage.getItem("velvet-looking") === "on") {
+          localStorage.setItem("valvet-look-for", lookFor.value);
+          if (localStorage.getItem("valvet-looking") === "on") {
             const mins = Number(lookFor.value || 0);
-            if (mins) localStorage.setItem("velvet-until", String(Date.now() + mins * 60000));
-            else localStorage.removeItem("velvet-until");
+            if (mins) localStorage.setItem("valvet-until", String(Date.now() + mins * 60000));
+            else localStorage.removeItem("valvet-until");
           }
           pushRoom(lookingOn());
         };
@@ -1503,13 +1537,13 @@
       const agentPick = document.getElementById("want-agent");
       if (agentPick) {
         for (const name of AGENTS) agentPick.append(new Option(name, name));
-        agentPick.value = localStorage.getItem("velvet-agent") || "";
-        agentPick.onchange = () => { localStorage.setItem("velvet-agent", agentPick.value); pushRoom(lookingOn()); };
+        agentPick.value = localStorage.getItem("valvet-agent") || "";
+        agentPick.onchange = () => { localStorage.setItem("valvet-agent", agentPick.value); pushRoom(lookingOn()); };
       }
       const hideRank = document.getElementById("hide-rank");
       if (hideRank) {
-        hideRank.checked = localStorage.getItem("velvet-hide-rank") === "on";
-        hideRank.onchange = () => { localStorage.setItem("velvet-hide-rank", hideRank.checked ? "on" : "off"); pushRoom(lookingOn()); };
+        hideRank.checked = localStorage.getItem("valvet-hide-rank") === "on";
+        hideRank.onchange = () => { localStorage.setItem("valvet-hide-rank", hideRank.checked ? "on" : "off"); pushRoom(lookingOn()); };
       }
       document.addEventListener("pointermove", (event) => {
         const card = event.target.closest && event.target.closest(".duo-person");
@@ -1524,10 +1558,10 @@
       const discordName = document.getElementById("discord-name");
       const shareDiscord = document.getElementById("share-discord");
       if (shareDiscord && discordName) {
-        shareDiscord.checked = localStorage.getItem("velvet-share-discord") === "on";
-        discordName.value = localStorage.getItem("velvet-discord-name") || "";
-        shareDiscord.onchange = () => { localStorage.setItem("velvet-share-discord", shareDiscord.checked ? "on" : "off"); pushRoom(lookingOn()); };
-        discordName.onchange = () => { localStorage.setItem("velvet-discord-name", discordName.value.trim()); pushRoom(lookingOn()); };
+        shareDiscord.checked = localStorage.getItem("valvet-share-discord") === "on";
+        discordName.value = localStorage.getItem("valvet-discord-name") || "";
+        shareDiscord.onchange = () => { localStorage.setItem("valvet-share-discord", shareDiscord.checked ? "on" : "off"); pushRoom(lookingOn()); };
+        discordName.onchange = () => { localStorage.setItem("valvet-discord-name", discordName.value.trim()); pushRoom(lookingOn()); };
       }
       function bindBoard(id, key) {
         const node = document.getElementById(id);
@@ -1538,10 +1572,10 @@
           if (lookingOn()) pushRoom(true);
         };
       }
-      bindBoard("board-note", "velvet-note");
-      bindBoard("board-age", "velvet-age");
-      bindBoard("board-gender", "velvet-gender");
-      bindBoard("board-queue", "velvet-queue");
+      bindBoard("board-note", "valvet-note");
+      bindBoard("board-age", "valvet-age");
+      bindBoard("board-gender", "valvet-gender");
+      bindBoard("board-queue", "valvet-queue");
       function bindFilter(id, key) {
         const node = document.getElementById(id);
         if (!node) return;
@@ -1553,12 +1587,12 @@
       }
       const filterMode = document.getElementById("filter-mode");
       if (filterMode) for (const name of PLAY_MODES) filterMode.append(new Option(name, name));
-      bindFilter("filter-server", "velvet-filter-server");
-      bindFilter("filter-queue", "velvet-filter-queue");
-      bindFilter("filter-mode", "velvet-filter-mode");
-      bindFilter("filter-gender", "velvet-filter-gender");
-      bindFilter("filter-age-min", "velvet-filter-age-min");
-      bindFilter("filter-age-max", "velvet-filter-age-max");
+      bindFilter("filter-server", "valvet-filter-server");
+      bindFilter("filter-queue", "valvet-filter-queue");
+      bindFilter("filter-mode", "valvet-filter-mode");
+      bindFilter("filter-gender", "valvet-filter-gender");
+      bindFilter("filter-age-min", "valvet-filter-age-min");
+      bindFilter("filter-age-max", "valvet-filter-age-max");
       setInterval(() => {
         if (tab !== "together" && !lookingOn()) return;
         refreshRoom();
@@ -1585,11 +1619,11 @@
         tone(660, 0.06);
       };
       loadSocial();
-      const savedTab = localStorage.getItem("velvet-tab");
-      if (localStorage.getItem("velvet-tour") === "done" && savedTab && savedTab !== "missions" && TABS.includes(savedTab) && savedTab !== "live") setTab(savedTab);
+      const savedTab = localStorage.getItem("valvet-tab");
+      if (localStorage.getItem("valvet-tour") === "done" && savedTab && savedTab !== "missions" && TABS.includes(savedTab) && savedTab !== "live") setTab(savedTab);
       document.getElementById("scrim").onclick = (event) => { if (event.target.id === "scrim") event.currentTarget.hidden = true; };
 
-      const XH_KEY = "velvet-crosshairs";
+      const XH_KEY = "valvet-crosshairs";
       function loadXH() { try { return JSON.parse(localStorage.getItem(XH_KEY) || "[]"); } catch { return []; } }
       function readCrosshair(code) {
         const parts = String(code || "").split(";").filter((part) => part !== "");
@@ -1976,6 +2010,28 @@
         try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; }
         catch { button.textContent = "Copy failed"; }
       };
+      const PRO_HAIRS = [
+        ["TenZ", "0;P;c;5;h;0;0l;4;0o;2;0a;1;1b;0"],
+        ["ZmjjKK", "0;s;1;P;c;7;u;000000FF;h;0;0l;3;0v;3;0g;1;0o;2;0a;1;0f;0;1b;0;S;c;0;s;1.2;o;1"],
+        ["aspas", "0;s;1;P;c;5;o;1;0l;4;0v;3;0g;1;0o;0;0a;1;0f;0;1b;0;S;c;0;s;1.2;o;1"],
+        ["yay", "0;s;1;P;o;1;d;1;z;1;0b;0;1b;0;S;o;1"],
+        ["Demon1", "0;s;1;P;o;1;d;1;m;1;0b;0;1b;0"],
+        ["Leo", "0;P;h;0;0l;3;0o;0;0a;1;0f;0;1b;0"],
+        ["Derke", "0;P;c;8;b;1;t;1;o;1;z;2;a;1;0t;2;0l;6;0v;6;0o;3;0a;0.8;0s;1;0e;1;1t;2;1l;2;1v;2;1o;10;1a;0.35;1s;1;1e;1;u;FFFFFF;d;1;h;1;0g;0;1g;0;0f;0;1f;1;0m;0;1m;1;0b;0;1b;0;m;0"],
+        ["Boaster", "0;s;1;P;c;1;o;1;d;1;0l;0;0o;2;0a;1;0f;0;1b;0;S;c;1;o;1"],
+        ["Chronicle", "0;P;c;7;o;1;f;0;0t;1;0l;3;0v;3;0g;1;0o;2;0a;1;0f;0;1b;0"],
+        ["Less", "0;s;1;P;c;8;u;000000FF;h;0;b;1;f;0;0l;4;0o;0;0a;1;0f;0;1b;0"]
+      ];
+      const proBtn = document.getElementById("xh-pros");
+      if (proBtn) proBtn.onclick = () => {
+        const next = loadXH();
+        const have = new Set(next.map((item) => item.code));
+        for (const [name, code] of PRO_HAIRS) if (!have.has(code)) next.push({ name, code });
+        localStorage.setItem(XH_KEY, JSON.stringify(next.slice(0, 40)));
+        drawXH();
+        proBtn.textContent = "Added";
+        setTimeout(() => { proBtn.textContent = "Add 10 pro codes"; }, 900);
+      };
       drawXH();
 
       try {
@@ -1989,7 +2045,7 @@
           Violet: { bg: "#0e0a16", panel: "#1a1428", accent: "#b388ff", you: "#d4c2ff", enemy: "#ff7ad9" },
           Ember: { bg: "#140e0a", panel: "#24180f", accent: "#ff8a3d", you: "#ffd0a8", enemy: "#ff5f7a" },
         };
-        const THEME_KEY = "velvet-colours";
+        const THEME_KEY = "valvet-colours";
         let theme = { ...THEMES.Valvet };
         try { const saved = JSON.parse(localStorage.getItem(THEME_KEY) || "null"); if (saved && saved.bg) theme = saved; } catch {}
         function applyTheme(next) {
@@ -2000,23 +2056,23 @@
           root.setProperty("--you", next.you);
           root.setProperty("--enemy", next.enemy);
           document.body.style.background = document.body.classList.contains("custom-bg") ? document.body.style.background : next.bg;
-          if (window.velvetChrome) velvetChrome(next.bg, next.accent);
+          if (window.valvetChrome) valvetChrome(next.bg, next.accent);
         }
         applyTheme(theme);
         const motion = document.getElementById("set-motion");
         const corners = document.getElementById("set-corners");
         const cats = document.getElementById("set-cats");
         const applyShape = () => {
-          const motionValue = (motion && motion.value) || localStorage.getItem("velvet-motion") || "full";
-          const cornerValue = (corners && corners.value) || localStorage.getItem("velvet-corners") || "soft";
+          const motionValue = (motion && motion.value) || localStorage.getItem("valvet-motion") || "full";
+          const cornerValue = (corners && corners.value) || localStorage.getItem("valvet-corners") || "soft";
           document.body.dataset.motion = motionValue;
           document.body.dataset.corners = cornerValue;
           document.body.classList.toggle("no-cats", !!(cats && !cats.checked));
           markThemes();
         };
         function markThemes() {
-          const motionValue = document.body.dataset.motion || localStorage.getItem("velvet-motion") || "full";
-          const cornerValue = document.body.dataset.corners || localStorage.getItem("velvet-corners") || "soft";
+          const motionValue = document.body.dataset.motion || localStorage.getItem("valvet-motion") || "full";
+          const cornerValue = document.body.dataset.corners || localStorage.getItem("valvet-corners") || "soft";
           document.querySelectorAll("#sample-shape [data-corners]").forEach((btn) => btn.classList.toggle("on", btn.dataset.corners === cornerValue));
           document.querySelectorAll("#sample-shape [data-motion]").forEach((btn) => btn.classList.toggle("on", btn.dataset.motion === motionValue));
           document.querySelectorAll("#swatches .theme-chip, #sample-swatches .theme-chip").forEach((chip) => {
@@ -2029,16 +2085,16 @@
           if (sampleGlass && glassBox) sampleGlass.checked = !!glassBox.checked;
         }
         if (motion) {
-          motion.value = localStorage.getItem("velvet-motion") || "full";
-          motion.onchange = () => { localStorage.setItem("velvet-motion", motion.value); applyShape(); };
+          motion.value = localStorage.getItem("valvet-motion") || "full";
+          motion.onchange = () => { localStorage.setItem("valvet-motion", motion.value); applyShape(); };
         }
         if (corners) {
-          corners.value = localStorage.getItem("velvet-corners") || "soft";
-          corners.onchange = () => { localStorage.setItem("velvet-corners", corners.value); applyShape(); };
+          corners.value = localStorage.getItem("valvet-corners") || "soft";
+          corners.onchange = () => { localStorage.setItem("valvet-corners", corners.value); applyShape(); };
         }
         if (cats) {
-          cats.checked = localStorage.getItem("velvet-cats") !== "off";
-          cats.onchange = () => { localStorage.setItem("velvet-cats", cats.checked ? "on" : "off"); applyShape(); };
+          cats.checked = localStorage.getItem("valvet-cats") !== "off";
+          cats.onchange = () => { localStorage.setItem("valvet-cats", cats.checked ? "on" : "off"); applyShape(); };
         }
         applyShape();
         const sound = document.getElementById("set-sound");
@@ -2061,37 +2117,37 @@
         const discordRounds = document.getElementById("set-discord-rounds");
         const discordUnfriend = document.getElementById("set-discord-unfriend");
         const discordApp = document.getElementById("set-discord-app");
-        sound.checked = localStorage.getItem("velvet-sound") !== "off";
-        chime.checked = localStorage.getItem("velvet-chime") === "on";
-        join.checked = localStorage.getItem("velvet-join") === "on";
-        pop.checked = localStorage.getItem("velvet-pop") === "on";
-        night.checked = localStorage.getItem("velvet-night") === "on";
+        sound.checked = localStorage.getItem("valvet-sound") !== "off";
+        chime.checked = localStorage.getItem("valvet-chime") === "on";
+        join.checked = localStorage.getItem("valvet-join") === "on";
+        pop.checked = localStorage.getItem("valvet-pop") === "on";
+        night.checked = localStorage.getItem("valvet-night") === "on";
         const wishNote = document.getElementById("set-wish-note");
         if (wishNote) {
-          wishNote.checked = localStorage.getItem("velvet-wish-note") === "on";
+          wishNote.checked = localStorage.getItem("valvet-wish-note") === "on";
           wishNote.onchange = () => {
-            localStorage.setItem("velvet-wish-note", wishNote.checked ? "on" : "off");
-            if (wishNote.checked) localStorage.removeItem("velvet-wish-sig");
+            localStorage.setItem("valvet-wish-note", wishNote.checked ? "on" : "off");
+            if (wishNote.checked) localStorage.removeItem("valvet-wish-sig");
           };
         }
-        compact.checked = localStorage.getItem("velvet-compact") === "on";
-        volume.value = localStorage.getItem("velvet-volume") || "15";
+        compact.checked = localStorage.getItem("valvet-compact") === "on";
+        volume.value = localStorage.getItem("valvet-volume") || "15";
         volumeN.textContent = volume.value + "%";
         if (resultVolumeInput && resultVolumeN) {
-          resultVolumeInput.value = localStorage.getItem("velvet-result-volume") || "40";
+          resultVolumeInput.value = localStorage.getItem("valvet-result-volume") || "40";
           resultVolumeN.textContent = resultVolumeInput.value + "%";
         }
-        const savedPack = localStorage.getItem("velvet-soundpack") || "soft";
+        const savedPack = localStorage.getItem("valvet-soundpack") || "soft";
         pack.value = SOUND_PACKS[savedPack] || savedPack === "custom" ? savedPack : "soft";
-        discord.checked = localStorage.getItem("velvet-discord") === "on";
-        discordURLInput.value = localStorage.getItem("velvet-discord-url") || "";
-        discordApp.value = localStorage.getItem("velvet-discord-app") || "";
-        discordStatus.checked = localStorage.getItem("velvet-discord-status") !== "off";
-        discordRounds.checked = localStorage.getItem("velvet-discord-rounds") !== "off";
-        discordUnfriend.checked = localStorage.getItem("velvet-discord-unfriend") !== "off";
-        discordLive.checked = localStorage.getItem("velvet-discord-live") === "on";
-        discordEnd.checked = localStorage.getItem("velvet-discord-end") === "on";
-        discordWatch.checked = localStorage.getItem("velvet-discord-watch") !== "off";
+        discord.checked = localStorage.getItem("valvet-discord") === "on";
+        discordURLInput.value = localStorage.getItem("valvet-discord-url") || "";
+        discordApp.value = localStorage.getItem("valvet-discord-app") || "";
+        discordStatus.checked = localStorage.getItem("valvet-discord-status") !== "off";
+        discordRounds.checked = localStorage.getItem("valvet-discord-rounds") !== "off";
+        discordUnfriend.checked = localStorage.getItem("valvet-discord-unfriend") !== "off";
+        discordLive.checked = localStorage.getItem("valvet-discord-live") === "on";
+        discordEnd.checked = localStorage.getItem("valvet-discord-end") === "on";
+        discordWatch.checked = localStorage.getItem("valvet-discord-watch") !== "off";
         document.body.classList.toggle("compact", compact.checked);
         const glass = document.getElementById("set-glass");
         const fx = document.getElementById("set-fx");
@@ -2105,16 +2161,16 @@
           markThemes();
         };
         if (glass) {
-          glass.checked = localStorage.getItem("velvet-glass") === "on";
+          glass.checked = localStorage.getItem("valvet-glass") === "on";
           glass.onchange = () => {
-            localStorage.setItem("velvet-glass", glass.checked ? "on" : "off");
+            localStorage.setItem("valvet-glass", glass.checked ? "on" : "off");
             syncLook();
           };
         }
         if (fx) {
-          fx.checked = localStorage.getItem("velvet-fx") === "on";
+          fx.checked = localStorage.getItem("valvet-fx") === "on";
           fx.onchange = () => {
-            localStorage.setItem("velvet-fx", fx.checked ? "on" : "off");
+            localStorage.setItem("valvet-fx", fx.checked ? "on" : "off");
             syncLook();
           };
         }
@@ -2125,9 +2181,9 @@
           if (on && tab !== "live" && tab !== "settings") setTab("live");
         };
         if (minimal) {
-          minimal.checked = localStorage.getItem("velvet-minimal") === "on";
+          minimal.checked = localStorage.getItem("valvet-minimal") === "on";
           minimal.onchange = () => {
-            localStorage.setItem("velvet-minimal", minimal.checked ? "on" : "off");
+            localStorage.setItem("valvet-minimal", minimal.checked ? "on" : "off");
             rememberPrefs();
             applyMinimal(minimal.checked);
           };
@@ -2135,9 +2191,9 @@
         }
         const pauseLookups = document.getElementById("set-pause-lookups");
         if (pauseLookups) {
-          pauseLookups.checked = localStorage.getItem("velvet-pause-lookups") === "on";
+          pauseLookups.checked = localStorage.getItem("valvet-pause-lookups") === "on";
           const pushPause = () => {
-            localStorage.setItem("velvet-pause-lookups", pauseLookups.checked ? "on" : "off");
+            localStorage.setItem("valvet-pause-lookups", pauseLookups.checked ? "on" : "off");
             rememberPrefs();
             fetch("/api/pause", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ on: pauseLookups.checked }) }).catch(() => {});
           };
@@ -2146,21 +2202,21 @@
         }
         const gmail = document.getElementById("set-gmail");
         if (gmail) {
-          gmail.value = localStorage.getItem("velvet-gmail") || "";
+          gmail.value = localStorage.getItem("valvet-gmail") || "";
           gmail.addEventListener("change", () => {
-            localStorage.setItem("velvet-gmail", gmail.value.trim());
+            localStorage.setItem("valvet-gmail", gmail.value.trim());
             rememberPrefs();
           });
         }
         const gmailSend = document.getElementById("set-gmail-send");
         if (gmailSend) gmailSend.onclick = () => {
           const email = gmail ? gmail.value.trim() : "";
-          if (email) localStorage.setItem("velvet-gmail", email);
+          if (email) localStorage.setItem("valvet-gmail", email);
           rememberPrefs();
           const bag = {};
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && (key.startsWith("valvet-") || key.startsWith("velvet-"))) bag[key] = localStorage.getItem(key) || "";
+            if (key && (key.startsWith("valvet-") || key.startsWith("valvet-"))) bag[key] = localStorage.getItem(key) || "";
           }
           const text = JSON.stringify(bag);
           if (text.length > 1500) {
@@ -2205,43 +2261,43 @@
         const nick = document.getElementById("set-nick");
         const looking = document.getElementById("set-looking");
         if (nick) {
-          nick.value = localStorage.getItem("velvet-nick") || "";
-          nick.onchange = () => localStorage.setItem("velvet-nick", nick.value.trim());
+          nick.value = localStorage.getItem("valvet-nick") || "";
+          nick.onchange = () => localStorage.setItem("valvet-nick", nick.value.trim());
         }
         if (looking) {
-          looking.checked = localStorage.getItem("velvet-looking") === "on";
+          looking.checked = localStorage.getItem("valvet-looking") === "on";
           looking.onchange = () => {
             if (looking.checked) {
               const mins = Number((document.getElementById("look-for") || {}).value || 0);
-              if (mins) localStorage.setItem("velvet-until", String(Date.now() + mins * 60000));
-              else localStorage.removeItem("velvet-until");
-            } else localStorage.removeItem("velvet-until");
-            localStorage.setItem("velvet-looking", looking.checked ? "on" : "off");
+              if (mins) localStorage.setItem("valvet-until", String(Date.now() + mins * 60000));
+              else localStorage.removeItem("valvet-until");
+            } else localStorage.removeItem("valvet-until");
+            localStorage.setItem("valvet-looking", looking.checked ? "on" : "off");
             rememberPrefs();
             pushRoom(lookingOn());
             paintLooking();
           };
         }
-        sound.onchange = () => localStorage.setItem("velvet-sound", sound.checked ? "on" : "off");
-        chime.onchange = () => localStorage.setItem("velvet-chime", chime.checked ? "on" : "off");
-        join.onchange = () => localStorage.setItem("velvet-join", join.checked ? "on" : "off");
-        pop.onchange = () => localStorage.setItem("velvet-pop", pop.checked ? "on" : "off");
-        night.onchange = () => localStorage.setItem("velvet-night", night.checked ? "on" : "off");
+        sound.onchange = () => localStorage.setItem("valvet-sound", sound.checked ? "on" : "off");
+        chime.onchange = () => localStorage.setItem("valvet-chime", chime.checked ? "on" : "off");
+        join.onchange = () => localStorage.setItem("valvet-join", join.checked ? "on" : "off");
+        pop.onchange = () => localStorage.setItem("valvet-pop", pop.checked ? "on" : "off");
+        night.onchange = () => localStorage.setItem("valvet-night", night.checked ? "on" : "off");
         const quietFrom = document.getElementById("set-quiet-from");
         const quietTo = document.getElementById("set-quiet-to");
         if (quietFrom && quietTo) {
-          quietFrom.value = localStorage.getItem("velvet-quiet-from") || "";
-          quietTo.value = localStorage.getItem("velvet-quiet-to") || "";
+          quietFrom.value = localStorage.getItem("valvet-quiet-from") || "";
+          quietTo.value = localStorage.getItem("valvet-quiet-to") || "";
           const saveQuiet = () => {
-            localStorage.setItem("velvet-quiet-from", quietFrom.value || "");
-            localStorage.setItem("velvet-quiet-to", quietTo.value || "");
+            localStorage.setItem("valvet-quiet-from", quietFrom.value || "");
+            localStorage.setItem("valvet-quiet-to", quietTo.value || "");
           };
           quietFrom.onchange = saveQuiet;
           quietTo.onchange = saveQuiet;
         }
         let volumeTimer = 0;
         volume.oninput = () => {
-          localStorage.setItem("velvet-volume", volume.value);
+          localStorage.setItem("valvet-volume", volume.value);
           volumeN.textContent = volume.value + "%";
           clearTimeout(volumeTimer);
           volumeTimer = setTimeout(() => playPack(true), 140);
@@ -2249,7 +2305,7 @@
         if (resultVolumeInput && resultVolumeN) {
           let resultTimer = 0;
           resultVolumeInput.oninput = () => {
-            localStorage.setItem("velvet-result-volume", resultVolumeInput.value);
+            localStorage.setItem("valvet-result-volume", resultVolumeInput.value);
             resultVolumeN.textContent = resultVolumeInput.value + "%";
             clearTimeout(resultTimer);
             resultTimer = setTimeout(() => playResult("win", true), 140);
@@ -2302,16 +2358,16 @@
             setTimeout(() => document.addEventListener("mousedown", close, true), 0);
           });
         }
-        hearSelect(pack, () => { localStorage.setItem("velvet-soundpack", pack.value); playPack(true); });
+        hearSelect(pack, () => { localStorage.setItem("valvet-soundpack", pack.value); playPack(true); });
         const winPick = document.getElementById("set-win");
         const lossPick = document.getElementById("set-loss");
         if (winPick) {
-          winPick.value = localStorage.getItem("velvet-win") || "gg";
-          hearSelect(winPick, () => { localStorage.setItem("velvet-win", winPick.value); playResult("win", true); });
+          winPick.value = localStorage.getItem("valvet-win") || "gg";
+          hearSelect(winPick, () => { localStorage.setItem("valvet-win", winPick.value); playResult("win", true); });
         }
         if (lossPick) {
-          lossPick.value = localStorage.getItem("velvet-loss") || "sad";
-          hearSelect(lossPick, () => { localStorage.setItem("velvet-loss", lossPick.value); playResult("loss", true); });
+          lossPick.value = localStorage.getItem("valvet-loss") || "sad";
+          hearSelect(lossPick, () => { localStorage.setItem("valvet-loss", lossPick.value); playResult("loss", true); });
         }
         const bindFile = (id, kind, after) => {
           const input = document.getElementById(id);
@@ -2331,22 +2387,22 @@
             fetch("/api/media?kind=" + kind, { method: "POST", body: file }).then((res) => { if (res.ok && after) after(); }).catch(() => {});
           }
         };
-        bindFile("set-notify-file", "notify", () => { localStorage.setItem("velvet-soundpack", "custom"); pack.value = "custom"; playPack(true); });
-        bindFile("set-win-file", "win", () => { localStorage.setItem("velvet-win", "custom"); if (winPick) winPick.value = "custom"; playResult("win", true); });
-        bindFile("set-loss-file", "loss", () => { localStorage.setItem("velvet-loss", "custom"); if (lossPick) lossPick.value = "custom"; playResult("loss", true); });
+        bindFile("set-notify-file", "notify", () => { localStorage.setItem("valvet-soundpack", "custom"); pack.value = "custom"; playPack(true); });
+        bindFile("set-win-file", "win", () => { localStorage.setItem("valvet-win", "custom"); if (winPick) winPick.value = "custom"; playResult("win", true); });
+        bindFile("set-loss-file", "loss", () => { localStorage.setItem("valvet-loss", "custom"); if (lossPick) lossPick.value = "custom"; playResult("loss", true); });
         const bindSound = (id, kind) => {
           const node = document.getElementById(id);
           if (!node) return;
           const defaults = { friend: "none", watch: "none", played: "none" };
-          node.value = localStorage.getItem("velvet-" + kind + "-sound") || defaults[kind];
-          hearSelect(node, () => { localStorage.setItem("velvet-" + kind + "-sound", node.value); playSaved(kind, true); });
+          node.value = localStorage.getItem("valvet-" + kind + "-sound") || defaults[kind];
+          hearSelect(node, () => { localStorage.setItem("valvet-" + kind + "-sound", node.value); playSaved(kind, true); });
         };
         bindSound("set-friend-sound", "friend");
         bindSound("set-watch-sound", "watch");
         bindSound("set-played-sound", "played");
-        bindFile("set-friend-file", "friend", () => { localStorage.setItem("velvet-friend-sound", "custom"); const node = document.getElementById("set-friend-sound"); if (node) node.value = "custom"; playSaved("friend", true); });
-        bindFile("set-watch-file", "watch", () => { localStorage.setItem("velvet-watch-sound", "custom"); const node = document.getElementById("set-watch-sound"); if (node) node.value = "custom"; playSaved("watch", true); });
-        bindFile("set-played-file", "played", () => { localStorage.setItem("velvet-played-sound", "custom"); const node = document.getElementById("set-played-sound"); if (node) node.value = "custom"; playSaved("played", true); });
+        bindFile("set-friend-file", "friend", () => { localStorage.setItem("valvet-friend-sound", "custom"); const node = document.getElementById("set-friend-sound"); if (node) node.value = "custom"; playSaved("friend", true); });
+        bindFile("set-watch-file", "watch", () => { localStorage.setItem("valvet-watch-sound", "custom"); const node = document.getElementById("set-watch-sound"); if (node) node.value = "custom"; playSaved("watch", true); });
+        bindFile("set-played-file", "played", () => { localStorage.setItem("valvet-played-sound", "custom"); const node = document.getElementById("set-played-sound"); if (node) node.value = "custom"; playSaved("played", true); });
         function shadeHex(hex, amount) {
           const n = parseInt(String(hex || "").slice(1), 16);
           if (!Number.isFinite(n)) return "#10080d";
@@ -2398,27 +2454,27 @@
           if (!file) return;
           fetch("/api/media?kind=background", { method: "POST", body: file }).then((res) => {
             if (!res.ok) return;
-            localStorage.setItem("velvet-backdrop", "on");
+            localStorage.setItem("valvet-backdrop", "on");
             loadBackdrop();
           }).catch(() => {});
         };
         if (bgClear) bgClear.onclick = () => {
-          localStorage.setItem("velvet-backdrop", "off");
+          localStorage.setItem("valvet-backdrop", "off");
           document.body.classList.remove("custom-bg");
           fetch("/api/media?kind=background", { method: "DELETE" }).catch(() => {});
           applyTheme(theme);
         };
-        if (localStorage.getItem("velvet-backdrop") === "on") loadBackdrop();
+        if (localStorage.getItem("valvet-backdrop") === "on") loadBackdrop();
         const saveDiscord = () => {
-          localStorage.setItem("velvet-discord", discord.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-url", discordURLInput.value.trim());
-          localStorage.setItem("velvet-discord-app", discordApp.value.trim());
-          localStorage.setItem("velvet-discord-status", discordStatus.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-rounds", discordRounds.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-unfriend", discordUnfriend.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-live", discordLive.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-end", discordEnd.checked ? "on" : "off");
-          localStorage.setItem("velvet-discord-watch", discordWatch.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord", discord.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-url", discordURLInput.value.trim());
+          localStorage.setItem("valvet-discord-app", discordApp.value.trim());
+          localStorage.setItem("valvet-discord-status", discordStatus.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-rounds", discordRounds.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-unfriend", discordUnfriend.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-live", discordLive.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-end", discordEnd.checked ? "on" : "off");
+          localStorage.setItem("valvet-discord-watch", discordWatch.checked ? "on" : "off");
           rememberPrefs();
         };
         discord.onchange = saveDiscord;
@@ -2434,8 +2490,8 @@
           const note = document.getElementById("discord-note");
           const url = discordURLInput.value.trim();
           const app = discordApp.value.trim();
-          localStorage.setItem("velvet-discord-url", url);
-          localStorage.setItem("velvet-discord-app", app);
+          localStorage.setItem("valvet-discord-url", url);
+          localStorage.setItem("valvet-discord-app", app);
           if (!url && !app) { note.textContent = "Paste a webhook or an application id."; return; }
           note.textContent = "Sending…";
           let channel = "";
@@ -2467,7 +2523,7 @@
           note.textContent = [channel, profile].filter(Boolean).join(" ");
         };
         compact.onchange = () => {
-          localStorage.setItem("velvet-compact", compact.checked ? "on" : "off");
+          localStorage.setItem("valvet-compact", compact.checked ? "on" : "off");
           document.body.classList.toggle("compact", compact.checked);
         };
         const fields = [["bg", "Background"], ["panel", "Cards"], ["accent", "Accent"], ["you", "Your side"], ["enemy", "Enemy"]];
@@ -2507,11 +2563,11 @@
             const btn = event.target.closest("button");
             if (!btn) return;
             if (btn.dataset.corners) {
-              localStorage.setItem("velvet-corners", btn.dataset.corners);
+              localStorage.setItem("valvet-corners", btn.dataset.corners);
               if (corners) corners.value = btn.dataset.corners;
             }
             if (btn.dataset.motion) {
-              localStorage.setItem("velvet-motion", btn.dataset.motion);
+              localStorage.setItem("valvet-motion", btn.dataset.motion);
               if (motion) motion.value = btn.dataset.motion;
             }
             applyShape();
@@ -2533,9 +2589,9 @@
           theme = { ...THEMES.Valvet };
           localStorage.setItem(THEME_KEY, JSON.stringify(theme));
           applyTheme(theme);
-          localStorage.setItem("velvet-corners", "soft");
-          localStorage.setItem("velvet-motion", "full");
-          localStorage.setItem("velvet-glass", "off");
+          localStorage.setItem("valvet-corners", "soft");
+          localStorage.setItem("valvet-motion", "full");
+          localStorage.setItem("valvet-glass", "off");
           if (corners) corners.value = "soft";
           if (motion) motion.value = "full";
           const box = document.getElementById("set-glass");

@@ -1334,6 +1334,68 @@ func saveMatchArchive(rows []recentMatch) {
 		return
 	}
 	writeCache("matches", rows)
+	archivePastActs(rows)
+}
+
+func archivePastActs(rows []recentMatch) {
+	start, _, ok := knownAct()
+	if !ok {
+		return
+	}
+	floor := start.UnixMilli()
+	var past []recentMatch
+	for _, row := range rows {
+		got := stampMillis(row.Started, row.When)
+		if got > 0 && got < floor {
+			past = append(past, row)
+		}
+	}
+	if len(past) == 0 {
+		return
+	}
+	dir := filepath.Join(velvetBase(), "acts")
+	if os.MkdirAll(dir, 0o700) != nil {
+		return
+	}
+	name := start.UTC().Format("2006-01-02") + "-before.json"
+	path := filepath.Join(dir, name)
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	raw, err := json.Marshal(past)
+	if err != nil {
+		return
+	}
+	_ = os.WriteFile(path, raw, 0o600)
+}
+
+func loadPastAct() []recentMatch {
+	dir := filepath.Join(velvetBase(), "acts")
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) == 0 {
+		return nil
+	}
+	name := ""
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+		if entry.Name() > name {
+			name = entry.Name()
+		}
+	}
+	if name == "" {
+		return nil
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, name))
+	if err != nil {
+		return nil
+	}
+	var rows []recentMatch
+	if json.Unmarshal(raw, &rows) != nil {
+		return nil
+	}
+	return rows
 }
 
 func mergeMatches(have, add []recentMatch) []recentMatch {

@@ -105,8 +105,7 @@
                 <button type="button" class="tiny" id="post-save">Save image</button>
               </div>
             </section>
-            <div id="challenge" hidden></div>
-            <div class="stage" id="stage" hidden></div>
+            <div id="stage" class="stage" hidden></div>
             <div class="lobby-band">
               <h2 id="party-title">Lobby</h2>
               <div id="duos"></div>
@@ -147,6 +146,7 @@
               <div class="eyebrow" id="mode"></div>
               <h1 id="map"></h1>
               <div class="phase" id="phase"></div>
+              <button type="button" class="tiny" id="lineups" hidden>Lineups</button>
             </div>
             <div class="score" id="score"></div>
           </section>
@@ -201,7 +201,7 @@
               <button type="button" class="tiny solid" id="hist-matches">Matches</button>
               <button type="button" class="tiny" id="hist-replays">Replay files</button>
             </div>
-            <p class="sub">This act's matches, saved on this PC.</p>
+            <p class="sub">This act's matches, saved on this PC. <button type="button" class="tiny" id="hist-act">Last act</button></p>
             </div>
           </header>
           <div class="hist-bar">
@@ -363,6 +363,7 @@
               <input id="xh-code" placeholder="Paste a crosshair code" />
               <button class="tiny" type="submit">Import</button>
               <button class="tiny" id="xh-range" type="button">Range</button>
+              <button class="tiny" id="xh-pros" type="button">Add 10 pro codes</button>
               <button class="tiny" id="xh-export" type="button">Export all</button>
             </form>
             <canvas id="xh-preview" width="220" height="220"></canvas>
@@ -391,7 +392,7 @@
           <div id="queues" class="empty">Duo history shows up after saved games.</div>
         </section>
         <section id="pane-team" hidden>
-          <header class="page-hero"><div><div class="eyebrow">Roster</div><h1>Team</h1><p class="sub">A roster you keep yourself.</p></div></header>
+          <header class="page-hero"><div><div class="eyebrow">Roster</div><h1>Team</h1><p class="sub">Premier from the client on this PC. A typed roster is only there when Premier is not.</p></div></header>
           <div id="team" class="empty">Name the team and add Name#Tag.</div>
         </section>
         <section id="pane-session" hidden>

@@ -1,18 +1,19 @@
       (function migrateValvetKeys() {
+        const legacy = "velvet-";
         const found = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith("velvet-")) found.push(key);
+          if (key && key.startsWith(legacy)) found.push(key);
         }
         for (const key of found) {
-          const next = "valvet-" + key.slice(7);
+          const next = "valvet-" + key.slice(legacy.length);
           if (localStorage.getItem(next) == null) localStorage.setItem(next, localStorage.getItem(key) || "");
           localStorage.removeItem(key);
         }
         const read = Storage.prototype.getItem;
         const write = Storage.prototype.setItem;
         const drop = Storage.prototype.removeItem;
-        const mapKey = (key) => (typeof key === "string" && key.startsWith("velvet-") ? "valvet-" + key.slice(7) : key);
+        const mapKey = (key) => (typeof key === "string" && key.startsWith(legacy) ? "valvet-" + key.slice(legacy.length) : key);
         Storage.prototype.getItem = function (key) {
           const next = mapKey(key);
           const value = read.call(this, next);
@@ -42,7 +43,7 @@
         const bag = {};
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (key.startsWith("valvet-") || key.startsWith("velvet-"))) bag[key] = localStorage.getItem(key) || "";
+          if (key && key.startsWith("valvet-")) bag[key] = localStorage.getItem(key) || "";
         }
         if (!Object.keys(bag).length) return;
         const text = JSON.stringify(bag);
@@ -63,10 +64,9 @@
           const disk = JSON.parse(req.responseText || "{}");
           if (!disk || typeof disk !== "object") return;
           Object.keys(disk).forEach((key) => {
-            if (!(key.startsWith("valvet-") || key.startsWith("velvet-")) || typeof disk[key] !== "string") return;
-            const next = key.startsWith("velvet-") ? "valvet-" + key.slice(7) : key;
-            const cur = localStorage.getItem(next);
-            if (cur == null || cur === "") localStorage.setItem(next, disk[key]);
+            if (!key.startsWith("valvet-") || typeof disk[key] !== "string") return;
+            const cur = localStorage.getItem(key);
+            if (cur == null || cur === "") localStorage.setItem(key, disk[key]);
           });
         } catch {}
         rememberPrefs();
@@ -146,13 +146,13 @@
         noteWatch(data);
         paintWatchLive(data);
         paintAvoidLive(data);
-        if (names.length && discordBooted && localStorage.getItem("velvet-discord") === "on" && localStorage.getItem("velvet-discord-watch") !== "off") {
+        if (names.length && discordBooted && localStorage.getItem("valvet-discord") === "on" && localStorage.getItem("valvet-discord-watch") !== "off") {
           postDiscord("In your game", names.join("\n"));
         }
       }
       function quietNow() {
-        const from = localStorage.getItem("velvet-quiet-from") || "";
-        const to = localStorage.getItem("velvet-quiet-to") || "";
+        const from = localStorage.getItem("valvet-quiet-from") || "";
+        const to = localStorage.getItem("valvet-quiet-to") || "";
         if (!from || !to || from === to) return false;
         const mins = (value) => { const [h, m] = value.split(":").map(Number); return h * 60 + (m || 0); };
         const now = new Date();
@@ -170,9 +170,9 @@
       }
       function playSaved(kind, force) {
         const defaults = { friend: "none", watch: "none", played: "none" };
-        const pick = localStorage.getItem("velvet-" + kind + "-sound") || defaults[kind] || "soft";
+        const pick = localStorage.getItem("valvet-" + kind + "-sound") || defaults[kind] || "soft";
         if (pick === "none") return;
-        if (!force && (quietNow() || localStorage.getItem("velvet-sound") === "off")) return;
+        if (!force && (quietNow() || localStorage.getItem("valvet-sound") === "off")) return;
         if (pick === "pack") { playPack(!!force); return; }
         if (pick === "sting") { playSting(); return; }
         if (pick === "watch") { playSaved("watch", !!force); return; }
@@ -189,7 +189,7 @@
         playSaved("played", !!force);
       }
       function playWish(force) {
-        if (!force && (quietNow() || localStorage.getItem("velvet-sound") === "off")) return;
+        if (!force && (quietNow() || localStorage.getItem("valvet-sound") === "off")) return;
         playNotes([1046, 1318, 1568, 2093, 1568], "bell", 0.22, true, { step: 0.085, decay: 1.55 });
       }
       function paintWatchLive(data) {
@@ -323,16 +323,16 @@
         clutch: { file: "/sounds/clutch" },
       };
       function soundPack() {
-        return SOUND_PACKS[localStorage.getItem("velvet-soundpack") || "soft"] || SOUND_PACKS.soft;
+        return SOUND_PACKS[localStorage.getItem("valvet-soundpack") || "soft"] || SOUND_PACKS.soft;
       }
       function volumeGain() {
-        const raw = Number(localStorage.getItem("velvet-volume"));
+        const raw = Number(localStorage.getItem("valvet-volume"));
         const pct = Number.isFinite(raw) ? raw : 15;
         const t = Math.max(0, Math.min(1, pct / 100));
         return Math.pow(t, 2.15);
       }
       function resultVolume() {
-        const raw = localStorage.getItem("velvet-result-volume");
+        const raw = localStorage.getItem("valvet-result-volume");
         const pct = raw == null || raw === "" ? 40 : Number(raw);
         return Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 40)) / 100;
       }
@@ -376,7 +376,7 @@
         return new Blob([buf], { type: "audio/wav" });
       }
       function playNotes(notes, wave, seconds, force, pack) {
-        if (!force && localStorage.getItem("velvet-sound") === "off") return Promise.resolve(false);
+        if (!force && localStorage.getItem("valvet-sound") === "off") return Promise.resolve(false);
         const base = pack && pack.volume != null ? pack.volume : volumeGain();
         const vol = base * (pack && pack.gain != null ? pack.gain : 1);
         if (vol <= 0.001) return Promise.resolve(false);
@@ -431,8 +431,8 @@
         return soundCtx;
       }
       function playFile(url, force, gain, absolute) {
-        if (!force && localStorage.getItem("velvet-sound") === "off") return Promise.resolve(false);
-        const pct = Number(localStorage.getItem("velvet-volume"));
+        if (!force && localStorage.getItem("valvet-sound") === "off") return Promise.resolve(false);
+        const pct = Number(localStorage.getItem("valvet-volume"));
         const scale = gain == null ? 1 : gain;
         const base = absolute ? 1 : ((Number.isFinite(pct) ? pct : 15) / 100);
         const level = Math.max(0, Math.min(1, base * scale));
@@ -457,12 +457,12 @@
         }).catch(() => false);
       }
       function playPack(force) {
-        if ((localStorage.getItem("velvet-soundpack") || "") === "none") return Promise.resolve(false);
-        if ((localStorage.getItem("velvet-soundpack") || "") === "custom") {
+        if ((localStorage.getItem("valvet-soundpack") || "") === "none") return Promise.resolve(false);
+        if ((localStorage.getItem("valvet-soundpack") || "") === "custom") {
           playFile("/api/media?kind=notify", !!force);
           return Promise.resolve(true);
         }
-        if ((localStorage.getItem("velvet-soundpack") || "") === "meow") {
+        if ((localStorage.getItem("valvet-soundpack") || "") === "meow") {
           playFile("/sounds/meow", !!force, 1, true);
           return Promise.resolve(true);
         }
@@ -487,7 +487,7 @@
         trombone: { notes: [233, 196, 174, 130], wave: "saw", step: 0.08, dur: 0.16, decay: 3 },
       };
       function playResult(kind, force) {
-        const pick = localStorage.getItem(kind === "loss" ? "velvet-loss" : "velvet-win") || (kind === "loss" ? "sad" : "gg");
+        const pick = localStorage.getItem(kind === "loss" ? "valvet-loss" : "valvet-win") || (kind === "loss" ? "sad" : "gg");
         if (pick === "none") return;
         if (!force && quietNow()) return;
         const vol = resultVolume();
@@ -573,7 +573,7 @@
         let joined = false;
         for (const id of ids) if (!partySeen.has(id)) joined = true;
         partySeen = ids;
-        if (joined && localStorage.getItem("velvet-join") === "on") playJoin();
+        if (joined && localStorage.getItem("valvet-join") === "on") playJoin();
       }
       let resultWait = 0;
       let resultPlayed = "";
@@ -754,16 +754,16 @@
       let nightWas = false;
       function syncNight(shop) {
         const open = ((shop && shop.night) || []).length > 0;
-        if (nightReady && open && !nightWas && localStorage.getItem("velvet-night") === "on") playPack();
+        if (nightReady && open && !nightWas && localStorage.getItem("valvet-night") === "on") playPack();
         nightWas = open;
         nightReady = true;
       }
       function discordURL() {
-        return (localStorage.getItem("velvet-discord-url") || "").trim();
+        return (localStorage.getItem("valvet-discord-url") || "").trim();
       }
       function postDiscord(title, text) {
         const url = discordURL();
-        if (!url || localStorage.getItem("velvet-discord") !== "on") return;
+        if (!url || localStorage.getItem("valvet-discord") !== "on") return;
         fetch("/api/discord", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -788,17 +788,17 @@
           discordPhase = key;
           return;
         }
-        if (localStorage.getItem("velvet-discord") !== "on" || !discordURL()) {
+        if (localStorage.getItem("valvet-discord") !== "on" || !discordURL()) {
           discordPhase = key;
           if (!live) lastLive = null;
           return;
         }
-        if (live && key !== discordPhase && localStorage.getItem("velvet-discord-live") === "on") {
+        if (live && key !== discordPhase && localStorage.getItem("valvet-discord-live") === "on") {
           const bits = [data.mode, data.server].filter(Boolean);
           if (data.score1 != null && data.score2 != null) bits.push(data.score1 + " – " + data.score2);
           postDiscord(phase + (data.map ? " · " + data.map : ""), bits.join(" · ") || "Match found");
         }
-        if (!live && discordPhase && localStorage.getItem("velvet-discord-end") === "on" && lastLive && lastLive.score1 != null && lastLive.score2 != null) {
+        if (!live && discordPhase && localStorage.getItem("valvet-discord-end") === "on" && lastLive && lastLive.score1 != null && lastLive.score2 != null) {
           postDiscord("Match over" + (lastLive.map ? " · " + lastLive.map : ""), lastLive.score1 + " – " + lastLive.score2 + (lastLive.mode ? " · " + lastLive.mode : ""));
           lastLive = null;
         }
@@ -836,11 +836,11 @@
         if (now.us > prev.us && now.them === prev.them) {
           edgeFlash("win");
           lightEvent("kill");
-          if (localStorage.getItem("velvet-discord-rounds") !== "off") postDiscord("Round won", line);
+          if (localStorage.getItem("valvet-discord-rounds") !== "off") postDiscord("Round won", line);
         } else if (now.them > prev.them && now.us === prev.us) {
           edgeFlash("loss");
           lightEvent("death");
-          if (localStorage.getItem("velvet-discord-rounds") !== "off") postDiscord("Round lost", line);
+          if (localStorage.getItem("valvet-discord-rounds") !== "off") postDiscord("Round lost", line);
         }
       }
       function discordStatusText(data) {
@@ -855,15 +855,15 @@
       async function pushStatus(data) {
         const status = discordStatusText(data);
         const key = status.title + "|" + status.text;
-        const app = (localStorage.getItem("velvet-discord-app") || "").trim();
-        if (app && localStorage.getItem("velvet-discord") === "on" && key !== statusKey) {
+        const app = (localStorage.getItem("valvet-discord-app") || "").trim();
+        if (app && localStorage.getItem("valvet-discord") === "on" && key !== statusKey) {
           fetch("/api/presence", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ clientId: app, details: status.title, state: status.text }),
           }).catch(() => {});
         }
-        if (localStorage.getItem("velvet-discord") !== "on" || localStorage.getItem("velvet-discord-status") === "off" || !discordURL()) {
+        if (localStorage.getItem("valvet-discord") !== "on" || localStorage.getItem("valvet-discord-status") === "off" || !discordURL()) {
           statusKey = key;
           return;
         }
@@ -878,10 +878,10 @@
               title: status.title,
               text: status.text,
               status: true,
-              message: localStorage.getItem("velvet-discord-msg") || "",
+              message: localStorage.getItem("valvet-discord-msg") || "",
             }),
           })).json();
-          if (result && result.message) localStorage.setItem("velvet-discord-msg", result.message);
+          if (result && result.message) localStorage.setItem("valvet-discord-msg", result.message);
         } catch {}
       }
       function duoLines(party, matches) {
@@ -980,6 +980,8 @@
       }
       function cachedArt(url) {
         const text = String(url || "");
+        const tier = text.match(/competitivetiers\/[^/]+\/(\d+)\//i);
+        if (tier) return "/pack/rank/" + tier[1] + ".png";
         if (!/^https:\/\/([a-z0-9-]+\.)?valorant-api\.com\//i.test(text)) return text;
         return "/api/art?u=" + encodeURIComponent(text);
       }
@@ -1314,7 +1316,7 @@
         const delta = (last.tier * 100 + last.rr) - (first.tier * 100 + first.rr);
         slot.append(el("p", "sub", last.rank + " " + last.rr + " RR · " + (delta >= 0 ? "+" : "") + delta + " across " + rrPoints.length + " games"));
         slot.append(rrGraph(rrPoints));
-        const goal = Number(localStorage.getItem("velvet-rr-goal") || 0);
+        const goal = Number(localStorage.getItem("valvet-rr-goal") || 0);
         if (goal > 0) {
           const week = Number(weekRR) || 0;
           slot.append(el("p", "sub goal", "This week " + (week >= 0 ? "+" : "") + week + " RR · goal " + goal));

@@ -6,32 +6,32 @@
       let roomWatches = new Set();
       let roomPinged = new Set();
       let roomPing = "";
-      function velvetID() {
-        let id = localStorage.getItem("velvet-id");
+      function valvetID() {
+        let id = localStorage.getItem("valvet-id");
         if (!id) {
           id = Math.random().toString(36).slice(2, 10);
-          localStorage.setItem("velvet-id", id);
+          localStorage.setItem("valvet-id", id);
         }
         return id;
       }
-      function velvetNick() {
-        return (localStorage.getItem("velvet-nick") || (latestState && latestState.you) || "Player").trim() || "Player";
+      function valvetNick() {
+        return (localStorage.getItem("valvet-nick") || (latestState && latestState.you) || "Player").trim() || "Player";
       }
       function ensureCode() {
-        let code = localStorage.getItem("velvet-code") || "";
+        let code = localStorage.getItem("valvet-code") || "";
         if (!/^[A-Z0-9]{8}$/.test(code)) {
           const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
           code = "";
           for (let i = 0; i < 8; i++) code += abc[Math.floor(Math.random() * abc.length)];
-          localStorage.setItem("velvet-code", code);
+          localStorage.setItem("valvet-code", code);
         }
         return code;
       }
       function loadWith() {
-        try { return JSON.parse(localStorage.getItem("velvet-with") || "[]"); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem("valvet-with") || "[]"); } catch { return []; }
       }
       function saveWith(rows) {
-        localStorage.setItem("velvet-with", JSON.stringify(rows.slice(0, 30)));
+        localStorage.setItem("valvet-with", JSON.stringify(rows.slice(0, 30)));
       }
       function riotID() {
         const you = String((latestState && latestState.you) || "").trim();
@@ -46,21 +46,21 @@
           return Array.isArray(rows) ? rows.filter((row) => typeof row === "string") : [];
         } catch { return []; }
       }
-      function loadModes() { return loadList("velvet-modes"); }
-      function loadRoles() { return loadList("velvet-roles"); }
+      function loadModes() { return loadList("valvet-modes"); }
+      function loadRoles() { return loadList("valvet-roles"); }
       function lookingOn() {
-        const until = Number(localStorage.getItem("velvet-until") || 0);
-        if (localStorage.getItem("velvet-looking") === "on" && until && Date.now() > until) {
-          localStorage.setItem("velvet-looking", "off");
-          localStorage.setItem("velvet-ready", "off");
-          localStorage.removeItem("velvet-until");
+        const until = Number(localStorage.getItem("valvet-until") || 0);
+        if (localStorage.getItem("valvet-looking") === "on" && until && Date.now() > until) {
+          localStorage.setItem("valvet-looking", "off");
+          localStorage.setItem("valvet-ready", "off");
+          localStorage.removeItem("valvet-until");
           paintLooking();
           return false;
         }
-        return localStorage.getItem("velvet-looking") === "on";
+        return localStorage.getItem("valvet-looking") === "on";
       }
       function paintLooking() {
-        const on = localStorage.getItem("velvet-looking") === "on";
+        const on = localStorage.getItem("valvet-looking") === "on";
         const button = document.getElementById("look-go");
         const state = document.getElementById("look-state");
         if (button) {
@@ -92,12 +92,12 @@
       function myRiot() {
         const live = riotID().trim();
         if (live) return live;
-        const posted = (lfgPeople || []).find((row) => row.id === velvetID());
+        const posted = (lfgPeople || []).find((row) => row.id === valvetID());
         return String((posted && posted.riot) || "").trim();
       }
       function isMine(person) {
         if (!person) return false;
-        if (person.id && person.id === velvetID()) return true;
+        if (person.id && person.id === valvetID()) return true;
         const riot = String(person.riot || "").trim().toLowerCase();
         const mine = myRiot().trim().toLowerCase();
         return riot !== "" && mine !== "" && riot === mine;
@@ -106,12 +106,12 @@
         if (!person || isMine(person) || !person.looking) return false;
         if (person.id === "diag" || String(person.riot || "").toLowerCase() === "diag#0000") return false;
         if (loadBlock().includes(person.id)) return false;
-        const server = localStorage.getItem("velvet-filter-server") || "";
-        const queue = localStorage.getItem("velvet-filter-queue") || "";
-        const mode = localStorage.getItem("velvet-filter-mode") || "";
-        const gender = localStorage.getItem("velvet-filter-gender") || "";
-        const ageMin = Number(localStorage.getItem("velvet-filter-age-min") || 0);
-        const ageMax = Number(localStorage.getItem("velvet-filter-age-max") || 0);
+        const server = localStorage.getItem("valvet-filter-server") || "";
+        const queue = localStorage.getItem("valvet-filter-queue") || "";
+        const mode = localStorage.getItem("valvet-filter-mode") || "";
+        const gender = localStorage.getItem("valvet-filter-gender") || "";
+        const ageMin = Number(localStorage.getItem("valvet-filter-age-min") || 0);
+        const ageMax = Number(localStorage.getItem("valvet-filter-age-max") || 0);
         if (server && person.server !== server) return false;
         if (queue && person.queue !== queue && !(person.modes || []).includes(queue)) return false;
         if (mode && !(person.modes || []).includes(mode) && person.queue !== mode) return false;
@@ -123,7 +123,7 @@
       }
       function loadGiven() {
         try {
-          const bag = JSON.parse(localStorage.getItem("velvet-given-rates") || "{}");
+          const bag = JSON.parse(localStorage.getItem("valvet-given-rates") || "{}");
           return bag && typeof bag === "object" ? bag : {};
         } catch { return {}; }
       }
@@ -133,7 +133,7 @@
         return boardRates[key] || { avg: 0, n: 0 };
       }
       function boardAge() {
-        const n = Math.round(Number(localStorage.getItem("velvet-age") || 0));
+        const n = Math.round(Number(localStorage.getItem("valvet-age") || 0));
         if (!n || n < 16 || n > 99) return 0;
         return n;
       }
@@ -200,8 +200,8 @@
         }
       }
       function paintModes() {
-        paintChipList("modes", PLAY_MODES, "velvet-modes");
-        paintChipList("roles", PLAY_ROLES, "velvet-roles");
+        paintChipList("modes", PLAY_MODES, "valvet-modes");
+        paintChipList("roles", PLAY_ROLES, "valvet-roles");
       }
       async function addByCode(raw) {
         const code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
@@ -209,12 +209,12 @@
         let person = null;
         try {
           const rows = (await (await fetch("/api/room?code=" + encodeURIComponent(code), { cache: "no-store" })).json()).people || [];
-          person = rows.find((row) => row.id && row.id !== velvetID() && row.room === code) || rows.find((row) => row.id && row.id !== velvetID());
+          person = rows.find((row) => row.id && row.id !== valvetID() && row.room === code) || rows.find((row) => row.id && row.id !== valvetID());
         } catch {}
         addWith(person || { id: "code:" + code, nick: code, room: code, riot: "" });
       }
       function addWith(person) {
-        if (!person || !person.id || !person.room || person.id === velvetID()) return;
+        if (!person || !person.id || !person.room || person.id === valvetID()) return;
         const rows = loadWith().filter((row) => row.id !== person.id);
         rows.push({ id: person.id, nick: person.riot || person.nick || "Player", room: person.room });
         saveWith(rows);
@@ -243,14 +243,14 @@
       }
       function loadBlock() {
         try {
-          const rows = JSON.parse(localStorage.getItem("velvet-block") || "[]");
+          const rows = JSON.parse(localStorage.getItem("valvet-block") || "[]");
           return Array.isArray(rows) ? rows : [];
         } catch { return []; }
       }
       function blockPerson(id) {
         const rows = loadBlock().filter((row) => row !== id);
         rows.push(id);
-        localStorage.setItem("velvet-block", JSON.stringify(rows.slice(-80)));
+        localStorage.setItem("valvet-block", JSON.stringify(rows.slice(-80)));
         refreshRoom();
       }
       function myParty() {
@@ -350,10 +350,10 @@
           const riot = riotID();
           const bits = [riot || "Open Valorant to show your Riot ID"];
           if (lookingOn()) bits.push("posted");
-          if (localStorage.getItem("velvet-share-discord") === "on" && localStorage.getItem("velvet-discord-name")) bits.push("Discord on the post");
+          if (localStorage.getItem("valvet-share-discord") === "on" && localStorage.getItem("valvet-discord-name")) bits.push("Discord on the post");
           hero.textContent = bits.join(" · ");
         }
-        const mine = velvetID();
+        const mine = valvetID();
         const live = roomPeople.filter((person) => person.id !== mine);
         const others = loadWith().map((row) => live.find((person) => person.id === row.id || person.room === row.room) || { id: row.id, nick: row.nick, room: row.room, phase: "Offline" });
         paintPeople(document.getElementById("room-people"), others, "Nobody added yet.", "drop");
@@ -385,7 +385,7 @@
         }
         const status = document.getElementById("duo-status");
         if (status) {
-          const mine = lfgPeople.find((person) => person.id === velvetID());
+          const mine = lfgPeople.find((person) => person.id === valvetID());
           if (!lookingOn()) status.textContent = "You have not posted yet.";
           else if (roomPostOk === false) status.textContent = "The board rejected the last post. Leave this open. Valvet tries again.";
           else if (mine) status.textContent = "Your post is on the board.";
@@ -425,10 +425,10 @@
         if (!target.includes("#")) return;
         const bag = loadGiven();
         bag[target.toLowerCase()] = stars;
-        localStorage.setItem("velvet-given-rates", JSON.stringify(bag));
+        localStorage.setItem("valvet-given-rates", JSON.stringify(bag));
         paintRoom();
         try {
-          await fetch("/api/rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ from: velvetID(), riot: myRiot(), target, stars }) });
+          await fetch("/api/rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ from: valvetID(), riot: myRiot(), target, stars }) });
         } catch {}
         lastRatePush = Date.now();
         refreshRoom(true);
@@ -457,16 +457,16 @@
         const state = latestState || {};
         const you = (state.players || []).find((player) => player.you);
         return {
-          id: velvetID(),
-          nick: velvetNick(),
+          id: valvetID(),
+          nick: valvetNick(),
           game: "valorant",
           phase: state.phase || "In menu",
           map: state.map || "",
           mode: state.mode || "",
           score: state.score1 != null && state.score2 != null ? state.score1 + "-" + state.score2 : "",
-          rank: localStorage.getItem("velvet-hide-rank") === "on" ? "" : ((you && you.rank) || ""),
+          rank: localStorage.getItem("valvet-hide-rank") === "on" ? "" : ((you && you.rank) || ""),
           riot: riotID(),
-          agent: localStorage.getItem("velvet-agent") || "",
+          agent: localStorage.getItem("valvet-agent") || "",
           party: myParty().size + "/" + myParty().max,
           full: myParty().full,
           ready: false,
@@ -475,19 +475,19 @@
           room: ensureCode(),
           modes: loadModes(),
           roles: loadRoles(),
-          server: localStorage.getItem("velvet-server") || "",
-          low: localStorage.getItem("velvet-rank-low") || "",
-          high: localStorage.getItem("velvet-rank-high") || "",
-          discord: localStorage.getItem("velvet-share-discord") === "on" ? (localStorage.getItem("velvet-discord-name") || "") : "",
-          until: Number(localStorage.getItem("velvet-until") || 0),
+          server: localStorage.getItem("valvet-server") || "",
+          low: localStorage.getItem("valvet-rank-low") || "",
+          high: localStorage.getItem("valvet-rank-high") || "",
+          discord: localStorage.getItem("valvet-share-discord") === "on" ? (localStorage.getItem("valvet-discord-name") || "") : "",
+          until: Number(localStorage.getItem("valvet-until") || 0),
           wish: loadWish().slice(0, 8),
           watch: (watch || []).map((item) => item.name + "#" + item.tag).slice(0, 8),
           owned: [],
           ping: "",
           age: boardAge(),
-          gender: localStorage.getItem("velvet-gender") || "",
-          note: localStorage.getItem("velvet-note") || "",
-          queue: localStorage.getItem("velvet-queue") || "",
+          gender: localStorage.getItem("valvet-gender") || "",
+          note: localStorage.getItem("valvet-note") || "",
+          queue: localStorage.getItem("valvet-queue") || "",
           games: savedGames(),
         };
       }
@@ -503,7 +503,7 @@
           const stars = Number(bag[target]);
           if (!stars) continue;
           if (mine && target.toLowerCase() === mine) continue;
-          await fetch("/api/rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ from: velvetID(), riot: myRiot(), target, stars }) }).catch(() => {});
+          await fetch("/api/rate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ from: valvetID(), riot: myRiot(), target, stars }) }).catch(() => {});
         }
       }
       async function pushRoom(force) {
@@ -530,7 +530,7 @@
       }
       async function loadPatches(live) {
         const root = document.getElementById("patches");
-        const key = "velvet-cache-patches";
+        const key = "valvet-cache-patches";
         const saved = readJSON(key);
         const ok = Array.isArray(saved) && saved.length;
         if (ok && !(root.dataset.ready === "1" && root.childElementCount)) {
@@ -538,7 +538,7 @@
           root.dataset.ready = "1";
         } else if (ok) {
           const label = root.querySelector(".saved-bar span");
-          if (label) label.textContent = savedAgo("velvet-cache-patches") || "Not saved yet";
+          if (label) label.textContent = savedAgo("valvet-cache-patches") || "Not saved yet";
         } else if (!ok) {
           root.className = "";
           root.replaceChildren(el("div", "empty", "Loading patch notes…"));
@@ -571,7 +571,7 @@
         markFresh("patches", [newest.title, newest.date, newest.id].filter(Boolean).join("|"));
         root.className = "";
         root.replaceChildren();
-        savedBar(root, "velvet-cache-patches", () => loadPatches("force"));
+        savedBar(root, "valvet-cache-patches", () => loadPatches("force"));
         const bar = el("div", "modes");
         const all = el("button", patchMine ? "" : "on", "All");
         const mine = el("button", patchMine ? "on" : "", "My agents");
@@ -592,7 +592,7 @@
               const next = new Set(myAgentList());
               if (next.has(name)) next.delete(name);
               else next.add(name);
-              writeJSON("velvet-my-agents", [...next]);
+              writeJSON("valvet-my-agents", [...next]);
               paintPatchList(allNotes);
             };
             pick.append(button);
@@ -725,8 +725,10 @@
         return offers + "|" + catalog + "|" + events;
       }
       async function loadEsports(live) {
+        const pane = document.getElementById("pane-esports");
+        if (live !== "force" && (tabHidden("esports") || !pane || pane.hidden)) return;
         const root = document.getElementById("esports");
-        const key = "velvet-cache-esports";
+        const key = "valvet-cache-esports";
         if (!esportCache) {
           const saved = readJSON(key);
           if (saved && ((saved.events || []).length || (saved.offers || []).length || (saved.catalog || []).length)) esportCache = saved;
@@ -735,7 +737,7 @@
         if (ok && root.dataset.sig !== esportKey(esportCache)) paintEsports(esportCache);
         else if (ok) {
           const label = root.querySelector(".saved-bar span");
-          if (label) label.textContent = savedAgo("velvet-cache-esports") || "Not saved yet";
+          if (label) label.textContent = savedAgo("valvet-cache-esports") || "Not saved yet";
         } else if (!ok && !root.querySelector(".sport-card, .event-card")) {
           root.className = "";
           root.replaceChildren(el("div", "empty", "Loading the esports store…"));
@@ -773,7 +775,7 @@
         const offers = data.offers || [];
         const catalog = data.catalog || [];
         root.replaceChildren();
-        savedBar(root, "velvet-cache-esports", () => loadEsports("force"));
+        savedBar(root, "valvet-cache-esports", () => loadEsports("force"));
           const events = (data.events || []).filter((event) => {
             const s = String(event.status || "").toLowerCase();
             if (!s || /inactive|complet|finish|cancel|past/.test(s)) return false;
@@ -883,74 +885,11 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
+        { ver: "1.8.44", title: "Valvet", lines: ["What's new only keeps the last few updates.", "The background canvas no longer draws.", "Esports only loads when that page is open.", "Team reads Premier from the client.", "Saved settings use the Valvet name.", "A win has a green edge and a loss has a red edge.", "A party is a colored line on the row. A locked agent flips in.", "Store skins sit on a dark stage. Ranks use the coin.", "A kill in Play the round leaves a ring.", "Shots split into head, body, and legs. First blood, plants, trades, and pistol rounds are on the history card.", "The round scrub says eco, force, or full.", "Lineups opens for this map and your agent. Ten pro crosshairs can be saved.", "The last act is kept in its own folder. A penalty shows the minutes left."] },
         { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },
         { ver: "1.8.32", title: "Valvet", lines: ["The name is VALVET again. VAL is white, VET is pink, and the window title is pink.", "Play the round saves an mp4. The folder stays closed.", "Storage opens the round videos folder.", "A profile shows the rank and the agent picture without waiting on every game."] },
-        { ver: "1.8.28", title: "Valvet", lines: ["Setup asks for a desktop shortcut, starting with Windows, and opening Valvet when it finishes, and it shows the Valvet mark.", "If the Riot Client is closed, Valvet asks you to open it instead of only the waiting cat.", "A friend card can copy a Riot ID. Profile shows this act next to the last act saved on this PC.", "The last game can be saved as an image. Settings is split into Look, Window, Discord, and Backup, and the look can reset to pink.", "Sidebar pages you do not use can be hidden. Live and Settings stay. Pass, News, Patches, and Esports say when they were saved and have Refresh.", "Discord status can show party size and score without a webhook. Lights can use a colour for a kill, a death, a clutch, or a queue pop.", "Settings can open the local log. Maps and ranks work without internet. Knock, Bloom, Pulse, and Clutch are real alert sounds."] },
-        { ver: "1.8.27", title: "Valvet", lines: ["Friends still shows Valorant friends and League friends, even when Live shows them too."] },
-        { ver: "1.8.26", title: "Valvet", lines: ["On Live, a friend shows the mode they are in, not only the party size.", "Pass, patches, news, esports, and the other saved pages open from the last save. They only check again when that save is old."] },
-        { ver: "1.8.25", title: "Valvet", lines: ["The battle pass does not load when Valvet opens. It loads when you open Pass.", "Online Valorant and League friends are back on Live, with the state they are in. If nobody is online, that block stays empty.", "The waiting cat is the bigger one again."] },
-        { ver: "1.8.24", title: "Valvet", lines: ["Seen, rank, the session chart, and the form strip use a Valvet card instead of a Windows tooltip.", "The time in a game stays on that card. A note pin only shows when there is a note, or while the friend card is hovered.", "Live keeps the lobby and today's games. The waiting line is smaller. Look controls sit on the sample.", "A today's game opens that match. Ranked games show the RR change. Someone you have played is marked, with the count.", "This week sits under today. Friends can be searched. Find Duo is gone."] },
-        { ver: "1.8.23", title: "Valvet", lines: ["Seen shows the full details in a Valvet card when you hover someone, not a Windows tooltip."] },
-        { ver: "1.8.22", title: "Valvet", lines: ["A friend note opens in Valvet. Click outside it, or press Escape, to close it. The note pin is separate from the profile.", "History filters sit on one line. Today's games are a short strip, with each match under it.", "The settings sample has colour, corners, motion, and glass on the same card."] },
-        { ver: "1.8.21", title: "Valvet", lines: ["Other parties show on the live board, and a restart keeps the agent-select roster.", "History filters by map, agent, and party. A player opens every game you shared, and can be added to the watchlist.", "Friends can keep a note. A note pings when that person queues. Seen shows how long they have been in the game.", "Aim shows headshot by gun, first bullet, and multikills. Performance splits by map, agent, and site.", "The live board shows the expected win from both teams' average rank. Collection shows inventory value.", "Map callouts no longer stack on the small cards. Rank, party, and name line up on both teams.", "Settings shows a sample of the look. Live, history, and maps are separate files."] },
-        { ver: "1.8.20", title: "Valvet", lines: ["Enemy ranks stay after agent select, and keep loading during the game.", "Other parties stay marked on the live board, with a party label.", "Play the round opens in front of the match, and the controls stay on screen.", "Maps uses the same official callouts as Play the round."] },
-        { ver: "1.8.19", title: "Valvet", lines: ["Play the round uses the official map callouts, named the same way as the Maps page.", "A friend's history opened from Live stays on top of the board.", "Setup and uninstall use the Valvet icon and the same dark window as the app."] },
-        { ver: "1.8.18", title: "Valvet", lines: ["Play the round draws kills in green. Choosing one line hides the others on the map.", "Friends has Offline. Last together stays on the card. The mark is a grey Riot logo.", "Other parties stay on the live board. Ranks show as they come in."] },
-        { ver: "1.8.17", title: "Valvet", lines: ["Settings has Check for update. It looks at GitHub right away.", "The usual check no longer waits on the slow list."] },
-        { ver: "1.8.16", title: "Valvet", lines: ["Play the round shows the map again. Pause, speed, and full screen stay on screen.", "You are labeled, and everyone else uses their name or their agent. Guns use their names."] },
-        { ver: "1.8.15", title: "Valvet", lines: ["Settings has Storage. It shows the space Valvet uses, opens the folder, and can delete the cache. Games and settings stay.", "Play the round names both players and shows the gun, the time, and the place. Pause, play, and full screen are on the bar.", "After an update, the window opens on the same monitor."] },
-        { ver: "1.8.14", title: "Valvet", lines: ["Playing a round no longer opens a folder.", "You are marked on the map. Slow, previous, and next sit on the player.", "A round says if you got a kill, died, or both. Kill lines is gone."] },
-        { ver: "1.8.13", title: "Valvet", lines: ["The headshot card on Profile is just the number.", "Settings can open the folder where games and files are saved on this PC.", "Changing tabs fades the page in."] },
-        { ver: "1.8.12", title: "Valvet", lines: ["A live game, queue, agent select, and lobby stay quick. Friends and profile still check in on their own, including when you open the app or that page.", "Find Duo only uses the internet while you are looking, or while that page is open.", "A daily store skin that was not in the last store is marked New, once.", "The session chart draws its line the first time you open it. Hover a day to see that day's time.", "Seen only spins when someone is actually in a game."] },
-        { ver: "1.8.11", title: "Valvet", lines: ["Choosing the sound that is already selected plays it.", "A wish in the store can send a Windows notice. That stays off until you turn it on.", "Shaders stay off until you turn them on. On, they add grain, a cursor light, a rank shine, and a rim on the selected gun.", "Changing tabs moves the page."] },
-        { ver: "1.7.42", title: "Live", lines: ["A live game keeps the pink theme. The bright map no longer covers the window.", "Parties are read from the match on this PC, with a colored bar on each stack."] },
-        { ver: "1.7.41", title: "Live", lines: ["Party colors stay on the players who queued together.", "Valvet asks the client less often during a match so it should not spike your connection."] },
-        { ver: "1.7.40", title: "Live", lines: ["A 5v5 card is only as tall as the five players.", "Ranks load on their own connection and stay saved on this PC."] },
-        { ver: "1.7.38", title: "Live", lines: ["The team average uses the ranks already on the board.", "Each player shows headshot percent, ADR, and ACS instead of KDA.", "The logo is white and pink again."] },
-        { ver: "1.7.37", title: "Modes", lines: ["Deathmatch fits everyone in a tight grid.", "Skirmish is a 2v2 board. Gauntlet: Glitched keeps each duo together.", "Store, Bundle, and Patches glow on the side when something new shows up."] },
-        { ver: "1.7.36", title: "Live", lines: ["The name and the update line are pink again.", "The live board keeps its own colors so a party bar stays easy to see.", "Ranks and levels come from the client first, so they show up without waiting on the slow lookup."] },
-        { ver: "1.7.35", title: "Pink", lines: ["Titles, borders, the score, and the tab you are on are pink again."] },
-        { ver: "1.7.34", title: "Live", lines: ["Ranks and parties load with the lobby instead of waiting.", "A party is only a colored bar on the side.", "Agent portraits are no longer cropped. Live KDA is off this board."] },
-        { ver: "1.7.33", title: "Last game", lines: ["The last game card shows the score, KDA, and headshot percent.", "The overlay setting is gone. It only shrank the window.", "Valvet asks the client less often during a match."] },
-        { ver: "1.7.32", title: "Live", lines: ["The live board fills the window. Names, ranks, and the score are larger.", "The round score updates during the match. A 0–0 buy phase stays In game."] },
-        { ver: "1.7.31", title: "Live ranks", lines: ["Ranks and the team average come from the client as soon as the lobby is up.", "An empty lookup no longer replaces a rank that is already there."] },
-        { ver: "1.7.30", title: "Friends", lines: ["Last together stays on the card. The boxes stay small."] },
-        { ver: "1.7.29", title: "Friends", lines: ["Friend cards and the boxes around them are smaller."] },
-        { ver: "1.7.28", title: "First open", lines: ["A new install walks through Valvet.", "An update shows what changed, and does not start the tutorial again."] },
-        { ver: "1.7.27", title: "Settings", lines: ["Sensitivity comes from the newest Riot profile, not the Unreal default.", "The game page has an eDPI calculator. Type your mouse DPI."] },
-        { ver: "1.7.26", title: "Seen", lines: ["AFK is yellow. In game only counts when the match is actually running. Someone who leaves drops out of Right now."] },
-        { ver: "1.7.25", title: "Seen", lines: ["Right now is a green circle with Now and where they are. Last seen shows the time and the place, and it stays put."] },
-        { ver: "1.7.24", title: "Riot Mobile", lines: ["Seen no longer treats Riot Mobile as online. A phone presence is ignored even when Riot labels the product Valorant or League."] },
-        { ver: "1.7.23", title: "Lists", lines: ["Profile keeps the last 7 days under the chart until you press View more.", "Clutches keeps the last 8 until you press View more."] },
-        { ver: "1.7.22", title: "Today and updates", lines: ["Today on Live starts at 6:00 am, same as Session.", "Headshot percent is filled again when a match actually has the shots.", "The update check looks at GitHub releases as well as the version file, so a new build shows up without waiting on the old cache."] },
-        { ver: "1.7.21", title: "Session and seen", lines: ["Click a day on the session chart to see that day's matches.", "Seen ignores only Riot Mobile. Riot, Valorant, League, and TFT still count."] },
-        { ver: "1.7.20", title: "Sounds", lines: ["The win gif is the same size as the loss gif, and the whole picture stays visible.", "Sounds has a win and loss volume slider. It only changes those two sounds."] },
-        { ver: "1.7.19", title: "Wallet and bundle", lines: ["Wallet currencies stay closed until you open one. Filter by VP, KC, or Radianite.", "The featured bundle is a poster. Open it for the pieces inside."] },
-        { ver: "1.7.18", title: "Tabs", lines: ["The side tabs fit the window. There is no scrollbar on them."] },
-        { ver: "1.7.17", title: "Live", lines: ["Both sides stay on screen, left and right, including the last player.", "A duo and a three-stack keep their party mark."] },
-        { ver: "1.7.16", title: "Live", lines: ["Your side is on the left and the enemy is on the right.", "Every player stays on screen. Pink is back on the ranks and the frame."] },
-        { ver: "1.7.15", title: "Parties", lines: ["A party found at agent select stays on the board after the game starts.", "If that is missing, people who just queued together still get a party mark."] },
-        { ver: "1.7.14", title: "Live", lines: ["Each side is a full row, not two squeezed columns.", "KDA, rank, party, and the team average each have their own place."] },
-        { ver: "1.7.13", title: "Look", lines: ["Pages, sidebar, and buttons share one layout.", "The installer is its own window, with a folder, shortcuts, and progress."] },
-        { ver: "1.7.12", title: "Live", lines: ["Rank and KDA sit on the row, so they are not cut off.", "No rank this act shows the peak, with a Peak mark.", "Win and loss are quieter."] },
-        { ver: "1.7.11", title: "Live board", lines: ["Each side shows its average rank.", "Every player shows rank, KDA, and party."] },
-        { ver: "1.7.10", title: "Friends", lines: ["Someone in your party shows under Valorant friends.", "The ring around the waiting cat stays still."] },
-        { ver: "1.7.9", title: "Name", lines: ["The name in the sidebar is Valvet."] },
-        { ver: "1.7.8", title: "Valvet", lines: ["The download is ValvetSetup.exe. The app file is Valvet.exe.", "GitHub is qdxnnyq/valvet."] },
-        { ver: "1.7.7", title: "Quiet", lines: ["Win and loss are half as loud.", "Queue pop, match start, lobby join, and night market stay silent until you turn them on."] },
-        { ver: "1.7.6", title: "Live", lines: ["The map splash is behind the match again. The corner minimap stays gone.", "Ranks, KDA, and agent names are full size."] },
-        { ver: "1.7.5", title: "Live", lines: ["The live match is one board. The little map in the corner is gone.", "Lobby and friends sit in the page instead of their own scroll boxes."] },
-        { ver: "1.7.4", title: "Valvet", lines: ["The app is called Valvet. The window, shortcuts, and this tutorial use that name.", "Saved games stay where they were."] },
-        { ver: "1.7.3", title: "The act", lines: ["History, duos, clutches, heat, and records keep this act, not the last 60 games.", "The pass is a square track, with days, hours, and minutes left.", "Friends drops the lobby block so the groups sit on one page."] },
-        { ver: "1.7.2", title: "Kept", lines: ["History keeps the last 60 games on this PC.", "The history search is a normal field. Collection search counts matches, and a loadout change asks you to confirm.", "Esports paints a page of bundles at a time. Battle pass rewards stay square.", "Mouse light is off until you pick a colour. Agent pages drop the candle marks."] },
-        { ver: "1.7.1", title: "Clearer", lines: ["Esports opens from the copy saved on this PC, the same way agents do.", "Clutches is a board: hold rate, each 1vX, then the rounds.", "Heat is brighter. Kills mark where they fell.", "Friends scroll in one place. The mouse light and the hover blur are off."] },
-        { ver: "1.6.1", title: "Heat, and less redrawing", lines: ["Kills have their own heat map. Deaths and kills are smooth pools, not dots.", "History, maps, records, and the live page stay still when nothing changed.", "Minimap pictures stay in memory. Friends, Trace, and Crosshairs use the same cards."] },
-        { ver: "1.6.0", title: "Rounds, and the dark spots", lines: ["The update bar uses the newest GitHub build, with its real version name.", "What's new only lists this update.", "Open a match and scrub the rounds. The score moves with the slider.", "Deaths are a heat layer. Darker means you died there more."] },
-        { ver: "1.5.9", title: "Records, and the look", lines: ["The win cat sits on a light chip so it stays visible.", "Records is a board now: totals, bests, a form strip, sortable agents, and an agent duel.", "Settings can calm the motion, change the corners, hide the history cats, and use Mint, Blood, Violet, or Ember."] },
-        { ver: "1.5.8", title: "Cats, and a pink search", lines: ["The name search stays soft pink.", "An empty Valorant list says you are so lonely.", "History cats, and alien sounds."] },
-        { ver: "1.5.7", title: "Quiet, and the cat", lines: ["Every sound can be None. Quiet hours mute win and loss.", "Seen shows the local time. The live wait is the cat."] },
       ];
       function mapName(name) {
         const raw = String(name || "").trim();
@@ -1056,7 +995,7 @@
         return face;
       }
       function myAgentList() {
-        const saved = readJSON("velvet-my-agents");
+        const saved = readJSON("valvet-my-agents");
         return Array.isArray(saved) ? saved.map((name) => String(name || "")).filter(Boolean) : [];
       }
       function agentRows() {
@@ -1238,7 +1177,7 @@
         if (!root) return;
         const rows = agentRows();
         root.className = "";
-        const recSig = rows.map((row) => [row.name, row.games, row.wins, row.hs, row.acs].join(":")).join("|") + "|" + (localStorage.getItem("velvet-rec-sort") || "games") + "|" + ((history || []).length);
+        const recSig = rows.map((row) => [row.name, row.games, row.wins, row.hs, row.acs].join(":")).join("|") + "|" + (localStorage.getItem("valvet-rec-sort") || "games") + "|" + ((history || []).length);
         if (root.dataset.sig === recSig && root.querySelector(".rec-hero, .empty")) return;
         root.dataset.sig = recSig;
         root.replaceChildren();
@@ -1278,7 +1217,7 @@
           podium.append(card);
         }
         const form = formStrip(history);
-        const sortKey = localStorage.getItem("velvet-rec-sort") || "games";
+        const sortKey = localStorage.getItem("valvet-rec-sort") || "games";
         const sortBar = el("div", "rec-sort");
         const ordered = rows.slice().sort((a, b) => {
           const rate = (row) => row.games ? row.wins / row.games : 0;
@@ -1291,7 +1230,7 @@
         for (const [id, label] of [["games", "Games"], ["win", "Win rate"], ["kd", "K/D"], ["hs", "HS"]]) {
           const button = el("button", "tiny" + (sortKey === id ? " solid" : ""), label);
           button.type = "button";
-          button.onclick = () => { localStorage.setItem("velvet-rec-sort", id); paintRecords(); };
+          button.onclick = () => { localStorage.setItem("valvet-rec-sort", id); paintRecords(); };
           sortBar.append(button);
         }
         const list = el("div", "rec-list");
@@ -1326,13 +1265,13 @@
           leftPick.append(new Option(row.name, row.name));
           rightPick.append(new Option(row.name, row.name));
         }
-        const savedDuel = readJSON("velvet-duel") || {};
+        const savedDuel = readJSON("valvet-duel") || {};
         if (savedDuel.a && ordered.some((row) => row.name === savedDuel.a)) leftPick.value = savedDuel.a;
         if (savedDuel.b && ordered.some((row) => row.name === savedDuel.b)) rightPick.value = savedDuel.b;
         else if (ordered[1]) rightPick.value = ordered[1].name;
         const board = el("div", "duel-board");
         const drawDuel = () => {
-          writeJSON("velvet-duel", { a: leftPick.value, b: rightPick.value });
+          writeJSON("valvet-duel", { a: leftPick.value, b: rightPick.value });
           const left = ordered.find((row) => row.name === leftPick.value);
           const right = ordered.find((row) => row.name === rightPick.value);
           board.replaceChildren();

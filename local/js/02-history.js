@@ -173,7 +173,66 @@
         loud(gun && gun[1].s ? Math.round((gun[1].h / gun[1].s) * 100) + "%" : "—", gun ? gun[0] + " HS" : "Gun HS");
         loud(aimN ? Math.round(aimHit / aimN) + "%" : "—", "First bullet");
         loud(multis ? String(multis) : "—", "Multikills");
+        const fight = fightFacts(matches);
+        if (fight.n) loud(Math.round(fight.head / fight.n) + " · " + Math.round(fight.body / fight.n) + " · " + Math.round(fight.leg / fight.n), "Head · body · legs");
+        if (fight.firstK || fight.firstD) loud(fight.firstK + " / " + fight.firstD, "First blood / death");
+        if (fight.plants || fight.defuses || fight.post) loud([fight.plants + " plant", fight.defuses + " defuse", fight.post + " after plant"].join(" · "), "Spike");
+        if (fight.trades) loud(String(fight.trades), "Trades");
+        const pair = (name) => fight.kind[name][1] ? fight.kind[name][0] + "/" + fight.kind[name][1] : "—";
+        if (fight.kind.pistol[1] || fight.kind.bonus[1] || fight.kind.gun[1]) loud(pair("pistol") + " · " + pair("bonus") + " · " + pair("gun"), "Pistol · bonus · gun");
         return card;
+      }
+      function fightFacts(matches) {
+        const kind = { pistol: [0, 0], bonus: [0, 0], gun: [0, 0] };
+        const out = { n: 0, head: 0, body: 0, leg: 0, firstK: 0, firstD: 0, trades: 0, plants: 0, defuses: 0, post: 0, kind };
+        for (const match of matches || []) {
+          const you = (match.players || []).find((player) => player.you);
+          if (!you) continue;
+          const id = String(you.puuid || "").toLowerCase();
+          const hs = parseInt(you.hs, 10);
+          const body = parseInt(you.body, 10);
+          const legs = parseInt(you.legs, 10);
+          if (!Number.isNaN(hs) && !Number.isNaN(body) && !Number.isNaN(legs)) {
+            out.head += hs; out.body += body; out.leg += legs; out.n += 1;
+          }
+          out.plants += Number(you.plants) || 0;
+          out.defuses += Number(you.defuses) || 0;
+          const rounds = match.rounds || [];
+          const zero = rounds.some((round) => Number(round.n) === 0);
+          for (const round of rounds) {
+            const num = Number(round.n);
+            const slot = zero ? num : num - 1;
+            const bucket = slot === 0 || slot === 12 ? "pistol" : slot === 1 || slot === 13 ? "bonus" : "gun";
+            if (round.you === true) kind[bucket][0] += 1;
+            if (round.you === true || round.you === false) kind[bucket][1] += 1;
+            if ((round.how === "Detonate" || round.how === "Defuse") && round.you) out.post += 1;
+          }
+          for (const edge of match.edges || []) {
+            const kid = String(edge.kid || "").toLowerCase();
+            const vid = String(edge.vid || "").toLowerCase();
+            if (!id) continue;
+            if (edge.first && kid === id) out.firstK += 1;
+            if (edge.first && vid === id) out.firstD += 1;
+            if (edge.trade && kid === id) out.trades += 1;
+          }
+        }
+        return out;
+      }
+      const actBtn = document.getElementById("hist-act");
+      if (actBtn && !actBtn.dataset.bound) {
+        actBtn.dataset.bound = "1";
+        actBtn.onclick = async () => {
+          showAct = !showAct;
+          actBtn.classList.toggle("solid", showAct);
+          if (showAct && !actArchive) {
+            try {
+              const data = await (await fetch("/api/acts", { cache: "no-store" })).json();
+              actArchive = (data && data.matches) || [];
+            } catch { actArchive = []; }
+          }
+          recentKey = "";
+          drawRecent(history);
+        };
       }
       function showShared(player) {
         const id = String((player && player.puuid) || "").toLowerCase();
@@ -189,9 +248,11 @@
         recentKey = "";
         setTab("history");
       }
+      let actArchive = null;
+      let showAct = false;
       function drawRecent(matches) {
         const typed = ((document.getElementById("match-query") || {}).value || "").trim();
-        const source = modeQueue ? modeMatches || [] : matches || [];
+        const source = showAct ? (actArchive || []) : (modeQueue ? modeMatches || [] : matches || []);
         paintHistPicks(history && history.length ? history : source);
         const showing = queryMatches(typed, (source || []).filter(passesHist));
         for (const match of showing) markAwards(match);
@@ -209,7 +270,7 @@
           return;
         }
         if (!showing.length) {
-          recent.append(el("div", "empty", typed || histMap || histAgent || histParty || histWith ? "Nothing matches that filter." : mode === "All" ? "No games loaded yet." : "No " + mode + " games in the recent list."));
+          recent.append(el("div", "empty", showAct && !(actArchive || []).length ? "Last act is not saved on this PC yet. It is kept the next time an act ends." : typed || histMap || histAgent || histParty || histWith ? "Nothing matches that filter." : mode === "All" ? "No games loaded yet." : "No " + mode + " games in the recent list."));
           return;
         }
         recent.append(performanceCard(showing));
@@ -299,7 +360,7 @@
         const board = el("div", "boardstat");
         const head = () => {
           const row = el("div", "boardline head");
-          for (const label of ["", "Player", "KDA", "Dmg", "HS", "ADR", "ACS"]) row.append(el("span", null, label));
+          for (const label of ["", "Player", "KDA", "Dmg", "H B L", "ADR", "ACS"]) row.append(el("span", null, label));
           return row;
         };
         const addRow = (player) => {
@@ -320,7 +381,7 @@
             who,
             el("span", null, (player.kills || "0") + "/" + (player.deaths || "0") + "/" + (player.assists || "0")),
             el("span", null, player.damage || "—"),
-            el("span", null, player.hs || "—"),
+            el("span", null, [player.hs, player.body, player.legs].filter(Boolean).join(" ") || "—"),
             el("span", null, player.adr || "—"),
             el("span", null, player.acs || "—")
           );
@@ -345,7 +406,7 @@
       let knownLevel = 0;
       let bundleKey = "";
       function walletLog() {
-        try { return JSON.parse(localStorage.getItem("velvet-wallet") || "[]"); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem("valvet-wallet") || "[]"); } catch { return []; }
       }
       let walletFilter = "all";
       const walletOpen = {};
@@ -403,7 +464,7 @@
         const now = { vp: Number(store.vp) || 0, kc: Number(store.kc) || 0, rad: Number(store.radianite) || 0, t: Date.now() };
         if (!(now.vp || now.kc || now.rad)) return;
         let prev = null;
-        try { prev = JSON.parse(localStorage.getItem("velvet-wallet-last") || "null"); } catch {}
+        try { prev = JSON.parse(localStorage.getItem("valvet-wallet-last") || "null"); } catch {}
         if (prev && (prev.vp || prev.kc || prev.rad)) {
           const rows = walletLog();
           let changed = false;
@@ -413,9 +474,9 @@
             rows.unshift({ t: now.t, kind: label, delta });
             changed = true;
           }
-          if (changed) localStorage.setItem("velvet-wallet", JSON.stringify(rows.slice(0, 80)));
+          if (changed) localStorage.setItem("valvet-wallet", JSON.stringify(rows.slice(0, 80)));
         }
-        localStorage.setItem("velvet-wallet-last", JSON.stringify(now));
+        localStorage.setItem("valvet-wallet-last", JSON.stringify(now));
         paintWallet(now);
       }
       function draw(data) {
@@ -425,7 +486,7 @@
         const pauseBox = document.getElementById("set-pause-lookups");
         if (pauseBox && document.activeElement !== pauseBox && pauseBox.checked !== !!data.pauseLookups) {
           pauseBox.checked = !!data.pauseLookups;
-          localStorage.setItem("velvet-pause-lookups", pauseBox.checked ? "on" : "off");
+          localStorage.setItem("valvet-pause-lookups", pauseBox.checked ? "on" : "off");
         }
         if (data && data.tray === "settings") setTab("settings");
         syncRoomHits(data);
@@ -438,10 +499,7 @@
         refreshTracked(data);
         notePings(data);
         const pen = document.getElementById("penalty-live");
-        if (pen) {
-          pen.hidden = !(data && data.penalty);
-          pen.textContent = (data && data.penalty) || "";
-        }
+        if (pen) pen.hidden = true;
         maybeInsights();
         if (data.store) {
           lastShop = data.store;
@@ -484,7 +542,7 @@
         }
         if (waitSub) {
           const partyRank = averageRank(party);
-          const next = !data.ok ? (data.error || "Start the Riot Client, then leave this window open.") : data.phase === "In queue" ? [data.mode, "In queue"].filter(Boolean).join(" · ") : inMatch ? "" : [partyRank ? "Party " + partyRank : "", "Stays here until a game is found."].filter(Boolean).join(" · ");
+          const next = !data.ok ? (data.error || "Start the Riot Client, then leave this window open.") : data.phase === "In queue" ? [data.mode, "In queue", data.penalty].filter(Boolean).join(" · ") : inMatch ? "" : [partyRank ? "Party " + partyRank : "", data.penalty, "Stays here until a game is found."].filter(Boolean).join(" · ");
           if (waitSub.textContent !== next) waitSub.textContent = next;
         }
         if (!data.ok) {
@@ -498,9 +556,19 @@
           note.hidden = true;
           document.getElementById("mode").textContent = data.mode || "Live";
           document.getElementById("map").textContent = data.map || "Lobby";
-          document.getElementById("phase").textContent = [data.phase, data.server, mapRecord(history, data.map)].filter(Boolean).join(" · ");
+          document.getElementById("phase").textContent = [data.phase, data.server, mapRecord(history, data.map), data.penalty].filter(Boolean).join(" · ");
           paintMapArt(data.map);
           const yours = (data.players || []).find((player) => player.you);
+          const lineups = document.getElementById("lineups");
+          const youAgent = yours && yours.agent && yours.agent !== "Picking" ? yours.agent : "";
+          if (lineups) {
+            lineups.hidden = !(data.map && youAgent);
+            lineups.onclick = (event) => {
+              event.preventDefault();
+              const url = "https://lineupsvalorant.com/?map=" + encodeURIComponent(data.map || "") + "&agent=" + encodeURIComponent(youAgent);
+              fetch("/api/open?url=" + encodeURIComponent(url)).catch(() => {});
+            };
+          }
           const seenKey = [...seenLately(history)].sort().join(",");
           const roomKey = [...roomWatches].sort().join("|");
           const liveKey = JSON.stringify([data.phase, data.map, data.mode, data.server, data.score1, data.score2, data.team1, data.team2, seenKey, roomKey, (data.players || []).map((player) => [player.puuid, player.name, player.tag, player.agent, player.rank, player.peak, player.rankPeak, player.rr, player.party, player.partyN, player.hs, player.adr, player.acs, player.team, player.enemy, player.hidden, player.tier, player.level])]);
@@ -549,8 +617,8 @@
           notePop(data);
           lightEvent("queue");
         }
-        if (popped && localStorage.getItem("velvet-pop") === "on") playQueue();
-        if (!popped && localStorage.getItem("velvet-chime") === "on" && phase !== lastPhase && (phase === "In game" || phase === "Loading lobby" || phase === "Agent select")) playPack();
+        if (popped && localStorage.getItem("valvet-pop") === "on") playQueue();
+        if (!popped && localStorage.getItem("valvet-chime") === "on" && phase !== lastPhase && (phase === "In game" || phase === "Loading lobby" || phase === "Agent select")) playPack();
         lastPhase = phase;
         noteSession(data);
         if (tab === "session" || tab === "seen") paintDesk();
@@ -757,7 +825,7 @@
       }
       async function loadLoadout(live) {
         const root = document.getElementById("loadout");
-        const key = "velvet-cache-loadout";
+        const key = "valvet-cache-loadout";
         const saved = readJSON(key);
         const ok = saved && ((saved.guns || []).length || saved.title || saved.card);
         const force = live === "force";
@@ -1021,7 +1089,7 @@
         paintInsights(slot);
       }
       const heardPings = new Set();
-      try { JSON.parse(localStorage.getItem("velvet-pings") || "[]").forEach((id) => heardPings.add(id)); } catch {}
+      try { JSON.parse(localStorage.getItem("valvet-pings") || "[]").forEach((id) => heardPings.add(id)); } catch {}
       function traceBook() {
         return readJSON("valvet-trace-hits") || {};
       }
@@ -1045,7 +1113,7 @@
         }
         if (!fresh) return;
         saveTrace(book);
-        localStorage.setItem("velvet-pings", JSON.stringify([...heardPings].slice(-40)));
+        localStorage.setItem("valvet-pings", JSON.stringify([...heardPings].slice(-40)));
         const tabBtn = document.getElementById("tab-alerts");
         if (tabBtn && tab !== "alerts") tabBtn.classList.add("trace-ping");
         if (typeof paintSocialBook === "function" && window.__valvetSocial) paintSocialBook(window.__valvetSocial);
@@ -1348,7 +1416,7 @@
       }
       async function loadProfile(live) {
         const root = document.getElementById("profile");
-        const key = "velvet-cache-card";
+        const key = "valvet-cache-card";
         const saved = readJSON(key);
         const ok = saved && (saved.name || saved.card || saved.level);
         if (ok) paintProfile(saved);
@@ -1377,7 +1445,7 @@
       }
       async function loadAgents(live) {
         const root = document.getElementById("agents");
-        const key = "velvet-cache-agents";
+        const key = "valvet-cache-agents";
         if (!agentCache) {
           const saved = readJSON(key);
           if (Array.isArray(saved) && saved.length) agentCache = saved;
@@ -1433,7 +1501,7 @@
         const root = document.getElementById("pass");
         root.className = "";
         root.replaceChildren();
-        savedBar(root, "velvet-cache-pass", () => loadPass("force"));
+        savedBar(root, "valvet-cache-pass", () => loadPass("force"));
         if (data.error && !data.level && !(data.missions || []).length) {
           root.append(el("div", "empty", data.error));
           return;
@@ -1588,12 +1656,12 @@
       function showCachedPass() {
         const root = document.getElementById("pass");
         if (!root) return;
-        const saved = readJSON("velvet-cache-pass");
+        const saved = readJSON("valvet-cache-pass");
         if (saved && (saved.level || saved.name || (saved.missions || []).length || (saved.rewards || []).length)) drawPass(saved);
       }
       async function loadPass(live) {
         const root = document.getElementById("pass");
-        const key = "velvet-cache-pass";
+        const key = "valvet-cache-pass";
         const saved = readJSON(key);
         const ok = saved && (saved.level || saved.name || (saved.missions || []).length || (saved.rewards || []).length);
         if (ok) drawPass(saved);
@@ -1715,7 +1783,9 @@
             yours = round.scoreY || 0;
             theirs = round.scoreN || 0;
           }
-          view.replaceChildren(el("b", null, "Round " + (round.n || at)), el("div", "scrub-score", yours + "–" + theirs), el("div", "sub", [round.you ? "Won" : "Lost", round.how, round.side, round.vs ? "1v" + round.vs : ""].filter(Boolean).join(" · ")));
+          const youBuy = ((match.buys || []).find((row) => Number(row.round) === Number(round.n) && String(row.id || "").toLowerCase() === String(((match.players || []).find((player) => player.you) || {}).puuid || "").toLowerCase())) || null;
+          const buyBit = youBuy && youBuy.buy ? youBuy.buy + (youBuy.gun ? " " + youBuy.gun : "") : "";
+          view.replaceChildren(el("b", null, "Round " + (round.n || at)), el("div", "scrub-score", yours + "–" + theirs), el("div", "sub", [round.you ? "Won" : "Lost", round.how, round.side, buyBit, round.vs ? "1v" + round.vs : ""].filter(Boolean).join(" · ")));
         };
         prev.onclick = (event) => { event.preventDefault(); event.stopPropagation(); slider.value = String(Number(slider.value) - 1); paint(); };
         next.onclick = (event) => { event.preventDefault(); event.stopPropagation(); slider.value = String(Number(slider.value) + 1); paint(); };
@@ -1931,7 +2001,7 @@
         const rankIcon = (data && String(data.rankIcon || "").indexOf("/pack/rank/") === 0 && data.rankIcon) || (seed && String(seed.rankIcon || "").indexOf("/pack/rank/") === 0 && seed.rankIcon) || (data && data.rankIcon) || (seed && seed.rankIcon) || "";
         const paintRank = (text) => {
           if (!text && !rankIcon) return;
-          const node = el("div", "rankline");
+          const node = el("div", "rankline coin");
           if (rankIcon) {
             const badge = document.createElement("img");
             badge.className = "rankimg";
@@ -1943,7 +2013,7 @@
           id.append(node);
         };
         if (peakOnly && (rank || peak)) {
-          const line = el("div", "rankline");
+          const line = el("div", "rankline coin");
           bindHoverTip(line, (tip) => {
             tip.append(el("div", "tip-kicker", "Peak"));
             tip.append(el("b", null, peak || rank || "Peak"));

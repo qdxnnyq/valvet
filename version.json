@@ -1,6 +1,7 @@
 {
-  "version": 168,
-  "name": "1.8.43",
-  "notes": "Dark history filters, map sides, compare, bundle progress, copy agents, sound drop, clutch split, backup file, parties stay on.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v168/Valvet.exe"
+  "version": 169,
+  "label": "1.8.44",
+  "name": "1.8.44",
+  "notes": "Parties are a colored line. Shots split into head, body, and legs. The last act stays in its own folder. A penalty shows the minutes left.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v169/Valvet.exe"
 }

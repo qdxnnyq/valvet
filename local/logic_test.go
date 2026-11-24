@@ -340,7 +340,7 @@ func TestBuyAndTrades(t *testing.T) {
 	}
 	when := time.Date(2026, 11, 17, 8, 0, 0, 0, time.UTC)
 	line := penaltyLine([]byte(`{"Penalties":[{"QueueRestriction":{"QueueIDs":["competitive"],"Expiry":"2026-11-17T12:00:00Z"}}]}`), when)
-	if !strings.Contains(line, "penalty until") {
+	if !strings.Contains(line, "penalty") || !strings.Contains(line, "min") {
 		t.Fatal(line)
 	}
 	if penaltyLine([]byte(`{"Penalties":[{"Expiry":"2020-01-01T00:00:00Z"}]}`), when) != "" {
@@ -361,6 +361,95 @@ func TestCatsAndSoundsServeWhole(t *testing.T) {
 	writeBytes(rr, httptest.NewRequest(http.MethodGet, "/sounds/gg", nil), "win.mp3", "audio/mpeg", winClip)
 	if rr.Code != 200 || rr.Header().Get("Content-Type") != "audio/mpeg" || rr.Body.Len() != len(winClip) {
 		t.Fatalf("sound %d %s %d", rr.Code, rr.Header().Get("Content-Type"), rr.Body.Len())
+	}
+}
+
+func TestSideChangesPerRound(t *testing.T) {
+	me := "11111111-1111-1111-1111-111111111111"
+	players := []player{{PUUID: me, You: true, Team: "Attackers"}}
+	detail := map[string]any{
+		"matchInfo": map[string]any{"queueID": "competitive"},
+		"players":   []any{map[string]any{"subject": me, "teamId": "Red"}},
+		"roundResults": []any{
+			map[string]any{"roundNum": float64(0), "winningTeam": "Red"},
+			map[string]any{"roundNum": float64(12), "winningTeam": "Blue"},
+		},
+	}
+	rounds := matchRounds(detail, players)
+	if len(rounds) != 2 || rounds[0].Side != "Attackers" || rounds[1].Side != "Defenders" {
+		t.Fatalf("%+v", rounds)
+	}
+	flipped := []player{{PUUID: me, You: true, Team: "Attackers"}}
+	late := map[string]any{
+		"matchInfo": map[string]any{"queueID": "competitive"},
+		"roundResults": []any{
+			map[string]any{"roundNum": float64(0), "winningTeam": "Red"},
+			map[string]any{"roundNum": float64(12), "winningTeam": "Blue"},
+		},
+	}
+	again := matchRounds(late, flipped)
+	if again[0].Side == again[1].Side {
+		t.Fatalf("end side used for both rounds: %+v", again)
+	}
+}
+
+func TestPartyOfThree(t *testing.T) {
+	a := "11111111-1111-1111-1111-111111111111"
+	b := "22222222-2222-2222-2222-222222222222"
+	c := "33333333-3333-3333-3333-333333333333"
+	solo := "44444444-4444-4444-4444-444444444444"
+	hints := stackHints(map[string]string{a: "red", b: "red", c: "red", solo: "red"}, [][]string{{a, b, c}})
+	if hints[a].id == "" || hints[a].id != hints[b].id || hints[b].id != hints[c].id || hints[a].size != 3 {
+		t.Fatalf("%+v", hints)
+	}
+	if _, ok := hints[solo]; ok {
+		t.Fatal("solo joined the stack")
+	}
+	players := []player{{PUUID: a}, {PUUID: b}, {PUUID: c}, {PUUID: solo}}
+	markParties(players, hints)
+	if players[0].Party == "" || players[0].Party != players[1].Party || players[1].Party != players[2].Party || players[0].PartyN != 3 {
+		t.Fatalf("%+v", players[:3])
+	}
+	if players[3].Party != "" {
+		t.Fatal(players[3])
+	}
+}
+
+func TestBuildRecentWin(t *testing.T) {
+	me := "11111111-1111-1111-1111-111111111111"
+	ally := "22222222-2222-2222-2222-222222222222"
+	detail := map[string]any{
+		"matchInfo": map[string]any{
+			"matchId": "win1", "queueID": "competitive",
+			"mapId": "/Game/Maps/Ascent/Ascent",
+		},
+		"players": []any{
+			map[string]any{"subject": me, "teamId": "Red", "gameName": "Me", "tagLine": "EUW"},
+			map[string]any{"subject": ally, "teamId": "Blue", "gameName": "Them", "tagLine": "EUW"},
+		},
+		"teams": []any{
+			map[string]any{"teamId": "Red", "roundsWon": float64(13), "won": true},
+			map[string]any{"teamId": "Blue", "roundsWon": float64(9), "won": false},
+		},
+		"roundResults": []any{
+			map[string]any{"roundNum": float64(0), "winningTeam": "Red", "roundResult": "Elimination", "bombPlanter": me},
+		},
+	}
+	row := finalizeRecent(detail, me, nil)
+	if row == nil || row.Won == nil || !*row.Won {
+		t.Fatalf("expected a win, %+v", row)
+	}
+	if row.Map != "Ascent" {
+		t.Fatal(row.Map)
+	}
+	var you *player
+	for i := range row.Players {
+		if row.Players[i].You {
+			you = &row.Players[i]
+		}
+	}
+	if you == nil || you.Plants != "1" {
+		t.Fatalf("plant %+v", you)
 	}
 }
 

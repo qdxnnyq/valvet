@@ -230,7 +230,7 @@
       #pane-live.layout-ffa.match #board .grid { grid-template-columns: 1fr; }
       #pane-live.layout-ffa.match .team { min-height: 0; height: auto; }
       #pane-live.layout-ffa .ffa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; }
-      #pane-live.layout-ffa.match .row { min-height: 42px; padding: 2px 4px; grid-template-columns: 34px minmax(0, 1fr) 58px auto; gap: 8px; }
+      #pane-live.layout-ffa.match .row { min-height: 42px; padding: 2px 4px; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
       #pane-live.layout-ffa.match .agent { width: 32px; height: 32px; border-radius: 8px; }
       #pane-live.layout-duo.match #board .grid { grid-template-columns: minmax(0, 440px) minmax(0, 440px); justify-content: center; align-items: center; align-content: center; }
       #pane-live.layout-duo.match .team { min-height: 0; height: auto; }
@@ -242,7 +242,7 @@
       body[data-size="large"] #pane-live.layout-pairs.match #board .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       #pane-live.layout-pairs.match .team { height: 100%; min-height: 0; padding: 8px 10px 4px; }
       #pane-live.layout-pairs.match .team.now { border-color: #ff5fa2; box-shadow: inset 0 0 0 1px #ff5fa2; }
-      #pane-live.layout-pairs.match .row { min-height: 0; padding: 4px 2px; grid-template-columns: 34px minmax(0, 1fr) 58px auto; gap: 8px; }
+      #pane-live.layout-pairs.match .row { min-height: 0; padding: 4px 2px; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
       #pane-live.layout-pairs.match .agent { width: 32px; height: 32px; border-radius: 8px; }
       #pane-live.layout-pairs.match .team-name { font-size: 14px; }
       main { padding: 18px 22px 16px; }

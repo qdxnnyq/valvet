@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.44
+
+Parties are a colored line. Shots split into head, body, and legs.
+The last act stays in its own folder. A penalty shows the minutes left.
+The update check keeps the pink bar up if GitHub is slow to answer.
+
 ## 1.8.43
 
 History filters use the dark menu. A name in the search finds that player's games.

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -148,7 +149,11 @@ func penaltyLine(raw []byte, now time.Time) string {
 	if queue != "" {
 		label = queue + " penalty"
 	}
-	return label + " until " + soon.Local().Format("Mon 15:04")
+	mins := int(soon.Sub(now).Minutes())
+	if mins < 1 {
+		mins = 1
+	}
+	return label + " · " + strconv.Itoa(mins) + " min"
 }
 
 func penaltyExpiry(row map[string]any) time.Time {

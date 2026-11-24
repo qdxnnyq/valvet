@@ -357,6 +357,22 @@ func main() {
 		title, body, errText := app.patchBody(ctx, r.URL.Query().Get("path"))
 		_ = json.NewEncoder(w).Encode(map[string]any{"title": title, "body": body, "error": errText})
 	})
+	mux.HandleFunc("/api/premier", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 12*time.Second)
+		defer cancel()
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		_ = json.NewEncoder(w).Encode(app.premierTeam(ctx))
+	})
+	mux.HandleFunc("/api/acts", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		rows := loadPastAct()
+		if rows == nil {
+			rows = []recentMatch{}
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"matches": rows})
+	})
 	mux.HandleFunc("/api/esports", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
 		defer cancel()

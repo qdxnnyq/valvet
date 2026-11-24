@@ -65,7 +65,7 @@ func installUpdate(raw string) error {
 		return err
 	}
 	current, _ = filepath.Abs(current)
-	script := filepath.Join(os.TempDir(), "velvet-update.cmd")
+	script := filepath.Join(os.TempDir(), "valvet-update.cmd")
 	body := strings.Join([]string{
 		"@echo off",
 		"ping 127.0.0.1 -n 3 >nul",

@@ -62,6 +62,12 @@ func openApp(url string) {
 	setTaskbarIcon(uintptr(window.Window()))
 	defer window.Destroy()
 	window.SetTitle("Valvet")
+	_ = window.Bind("valvetResize", func(name string) {
+		width, height := windowSize(name)
+		window.Dispatch(func() {
+			window.SetSize(width, height, webview2.HintNone)
+		})
+	})
 	_ = window.Bind("velvetResize", func(name string) {
 		width, height := windowSize(name)
 		window.Dispatch(func() {
@@ -72,11 +78,20 @@ func openApp(url string) {
 	hwnd := uintptr(window.Window())
 	ownFrame(hwnd)
 	paintThemeFrame(hwnd, "#10080d", "#ff5fa2")
+	_ = window.Bind("valvetWin", func(cmd string) {
+		window.Dispatch(func() { windowCommand(uintptr(window.Window()), cmd) })
+	})
 	_ = window.Bind("velvetWin", func(cmd string) {
 		window.Dispatch(func() { windowCommand(uintptr(window.Window()), cmd) })
 	})
+	_ = window.Bind("valvetDrag", func() {
+		window.Dispatch(func() { dragWindow(uintptr(window.Window())) })
+	})
 	_ = window.Bind("velvetDrag", func() {
 		window.Dispatch(func() { dragWindow(uintptr(window.Window())) })
+	})
+	_ = window.Bind("valvetChrome", func(bg, accent string) {
+		window.Dispatch(func() { paintThemeFrame(uintptr(window.Window()), bg, accent) })
 	})
 	_ = window.Bind("velvetChrome", func(bg, accent string) {
 		window.Dispatch(func() { paintThemeFrame(uintptr(window.Window()), bg, accent) })

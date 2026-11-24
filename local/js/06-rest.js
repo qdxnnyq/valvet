@@ -187,14 +187,13 @@
         if (manual && note) note.textContent = "Checking GitHub…";
         const stamp = Date.now();
         const [file, rel, local] = await Promise.all([
-          grabJSON("https://raw.githubusercontent.com/qdxnnyq/valvet/main/version.json?t=" + stamp, 7000),
-          grabJSON("https://api.github.com/repos/qdxnnyq/valvet/releases/latest", 7000),
-          grabJSON("/api/update?fresh=1&t=" + stamp, 7000),
+          grabJSON("https://raw.githubusercontent.com/qdxnnyq/valvet/main/version.json?t=" + stamp, 15000),
+          grabJSON("https://api.github.com/repos/qdxnnyq/valvet/releases/latest", 15000),
+          grabJSON("/api/update?fresh=1&t=" + stamp, 15000),
         ]);
         if (ticket !== updateTicket) return;
         const remoteOk = !!(file && (file.name || file.version)) || !!releaseName(rel);
         if (!remoteOk && (!local || local.error)) {
-          paintUpdate({ label: (local && local.label) || NOTES_VER, update: false });
           if (note) note.textContent = (local && local.error) || "Couldn't check GitHub. Try again.";
           if (manual && ask) {
             ask.disabled = false;
@@ -217,7 +216,7 @@
       const askUpdate = document.getElementById("set-update");
       if (askUpdate) askUpdate.onclick = () => checkUpdate(true);
       function playHello() {
-        if (localStorage.getItem("velvet-sound") === "off") return;
+        if (localStorage.getItem("valvet-sound") === "off") return;
         const audio = new Audio("/sounds/meow");
         audio.volume = 0.1;
         audio.play().catch(() => {});
@@ -239,7 +238,7 @@
       const TOUR = [
         { tab: "live", mark: "tab-live", kicker: "Start", title: "This is Valvet", body: "Valvet follows the Riot Client already open on this PC. It never asks for your password. Leave the client open and the pages fill in." },
         { tab: "live", mark: "board", kicker: "Live", title: "The match", body: "Your side is on the left and the other side is on the right. Each player shows name, agent, party, and rank. The header is the average rank of that side." },
-        { tab: "live", mark: "post", card: "sample", kicker: "After the match", title: "Result", body: "When the match ends, this card shows the result. Copy card saves a picture." },
+        { tab: "live", mark: "post", kicker: "After the match", title: "Result", body: "When the match ends, this card shows the result. Copy card saves a picture." },
         { tab: "friends", mark: "tab-friends", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. An empty list stays empty." },
         { tab: "history", mark: "tab-history", kicker: "History", title: "This act", body: "History keeps the games from this act. Each side is sorted by KDA. Highlight a name and the same person lights up in the stats. The next act replaces this one." },
         { tab: "profile", mark: "tab-profile", kicker: "Profile", title: "Your numbers", body: "Win rate with friends counts Riot friends, after two games together. Weapons show headshot percent. Maps show win rate. The chart is HS, ACS, and kills. A day starts at 6:00 am. Older days stay under View more." },
@@ -279,8 +278,6 @@
         quietNav = true;
         setTab(step.tab);
         quietNav = false;
-        if (step.card === "sample") showSampleCard();
-        else hideSampleCard();
         const mark = document.getElementById(step.mark);
         if (mark) {
           mark.classList.add("tour-mark");
@@ -294,14 +291,14 @@
         renderTour();
       }
       function tourDone() {
-        const v = localStorage.getItem("velvet-tour");
+        const v = localStorage.getItem("valvet-tour");
         return v === "43" || v === "done" || v === "seen";
       }
       function markNotes() {
-        localStorage.setItem("velvet-notes", NOTES_VER);
+        localStorage.setItem("valvet-notes", NOTES_VER);
       }
       function showWhatsNew() {
-        if (localStorage.getItem("velvet-notes") === NOTES_VER) return;
+        if (localStorage.getItem("valvet-notes") === NOTES_VER) return;
         const body = document.getElementById("notes-body");
         const card = document.getElementById("whats-new");
         const title = document.getElementById("notes-title");
@@ -314,7 +311,7 @@
       }
       function closeTour() {
         const replay = tourDone();
-        localStorage.setItem("velvet-tour", "seen");
+        localStorage.setItem("valvet-tour", "seen");
         markNotes();
         document.body.classList.remove("touring");
         document.getElementById("tour").hidden = true;
@@ -373,9 +370,9 @@
       if (jumpSounds) jumpSounds.onclick = () => setTab("sounds");
       function applySetTab(name) {
         const allowed = ["look", "sound", "window", "share", "discord", "backup"];
-        const pick = allowed.indexOf(name) >= 0 ? name : (localStorage.getItem("velvet-set-tab") || "look");
+        const pick = allowed.indexOf(name) >= 0 ? name : (localStorage.getItem("valvet-set-tab") || "look");
         const use = allowed.indexOf(pick) >= 0 ? pick : "look";
-        localStorage.setItem("velvet-set-tab", use);
+        localStorage.setItem("valvet-set-tab", use);
         document.querySelectorAll("#set-switch button").forEach((btn) => btn.classList.toggle("on", btn.dataset.set === use));
         document.querySelectorAll("#pane-settings .set-card").forEach((card) => { card.hidden = (card.dataset.set || "look") !== use; });
       }
@@ -388,22 +385,22 @@
           applySetTab(btn.dataset.set);
         });
       }
-      applySetTab(localStorage.getItem("velvet-set-tab") || "look");
+      applySetTab(localStorage.getItem("valvet-set-tab") || "look");
       const frame = document.getElementById("app-frame");
       if (frame) {
         const frameMin = document.getElementById("frame-min");
         const frameMax = document.getElementById("frame-max");
         const frameClose = document.getElementById("frame-close");
-        if (frameMin && window.velvetWin) frameMin.onclick = () => velvetWin("min");
-        if (frameMax && window.velvetWin) frameMax.onclick = () => velvetWin("max");
-        if (frameClose && window.velvetWin) frameClose.onclick = () => velvetWin("close");
+        if (frameMin && window.valvetWin) frameMin.onclick = () => valvetWin("min");
+        if (frameMax && window.valvetWin) frameMax.onclick = () => valvetWin("max");
+        if (frameClose && window.valvetWin) frameClose.onclick = () => valvetWin("close");
         frame.addEventListener("pointerdown", (event) => {
           if (event.button !== 0 || event.target.closest("button")) return;
-          if (window.velvetDrag) velvetDrag();
+          if (window.valvetDrag) valvetDrag();
         });
         frame.addEventListener("dblclick", (event) => {
-          if (event.target.closest("button") || !window.velvetWin) return;
-          velvetWin("max");
+          if (event.target.closest("button") || !window.valvetWin) return;
+          valvetWin("max");
         });
       }
       function paintHidePages() {
@@ -421,7 +418,7 @@
           box.onchange = () => {
             const next = hiddenTabs().filter((id) => id !== name);
             if (!box.checked) next.push(name);
-            localStorage.setItem("velvet-hidden-tabs", JSON.stringify(next));
+            localStorage.setItem("valvet-hidden-tabs", JSON.stringify(next));
             if (tabHidden(tab)) setTab("live");
             else setTab(tab);
           };
@@ -447,36 +444,11 @@
       };
       const AGENT_LIGHT = { Jett: "#9ad7ff", Phoenix: "#ff6a2a", Sage: "#3dce9a", Reyna: "#c94bff", Raze: "#ffb020", Omen: "#7a5cff", Killjoy: "#ffd23a", Cypher: "#d7c4a1", Sova: "#4aa3ff", Breach: "#ff7a3c", Brimstone: "#ff5a3c", Viper: "#3dce6a", Skye: "#7dffb2", Yoru: "#6a7cff", Astra: "#c9a6ff", "KAY/O": "#d7dde8", Chamber: "#e6c27a", Neon: "#3dfff2", Fade: "#c98bff", Harbor: "#3db7ff", Gekko: "#b6ff4a", Deadlock: "#e7e2dc", Iso: "#9aa4ff", Clove: "#e7a0ff", Vyse: "#c6ff4a", Tejo: "#ff5a3c", Waylay: "#8af0ff" };
       function queryMatches(text, rows) {
-        const q = String(text || "").trim().toLowerCase();
-        if (!q) return rows || [];
-        const on = q.match(/\bon\s+([a-z0-9' ]+?)(?=\s+after|\s+as|$)/);
-        const asAgent = q.match(/\bas\s+([a-z0-9/'' ]+)$/);
-        const after = q.match(/after round\s+(\d+)/);
-        const map = on ? on[1].trim() : "";
-        const agent = asAgent ? asAgent[1].trim() : "";
-        const roundN = after ? Number(after[1]) : 0;
-        const wantDeaths = /\bdeaths?\b/.test(q);
-        const wantKills = /\bkills?\b/.test(q);
-        const wantWins = /\bwins?\b/.test(q);
+        const words = String(text || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+        if (!words.length) return rows || [];
         return (rows || []).filter((match) => {
-          if (map && !String(match.map || "").toLowerCase().includes(map)) return false;
-          const you = (match.players || []).find((player) => player.you);
-          if (agent && !(you && String(you.agent || "").toLowerCase().includes(agent))) return false;
-          const won = resultOf(match);
-          if (wantWins && won !== true) return false;
-          let rest = q;
-          if (on) rest = rest.replace(on[0], " ");
-          if (asAgent) rest = rest.replace(asAgent[0], " ");
-          if (after) rest = rest.replace(after[0], " ");
-          rest = rest.replace(/\b(deaths?|kills?|wins?)\b/g, " ").replace(/\s+/g, " ").trim();
-          if (rest) {
-            const blob = [(match.map || ""), (match.mode || "")].concat((match.players || []).map((player) => (player.name || "") + " " + (player.tag || "") + " " + (player.agent || ""))).join(" ").toLowerCase();
-            if (!blob.includes(rest)) return false;
-          }
-          if (wantDeaths && roundN && !(match.deaths || []).some((spot) => (spot.round || 0) > roundN) && !(match.rounds || []).some((round) => round.n > roundN && !round.you)) return false;
-          if (wantKills && roundN && !(match.edges || []).some((edge) => edge.round > roundN) && !(match.kills || []).some((spot) => (spot.round || 0) > roundN)) return false;
-          if ((wantDeaths || wantKills) && !roundN && wantDeaths && !(match.deaths || []).length && !(match.rounds || []).some((round) => !round.you)) return false;
-          return true;
+          const blob = [(match.map || ""), (match.mode || ""), (match.side || "")].concat((match.players || []).map((player) => (player.name || "") + " " + (player.tag || "") + " " + (player.agent || ""))).join(" ").toLowerCase();
+          return words.every((word) => blob.includes(word));
         });
       }
       async function saveHeatPicture(map, spots, tone, name) {
@@ -505,30 +477,30 @@
       }
       function lightEvent(name) {
         const defaults = { kill: "#28dc78", death: "#dc2846", clutch: "#ffc440", queue: "#ff5fa2" };
-        const raw = String(localStorage.getItem("velvet-light-" + name) || defaults[name] || "#ff5fa2").trim();
+        const raw = String(localStorage.getItem("valvet-light-" + name) || defaults[name] || "#ff5fa2").trim();
         const hex = raw.replace("#", "");
         if (!/^[0-9a-fA-F]{6}$/.test(hex)) return;
         lightRoom(parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16));
       }
       function lightRoom(r, g, b) {
-        const kind = localStorage.getItem("velvet-lights") || "off";
+        const kind = localStorage.getItem("valvet-lights") || "off";
         if (!kind || kind === "off") return;
-        fetch("/api/lights", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, open: localStorage.getItem("velvet-openrgb") || "127.0.0.1", wled: localStorage.getItem("velvet-wled") || "", r, g, b }) }).catch(() => {});
+        fetch("/api/lights", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, open: localStorage.getItem("valvet-openrgb") || "127.0.0.1", wled: localStorage.getItem("valvet-wled") || "", r, g, b }) }).catch(() => {});
       }
       function notePop(data) {
-        const start = Number(localStorage.getItem("velvet-queue-start") || 0);
+        const start = Number(localStorage.getItem("valvet-queue-start") || 0);
         const wait = start ? Math.max(0, Date.now() - start) : 0;
         const you = ((data && data.players) || []).find((player) => player.you) || ((data && data.party) || []).find((player) => player.you);
-        const rows = readJSON("velvet-pops") || [];
+        const rows = readJSON("valvet-pops") || [];
         rows.push({ t: Date.now(), hour: new Date().getHours(), wait, rank: (you && you.rank) || "" });
-        writeJSON("velvet-pops", rows.slice(-180));
-        localStorage.removeItem("velvet-queue-start");
+        writeJSON("valvet-pops", rows.slice(-180));
+        localStorage.removeItem("valvet-queue-start");
         paintQueueClock();
       }
       function paintQueueClock() {
         const node = document.getElementById("queue-clock");
         if (!node) return;
-        const rows = readJSON("velvet-pops") || [];
+        const rows = readJSON("valvet-pops") || [];
         if (!rows.length) { node.textContent = "Queue pops will land here after a few games."; return; }
         const byHour = {};
         for (const row of rows) {
@@ -564,10 +536,10 @@
       let lastMoteKey = "";
       function stageLive(data) {
         const phase = (data && data.phase) || "";
-        if (phase === "In queue" && !localStorage.getItem("velvet-queue-start")) localStorage.setItem("velvet-queue-start", String(Date.now()));
-        if (phase !== "In queue") localStorage.removeItem("velvet-queue-start");
+        if (phase === "In queue" && !localStorage.getItem("valvet-queue-start")) localStorage.setItem("valvet-queue-start", String(Date.now()));
+        if (phase !== "In queue") localStorage.removeItem("valvet-queue-start");
         const you = ((data && data.players) || []).find((player) => player.you);
-        const saved = readJSON("velvet-colours") || {};
+        const saved = readJSON("valvet-colours") || {};
         document.documentElement.style.setProperty("--accent", saved.accent || "#ff5fa2");
         const ranked = /comp/i.test((data.queue || "") + " " + (data.mode || ""));
         const moteKey = ranked && you ? (you.rank || "") + ":" + (you.rr || "") : "";
@@ -1125,6 +1097,14 @@
             };
             paintDot(killer, edge.killer, true);
             paintDot(victim, edge.victim, false);
+            if (victim && at === visible.length - 1) {
+              const pulse = (now / 700) % 1;
+              ctx.beginPath();
+              ctx.arc(px(victim), py(victim), 16 + pulse * 22, 0, Math.PI * 2);
+              ctx.strokeStyle = "rgba(255,247,250," + ((1 - pulse) * 0.85).toFixed(3) + ")";
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            }
           });
           requestAnimationFrame(draw);
         };
@@ -1150,27 +1130,17 @@
       };
       const LIGHT_POWER = { faint: 0.035, soft: 0.07, bright: 0.13 };
       function lightState() {
-        const color = LIGHTS[localStorage.getItem("velvet-light") || "off"];
+        const color = LIGHTS[localStorage.getItem("valvet-light") || "off"];
         if (!color) return null;
-        return { color, strength: LIGHT_POWER[localStorage.getItem("velvet-light-power") || "soft"] || LIGHT_POWER.soft };
+        return { color, strength: LIGHT_POWER[localStorage.getItem("valvet-light-power") || "soft"] || LIGHT_POWER.soft };
       }
       function startEngine() {
         const canvas = document.getElementById("engine");
-        const on = !!lightState();
-        document.body.classList.toggle("engine-off", !on);
-        if (!canvas) return;
-        canvas.style.display = on ? "block" : "none";
-        if (!on || canvas.dataset.live === "1") return;
-        canvas.dataset.live = "1";
-        const mouse = { x: 0.5, y: 0.5 };
-        addEventListener("pointermove", (event) => { mouse.x = event.clientX / innerWidth; mouse.y = event.clientY / innerHeight; });
-        const boot = async () => {
-          if (navigator.gpu) {
-            try { if (await bootWebGPU(canvas, mouse)) return; } catch {}
-          }
-          bootWebGL(canvas, mouse);
-        };
-        boot();
+        if (canvas) {
+          canvas.style.display = "none";
+          canvas.dataset.live = "";
+        }
+        document.body.classList.add("engine-off");
       }
       async function bootWebGPU(canvas, mouse) {
         const adapter = await navigator.gpu.requestAdapter();
@@ -1273,7 +1243,7 @@
       if (queryBox) queryBox.oninput = () => { recentKey = ""; drawRecent(history); };
       const rangeBtn = document.getElementById("xh-range");
       function sensScale() {
-        const saved = readJSON("velvet-cache-game");
+        const saved = readJSON("valvet-cache-game");
         const row = ((saved && saved.rows) || []).find((item) => item && item.label === "Sensitivity");
         const sens = Number(String((row && row.value) || "").replace(",", "."));
         if (!Number.isFinite(sens) || sens <= 0) return 1;
@@ -1293,44 +1263,44 @@
         rangeBtn.onpointerup = stopRange;
         rangeBtn.onpointercancel = stopRange;
       }
-      if (!readJSON("velvet-cache-game")) fetch("/api/game", { cache: "no-store" }).then((res) => res.json()).then((data) => { if (data && (data.rows || []).length) { writeJSON("velvet-cache-game", data); stampCache("velvet-cache-game"); } }).catch(() => {});
+      if (!readJSON("valvet-cache-game")) fetch("/api/game", { cache: "no-store" }).then((res) => res.json()).then((data) => { if (data && (data.rows || []).length) { writeJSON("valvet-cache-game", data); stampCache("valvet-cache-game"); } }).catch(() => {});
       const lightPick = document.getElementById("set-light");
       const lightPower = document.getElementById("set-light-power");
       if (lightPick) {
-        const saved = localStorage.getItem("velvet-light") || "off";
+        const saved = localStorage.getItem("valvet-light") || "off";
         lightPick.value = [...lightPick.options].some((opt) => opt.value === saved) ? saved : "off";
-        lightPick.onchange = () => { localStorage.setItem("velvet-light", lightPick.value); startEngine(); };
+        lightPick.onchange = () => { localStorage.setItem("valvet-light", lightPick.value); startEngine(); };
       }
       if (lightPower) {
-        const saved = localStorage.getItem("velvet-light-power") || "soft";
+        const saved = localStorage.getItem("valvet-light-power") || "soft";
         lightPower.value = [...lightPower.options].some((opt) => opt.value === saved) ? saved : "soft";
-        lightPower.onchange = () => { localStorage.setItem("velvet-light-power", lightPower.value); startEngine(); };
+        lightPower.onchange = () => { localStorage.setItem("valvet-light-power", lightPower.value); startEngine(); };
       }
       const lights = document.getElementById("set-lights");
       const openHost = document.getElementById("set-openrgb");
       const wledHost = document.getElementById("set-wled");
       if (lights) {
-        lights.value = localStorage.getItem("velvet-lights") || "off";
-        lights.onchange = () => localStorage.setItem("velvet-lights", lights.value);
+        lights.value = localStorage.getItem("valvet-lights") || "off";
+        lights.onchange = () => localStorage.setItem("valvet-lights", lights.value);
       }
-      if (openHost) { openHost.value = localStorage.getItem("velvet-openrgb") || ""; openHost.onchange = () => localStorage.setItem("velvet-openrgb", openHost.value.trim()); }
-      if (wledHost) { wledHost.value = localStorage.getItem("velvet-wled") || ""; wledHost.onchange = () => localStorage.setItem("velvet-wled", wledHost.value.trim()); }
+      if (openHost) { openHost.value = localStorage.getItem("valvet-openrgb") || ""; openHost.onchange = () => localStorage.setItem("valvet-openrgb", openHost.value.trim()); }
+      if (wledHost) { wledHost.value = localStorage.getItem("valvet-wled") || ""; wledHost.onchange = () => localStorage.setItem("valvet-wled", wledHost.value.trim()); }
       for (const [id, name, fallback] of [["light-kill", "kill", "#28dc78"], ["light-death", "death", "#dc2846"], ["light-clutch", "clutch", "#ffc440"], ["light-queue", "queue", "#ff5fa2"]]) {
         const input = document.getElementById(id);
         if (!input) continue;
-        const saved = localStorage.getItem("velvet-light-" + name) || fallback;
+        const saved = localStorage.getItem("valvet-light-" + name) || fallback;
         input.value = /^#[0-9a-fA-F]{6}$/.test(saved) ? saved : fallback;
-        input.oninput = () => localStorage.setItem("velvet-light-" + name, input.value);
+        input.oninput = () => localStorage.setItem("valvet-light-" + name, input.value);
       }
       const lightTest = document.getElementById("set-light-test");
       if (lightTest) lightTest.onclick = () => lightRoom(255, 95, 162);
       const broadcast = document.getElementById("set-broadcast");
-      if (broadcast) broadcast.onclick = () => window.open("/broadcast", "velvet-broadcast", "width=1100,height=260");
+      if (broadcast) broadcast.onclick = () => window.open("/broadcast", "valvet-broadcast", "width=1100,height=260");
       startEngine();
       paintQueueClock();
       const thanks = document.getElementById("thanks");
       const notesCard = document.getElementById("whats-new");
-      if (!localStorage.getItem("velvet-tour")) {
+      if (!localStorage.getItem("valvet-tour")) {
         if (thanks) thanks.hidden = true;
         if (notesCard) notesCard.hidden = true;
         openTour();
