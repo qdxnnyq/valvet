@@ -1,7 +1,7 @@
 {
-  "version": 209,
-  "label": "1.9.19",
-  "name": "1.9.19",
-  "notes": "A live game leaves the waiting screen and shows the lobby.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v209/Valvet.exe"
+  "version": 210,
+  "label": "1.9.20",
+  "name": "1.9.20",
+  "notes": "The live board is the 1.8.23 one again.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v210/Valvet.exe"
 }

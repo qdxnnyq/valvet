@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.20
+
+The live board is the 1.8.23 one again.
+
 ## 1.9.19
 
 A live game leaves the waiting screen and shows the lobby.

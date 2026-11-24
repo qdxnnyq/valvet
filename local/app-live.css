@@ -166,15 +166,15 @@
       #pane-live.match #status h1 { font-size: 40px; color: var(--accent); }
       #pane-live.match .score .line b { font-size: 64px; color: var(--accent); }
       #pane-live.match .score .line .dash { font-size: 36px; }
-      #pane-live.match #board { flex: 1 1 auto; height: auto; min-height: 320px; overflow: auto; display: block; width: 100%; }
-      #pane-live.match #board .grid { display: grid; width: 100%; min-height: 280px; height: auto; margin: 0; gap: 10px; align-items: start; align-content: start; background: transparent; border: 0; box-shadow: none; padding: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      #pane-live.match #board { flex: 1 1 0; height: 0; min-height: 0; overflow: auto; display: flex; width: 100%; }
+      #pane-live.match #board .grid { flex: 1; align-self: stretch; width: 100%; min-height: 0; height: auto; margin: 0; gap: 10px; align-items: start; align-content: center; background: transparent; border: 0; box-shadow: none; padding: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
       #pane-live.match .team { height: auto; min-height: 0; overflow: visible; display: flex; flex-direction: column; transform: none; background: #120910; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); backdrop-filter: none; padding: 10px 12px 6px; }
       #pane-live.match .team.ally { box-shadow: inset 4px 0 0 var(--you); }
       #pane-live.match .team.enemy { box-shadow: inset 4px 0 0 var(--enemy); }
       #pane-live.match .team h2, #pane-live.match .team-name { flex: none; margin: 0; font-size: 22px; letter-spacing: -0.04em; text-transform: none; color: var(--ink); font-weight: 740; }
       #pane-live.match .team.ally h2, #pane-live.match .team.ally .team-name { color: var(--you); }
       #pane-live.match .team.enemy h2, #pane-live.match .team.enemy .team-name { color: var(--enemy); }
-      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 12px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) 128px; align-items: center; gap: 10px; }
+      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 10px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) 78px 128px; align-items: center; gap: 10px; }
       #pane-live.match .agent { width: 56px; height: 56px; border-radius: 14px; object-fit: contain; object-position: center; background: #1a1016; padding: 2px; box-sizing: border-box; }
       #pane-live.match .squad { margin: 0; font-size: 11px; padding: 3px 8px; }
       #pane-live.match .who { display: block; max-width: 100%; font-size: 14px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }

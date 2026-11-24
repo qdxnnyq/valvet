@@ -98,49 +98,28 @@
           avgBox.append(el("span", null, "Average"));
           avgBox.append(el("b", null, avg || "—"));
           head.append(left, avgBox);
-          if (!yours && list.some((player) => player.agent && player.agent !== "Picking")) {
-            const copy = el("button", "tiny", "Copy agents");
-            copy.type = "button";
-            copy.onclick = (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              const line = list.map((player) => player.agent && player.agent !== "Picking" ? player.agent : "").filter(Boolean).join(", ");
-              const done = () => { copy.textContent = "Copied"; setTimeout(() => { copy.textContent = "Copy agents"; }, 900); };
-              if (line && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(line).then(done).catch(done);
-              else done();
-            };
-            head.append(copy);
-          }
           card.append(head);
           const host = shape === "ffa" ? el("div", "ffa-grid") : card;
           if (shape === "ffa") card.append(host);
           const colors = partyColors(players);
-          list.forEach((player, at) => {
+          for (const player of list) {
             const tone = colors[player.party] || "";
             const row = el("div", "row" + (playerTracked(player) ? " tracked" : "") + (tone ? " p" + tone : ""));
-            row.style.setProperty("--i", String(at));
             const img = face(player);
-            img.className = "agent" + (player.locked ? " just-locked" : "");
+            img.className = "agent";
             const id = el("div", "live-id");
             const top = el("div", "live-sub");
             top.append(nameButton(player));
-            if (!player.you) {
-              const times = playedCount(player.puuid);
-              if (times) top.append(el("span", "played-mark", "Played " + times));
-            }
             id.append(top);
             const agent = player.agent && player.agent !== "Picking" ? player.agent : "";
-            if (agent) {
-              const line = el("div", "live-agent");
-              line.append(document.createTextNode(agent));
-              if (player.locked) line.append(el("i", "lock-flag", "Lock"));
-              id.append(line);
-            } else if (player.locked) id.append(el("div", "live-agent", "Locked"));
+            if (agent) id.append(el("div", "live-agent", agent));
+            const partyCell = el("div", "live-party");
+            if (tone) partyCell.append(el("span", "squad s" + tone, "Party " + tone));
             const side = el("div", "live-side");
             side.append(liveRank(player));
-            row.append(img, id, side);
+            row.append(img, id, partyCell, side);
             host.append(row);
-          });
+          }
           grid.append(card);
         });
         const chance = expectedWin(players);

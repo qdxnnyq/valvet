@@ -173,16 +173,6 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		friends = append([]friend(nil), c.lobbyFriends...)
 	}
 	c.mu.Unlock()
-	early, earlyKind := c.quickMatch(port, auth, sess.puuid)
-	if early != nil {
-		useLobby = true
-		if len(party) == 0 {
-			c.mu.Lock()
-			party = append([]friend(nil), c.lobbyParty...)
-			friends = append([]friend(nil), c.lobbyFriends...)
-			c.mu.Unlock()
-		}
-	}
 	if !useLobby {
 		party, friends = c.lobby(ctx, port, auth, sess)
 		c.mu.Lock()
@@ -213,7 +203,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			Store:   shop{Offers: []storeItem{}, Night: []storeItem{}, Bundles: bundles, Kingdom: []storeItem{}},
 		}
 	}
-	if early == nil && (entErr != nil || sess.puuid == "" || sess.access == "" || sess.entitlement == "") {
+	if entErr != nil || sess.puuid == "" || sess.access == "" || sess.entitlement == "" {
 		return clientOnly()
 	}
 	c.mu.Lock()
@@ -226,14 +216,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	c.mu.Unlock()
 	hot := prevPhase == "In game" || prevPhase == "Loading lobby" || prevPhase == "Agent select" || prevPhase == "In queue"
 	region, shard := "", ""
-	if early != nil && prevRegion != "" && prevShard != "" {
-		region, shard = prevRegion, prevShard
-		if prevVer != "" {
-			sess.version = prevVer
-		} else {
-			sess.version = c.version
-		}
-	} else if (hot || time.Since(logAt) < 3*time.Minute) && prevRegion != "" && prevShard != "" {
+	if (hot || time.Since(logAt) < 3*time.Minute) && prevRegion != "" && prevShard != "" {
 		region, shard = prevRegion, prevShard
 		if prevVer != "" {
 			sess.version = prevVer
@@ -260,19 +243,19 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		c.logAt = time.Now()
 		c.mu.Unlock()
 	}
-	if (region == "" || shard == "") && early == nil {
+	if region == "" || shard == "" {
 		return clientOnly()
 	}
 	sess.region, sess.shard = region, shard
 	c.mu.Lock()
 	c.session = sess
 	c.mu.Unlock()
-	if !hot && early == nil {
+	if !hot {
 		c.ensureAgents(ctx)
 		c.ensureRanks(ctx)
 	}
 	store := shop{Offers: []storeItem{}, Night: []storeItem{}, Bundles: []bundleView{}, Kingdom: []storeItem{}}
-	if hot || liveOnly || skipStore || early != nil {
+	if hot || liveOnly || skipStore {
 		c.mu.Lock()
 		store = c.shop
 		c.mu.Unlock()
@@ -281,58 +264,31 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	}
 
 	priv := c.selfPresence(ctx, port, auth, sess.puuid)
-	loop := strings.ToUpper(strings.TrimSpace(str(presencePick(priv, "sessionLoopState", "SessionLoopState", "session_loop_state", "partyOwnerSessionLoopState", "PartyOwnerSessionLoopState"))))
-	queue := str(presencePick(priv, "queueId", "queueID", "QueueID", "partyOwnerQueueId", "PartyOwnerQueueId"))
-	mapPath := str(presencePick(priv, "matchMap", "MatchMap"))
+	loop := strings.ToUpper(str(pick(priv, "sessionLoopState", "SessionLoopState")))
+	queue := str(pick(priv, "queueId", "queueID", "QueueID"))
+	mapPath := str(pick(priv, "matchMap", "MatchMap"))
 	if mapPath == "" {
-		mapPath = str(presencePick(priv, "partyOwnerMatchMap", "PartyOwnerMatchMap"))
+		mapPath = str(pick(priv, "partyOwnerMatchMap", "PartyOwnerMatchMap"))
 	}
 	ally, enemy := liveScores(priv)
-	ourColor := str(presencePick(priv, "partyOwnerMatchCurrentTeam", "PartyOwnerMatchCurrentTeam"))
+	ourColor := str(pick(priv, "partyOwnerMatchCurrentTeam", "PartyOwnerMatchCurrentTeam"))
 
 	var match map[string]any
 	phase := "In menu"
-	if early != nil {
-		match = early
-		if earlyKind == "core-game" {
-			phase = "In game"
-		} else {
-			phase = "Agent select"
-		}
-	} else {
-		if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
+	switch loop {
+	case "PREGAME":
+		phase = "Agent select"
+		match = c.matchDoc(ctx, port, auth, sess, "pregame")
+	case "INGAME":
+		phase = "In game"
+		match = c.matchDoc(ctx, port, auth, sess, "core-game")
+	default:
+		if m := c.matchDoc(ctx, port, auth, sess, "pregame"); m != nil {
 			phase = "Agent select"
 			match = m
-		} else if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
+		} else if m := c.matchDoc(ctx, port, auth, sess, "core-game"); m != nil {
 			phase = "In game"
 			match = m
-		}
-	}
-	if match == nil && (loop == "PREGAME" || loop == "INGAME") && sess.region != "" && sess.shard != "" {
-		kind := "pregame"
-		if loop == "INGAME" {
-			kind = "core-game"
-		}
-		if m := c.glzMatch(ctx, sess, kind); m != nil {
-			match = m
-			if loop == "PREGAME" {
-				phase = "Agent select"
-			} else {
-				phase = "In game"
-			}
-		}
-	}
-	if match == nil {
-		state, _, _, _, _, _, _, _, _, _, _ := activity(priv, "", "valorant")
-		switch state {
-		case "In queue":
-			phase = "In queue"
-		case "In lobby":
-			phase = "In lobby"
-		case "Agent select":
-			phase = "Agent select"
-		case "In game":
-			phase = "In game"
 		}
 	}
 	if match != nil {
@@ -348,6 +304,19 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			} else if strings.Contains(state, "provision") || strings.Contains(state, "finished") {
 				phase = "Loading lobby"
 			}
+		}
+	}
+	if match == nil {
+		state, _, _, _, _, _, _, _, _, _, _ := activity(priv, "", "valorant")
+		switch state {
+		case "In queue":
+			phase = "In queue"
+		case "In lobby":
+			phase = "In lobby"
+		case "Agent select":
+			phase = "Agent select"
+		case "In game":
+			phase = "In game"
 		}
 	}
 	players := []player{}
