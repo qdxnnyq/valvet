@@ -6,8 +6,16 @@
       #pane-settings .set-hero h1 { margin: 0; font-size: 42px; }
       #pane-settings .set-hero .sub { margin: 6px 0 0; max-width: 420px; }
       .set-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-      .set-card.sound-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
-      .set-card.sound-grid > .eyebrow, .set-card.sound-grid > h2 { grid-column: 1 / -1; }
+      .set-card.sound-grid { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; align-items: start; }
+      .set-card.sound-grid > .eyebrow, .set-card.sound-grid > h2, .set-card.sound-grid > .sub { grid-column: 1 / -1; }
+      .set-card.sound-grid .set-row { display: grid; grid-template-columns: minmax(0, 1fr) 188px; align-items: center; gap: 12px; }
+      .set-card.sound-grid .set-row > span { min-width: 0; }
+      .set-card.sound-grid .set-row select,
+      .set-card.sound-grid .set-row input[type="range"],
+      .set-card.sound-grid .file-field,
+      .set-card.sound-grid .time-field { width: 188px; min-width: 188px; max-width: 188px; justify-self: end; }
+      .set-card.sound-grid .set-row input[type="checkbox"] { justify-self: end; }
+      .set-card.sound-grid .file-field b { flex: 1; min-width: 52px; }
       .set-row.drop { outline: 1px dashed var(--accent); border-radius: 12px; }
       .compare-board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 14px; }
       .compare-col { min-width: 0; border: 1px solid var(--line); border-radius: 16px; background: #140c11; padding: 12px; }

@@ -328,7 +328,8 @@
         if (form) recent.append(form);
         showing.forEach((match, index) => {
           const won = resultOf(match);
-          const card = el("article", "game" + (won == null ? "" : won ? " win" : " loss"));
+          const shape = histShape(match);
+          const card = el("article", "game shape-" + shape + (won == null ? "" : won ? " win" : " loss"));
           card.style.animationDelay = Math.min(index, 10) * 36 + "ms";
           const button = el("button", "match");
           button.type = "button";
@@ -349,7 +350,7 @@
           const result = el("div", "result");
           result.append(el("div", "wl" + (won == null ? "" : won ? " w" : " l"), won == null ? "—" : won ? "Win" : "Loss"));
           if (won === true || won === false) result.append(catFace(won === true));
-          button.append(result, grow, tally(match.score1, match.score2, match.team1, match.team2, yours));
+          button.append(result, grow, shape === "ffa" ? ffaTally(match) : tally(match.score1, match.score2, match.team1, match.team2, yours));
           const sides = el("div", "sides");
           const colors = partyColors(match.players);
           for (const [team, list] of groups(match.players)) {
@@ -359,30 +360,116 @@
             if (block) sides.append(block);
           }
           const box = el("div");
-          if (openMatches.has(match.id)) {
-            const scrub = roundScrub(match);
-            if (scrub) box.append(scrub);
-            box.append(statTable(match.players));
-          }
+          const fillOpen = () => {
+            box.replaceChildren();
+            if (!openMatches.has(match.id)) return;
+            if (shape === "sides") {
+              const scrub = roundScrub(match);
+              if (scrub) box.append(scrub);
+            }
+            box.append(statTable(match.players, shape));
+          };
+          if (openMatches.has(match.id)) fillOpen();
           button.onclick = (event) => {
             event.preventDefault();
             if (openMatches.has(match.id)) openMatches.delete(match.id);
             else openMatches.add(match.id);
-            box.replaceChildren();
-            if (openMatches.has(match.id)) {
-              const scrub = roundScrub(match);
-              if (scrub) box.append(scrub);
-              box.append(statTable(match.players));
-            }
+            fillOpen();
           };
-          const strip = roundStrip(match.rounds, match);
+          const strip = shape === "sides" ? roundStrip(match.rounds, match) : null;
           card.append(button);
           if (strip) card.append(strip);
-          card.append(sides, box);
+          if (shape === "ffa") card.append(ffaStrip(match));
+          else if (shape === "duo" || shape === "pairs") card.append(pairRow(match, shape));
+          else card.append(sides);
+          card.append(box);
           wireHover(card);
           recent.append(card);
         });
         if (pane) pane.scrollTop = scroll;
+      }
+      function histShape(match) {
+        const text = String((match && match.mode) || "").toLowerCase();
+        const players = (match && match.players) || [];
+        if (text === "deathmatch") return "ffa";
+        if (text === "gauntlet" || /glitched/.test(text)) return "pairs";
+        if (text === "skirmish" || /2\s*v\s*2/.test(text)) return "duo";
+        const grouped = groups(players);
+        if (grouped.length === 2 && players.length > 0 && players.length <= 4 && grouped.every((pair) => pair[1].length <= 2)) return "duo";
+        return "sides";
+      }
+      function killCount(player) {
+        const n = Number(player && player.kills);
+        return Number.isFinite(n) ? n : 0;
+      }
+      function ffaTally(match) {
+        const players = (match && match.players) || [];
+        const you = players.find((player) => player.you) || null;
+        const ranked = [...players].sort((a, b) => killCount(b) - killCount(a));
+        const winner = ranked[0] || null;
+        const mine = you ? killCount(you) : 0;
+        const top = winner ? killCount(winner) : 0;
+        const wrap = el("div", "line ffa-score");
+        wrap.append(el("b", mine >= top && you ? "hi" : "", String(mine)));
+        wrap.append(el("span", "lbl", "You"));
+        wrap.append(el("span", "dash", "–"));
+        wrap.append(el("b", top > mine ? "hi" : "", String(top)));
+        wrap.append(el("span", "lbl", you && winner && whoKey(you) === whoKey(winner) ? "Won" : "Winner"));
+        return wrap;
+      }
+      function ffaStrip(match) {
+        const players = [...((match && match.players) || [])].sort((a, b) => killCount(b) - killCount(a));
+        const you = players.find((player) => player.you);
+        const picked = [];
+        const seen = new Set();
+        for (const player of [you, ...players.slice(0, 3)]) {
+          if (!player) continue;
+          const key = whoKey(player);
+          if (seen.has(key)) continue;
+          seen.add(key);
+          picked.push(player);
+        }
+        const strip = el("div", "ffa-strip");
+        for (const player of picked) {
+          const chip = el("button", "ffa-chip" + (player.you ? " me" : "") + (players[0] && whoKey(player) === whoKey(players[0]) ? " top" : ""));
+          chip.type = "button";
+          chip.append(el("b", null, String(killCount(player))));
+          chip.append(el("span", null, player.you ? "You" : String(player.name || "Player").split("#")[0].trim()));
+          chip.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
+          strip.append(chip);
+        }
+        if (players.length > picked.length) strip.append(el("span", "ffa-more", "+" + (players.length - picked.length)));
+        return strip;
+      }
+      function pairRow(match, shape) {
+        const players = (match && match.players) || [];
+        const buckets = new Map();
+        for (const player of players) {
+          const key = shape === "duo" ? (player.team || "Team") : (player.party || player.team || "solo");
+          if (!buckets.has(key)) buckets.set(key, []);
+          buckets.get(key).push(player);
+        }
+        let pairs = [...buckets.values()];
+        if (shape === "pairs" && pairs.length < 2) {
+          pairs = [];
+          for (let i = 0; i < players.length; i += 2) pairs.push(players.slice(i, i + 2));
+        }
+        const wrap = el("div", "pair-row");
+        pairs.forEach((list, index) => {
+          const mine = list.some((player) => player.you);
+          const card = el("div", "pair" + (mine ? " mine" : ""));
+          card.append(el("div", "kicker", mine ? "Your duo" : "Duo " + (index + 1)));
+          for (const player of list) {
+            const line = el("button", "pair-person" + (player.you ? " me" : ""));
+            line.type = "button";
+            line.append(el("span", null, String(player.name || "Player").split("#")[0].trim()));
+            line.append(el("b", null, killCount(player) + "/" + (Number(player.deaths) || 0)));
+            line.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
+            card.append(line);
+          }
+          wrap.append(card);
+        });
+        return wrap;
       }
       function whoKey(player) {
         const id = String((player && player.puuid) || "").toLowerCase();
@@ -407,7 +494,7 @@
         if (player && player.agent) return player.agent;
         return "Player";
       }
-      function statTable(players) {
+      function statTable(players, shape) {
         const board = el("div", "boardstat");
         const head = () => {
           const row = el("div", "boardline head");
@@ -439,12 +526,13 @@
           board.append(row);
         };
         const grouped = groups(players);
-        grouped.sort((a, b) => Number(b[1].some((player) => player.you)) - Number(a[1].some((player) => player.you)));
-        if (grouped.length < 2) {
+        if (shape === "ffa" || grouped.length < 2) {
           board.append(head());
-          for (const player of byKDA(players)) addRow(player);
+          const list = shape === "ffa" ? [...(players || [])].sort((a, b) => killCount(b) - killCount(a)) : byKDA(players);
+          for (const player of list) addRow(player);
           return board;
         }
+        grouped.sort((a, b) => Number(b[1].some((player) => player.you)) - Number(a[1].some((player) => player.you)));
         for (const [team, list] of grouped) {
           const yours = list.some((player) => player.you);
           board.append(el("div", "boardteam", (yours ? "Your team" : "Enemy") + (team ? " · " + team : "")));

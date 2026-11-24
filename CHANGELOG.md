@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.9
+
+Sound controls share one column so Choose and None line up.
+Deathmatch history shows your kills against the winner in a short card.
+2v2 and Gauntlet use a small duo layout.
+
 ## 1.9.8
 
 Last seen follows online or AFK in the Riot Client or League. Riot Mobile is ignored.

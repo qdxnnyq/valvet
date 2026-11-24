@@ -1,7 +1,7 @@
 {
-  "version": 198,
-  "label": "1.9.8",
-  "name": "1.9.8",
-  "notes": "Last seen is online or AFK in the Riot Client or League. Riot Mobile is ignored.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v198/Valvet.exe"
+  "version": 199,
+  "label": "1.9.9",
+  "name": "1.9.9",
+  "notes": "Sound rows line up. Deathmatch, 2v2, and Gauntlet have their own history cards.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v199/Valvet.exe"
 }
