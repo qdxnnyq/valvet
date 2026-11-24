@@ -754,26 +754,6 @@
           cell.append(strong, name);
           host.append(cell);
         }
-        const actions = document.querySelector("#post .post-actions");
-        if (!actions) return;
-        let mute = document.getElementById("post-mute");
-        const decided = (history || []).filter((match) => match && (match.won === true || match.won === false));
-        const tilted = decided.length >= 2 && decided[0].won === false && decided[1].won === false;
-        if (!tilted || sessionStorage.getItem("valvet-mute-results") === "1") {
-          if (mute) mute.remove();
-          return;
-        }
-        if (mute) return;
-        mute = document.createElement("button");
-        mute.id = "post-mute";
-        mute.type = "button";
-        mute.className = "tiny";
-        mute.textContent = "Mute win and loss for this session";
-        mute.onclick = () => {
-          sessionStorage.setItem("valvet-mute-results", "1");
-          mute.remove();
-        };
-        actions.append(mute);
       }
       async function fillPostRR() {
         try {

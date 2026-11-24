@@ -1,7 +1,7 @@
 {
-  "version": 211,
-  "label": "1.9.21",
-  "name": "1.9.21",
-  "notes": "Live board uses the history bubbles, with current rank, peak, and parties.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v211/Valvet.exe"
+  "version": 212,
+  "label": "1.9.22",
+  "name": "1.9.22",
+  "notes": "The after-game card is cleaned up. Mute is no longer on it.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v212/Valvet.exe"
 }

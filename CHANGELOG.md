@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.22
+
+The after-game card is cleaned up. Mute is no longer on it.
+
 ## 1.9.21
 
 Live board uses the history bubbles, with current rank, peak, and parties.
