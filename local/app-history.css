@@ -25,7 +25,22 @@
       .editor { margin-top: 16px; }
       .kicker { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; margin: 8px 0 4px; }
       .person .hrank, .stats .hrank { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 720; white-space: nowrap; }
-      .person .hrank.is-peak { box-shadow: inset 0 0 0 1px #ffb4d4; color: #ffd0e4; }
+      .person .chips, .boardline .chips { display: inline-flex; align-items: center; gap: 4px; flex: none; min-width: 0; }
+      .person .badge, .person .hrank, .person .squad,
+      .boardline .badge, .boardline .hrank, .boardline .squad { display: inline-flex; align-items: center; gap: 4px; height: 20px; margin: 0; padding: 0 7px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0,0,0,.28); color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
+      .person .badge.mvp, .boardline .badge.mvp { color: #e2b657; background: rgba(226,182,87,.14); border-color: rgba(226,182,87,.45); }
+      .person .badge.svp, .boardline .badge.svp { color: #d5deee; background: rgba(197,208,230,.12); border-color: rgba(197,208,230,.4); }
+      .person .hrank.is-peak, .boardline .hrank.is-peak { color: #ffd0e4; border-color: rgba(255,180,212,.7); background: rgba(255,95,162,.1); box-shadow: none; }
+      .person .squad.sA, .boardline .squad.sA { color: #ffb3d4; border-color: rgba(255,95,162,.55); }
+      .person .squad.sB, .boardline .squad.sB { color: #b9d6ff; border-color: rgba(126,182,255,.55); }
+      .person .squad.sC, .boardline .squad.sC { color: #f0d48a; border-color: rgba(226,182,87,.55); }
+      .person .squad.sD, .boardline .squad.sD { color: #b7ebc9; border-color: rgba(125,206,160,.55); }
+      .person .squad.sE, .boardline .squad.sE { color: #ddc6ff; border-color: rgba(195,155,255,.55); }
+      .person .squad.sF, .boardline .squad.sF { color: #ffc7aa; border-color: rgba(255,155,106,.55); }
+      .person .squad.sG, .boardline .squad.sG { color: #b8fff6; border-color: rgba(61,255,242,.45); }
+      .person .squad.sH, .boardline .squad.sH { color: #e7ff9a; border-color: rgba(214,255,74,.45); }
+      .boardline .who { display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: unset; }
+      .boardline .who .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .boardline.head span[data-tip="1"] { cursor: help; }
       .person .hrank .rankimg, .who .rankimg { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; background: transparent; }
       .person img { width: 18px; height: 18px; border-radius: 5px; object-fit: cover; }

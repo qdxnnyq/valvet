@@ -514,11 +514,8 @@
           if (player.agentIcon) agent.append(face(player));
           const who = el("button", "who");
           who.type = "button";
-          who.append(document.createTextNode(shownName(player)));
-          const badge = rankMark(player);
-          if (badge) who.append(badge);
-          if (player.mvp) who.append(el("span", "badge mvp", "MVP"));
-          else if (player.svp) who.append(el("span", "badge svp", "SVP"));
+          who.append(el("span", "nm", shownName(player)));
+          who.append(chipRow(player));
           who.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
           row.append(
             agent,

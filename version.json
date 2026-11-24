@@ -1,7 +1,7 @@
 {
-  "version": 204,
-  "label": "1.9.14",
-  "name": "1.9.14",
-  "notes": "Recent games load rank and peak. Expanded stats explain themselves on hover.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v204/Valvet.exe"
+  "version": 205,
+  "label": "1.9.15",
+  "name": "1.9.15",
+  "notes": "History shows Unranked, and the rank, peak, MVP, and party chips match.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v205/Valvet.exe"
 }

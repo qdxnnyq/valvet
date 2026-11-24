@@ -277,7 +277,11 @@
         const currentIcon = player.rankPeak ? "" : (player.rankIcon || "");
         const peakIcon = player.peakIcon || (player.rankPeak ? player.rankIcon : "");
         const same = peakName && currentName && peakName === currentName;
-        if (!currentName && !currentIcon && !peakName && !peakIcon) return null;
+        if (!currentName && !currentIcon && !peakName && !peakIcon) {
+          const box = el("span", "ranks");
+          box.append(el("span", "hrank", "Unranked"));
+          return box;
+        }
         const box = el("span", "ranks");
         const pill = (icon, text, peak) => {
           const wrap = el("span", "hrank" + (peak ? " is-peak" : ""));
@@ -292,7 +296,7 @@
           return wrap;
         };
         if (currentName || currentIcon) box.append(pill(currentIcon, currentName, false));
-        else if (!peakName) box.append(pill("", "Unranked", false));
+        else box.append(pill("", "Unranked", false));
         if (peakName && !same) {
           const node = pill(peakIcon, peakName, true);
           bindHoverTip(node, (tip) => {
@@ -302,6 +306,18 @@
           box.append(node);
         }
         return box.childNodes.length ? box : null;
+      }
+      function chipRow(player, colors) {
+        const chips = el("span", "chips");
+        if (player && player.mvp) chips.append(el("span", "badge mvp", "MVP"));
+        else if (player && player.svp) chips.append(el("span", "badge svp", "SVP"));
+        const rank = rankMark(player);
+        if (rank) chips.append(rank);
+        if (player && player.party && colors && colors[player.party]) {
+          const mark = colors[player.party];
+          chips.append(el("span", "squad s" + mark, "Party " + mark));
+        }
+        return chips;
       }
       function sideList(players, team, tone, colors, titleText, sortFn) {
         const raw = Array.isArray(team) ? [...team] : (players || []).filter((player) => player.team === team);
@@ -318,14 +334,7 @@
           button.dataset.who = whoKey(player);
           if (player.agentIcon) button.append(face(player));
           button.append(el("span", "nm", shownName(player)));
-          if (player.mvp) button.append(el("span", "badge mvp", "MVP"));
-          else if (player.svp) button.append(el("span", "badge svp", "SVP"));
-          const rank = rankMark(player);
-          if (rank) button.append(rank);
-          if (player.party && colors && colors[player.party]) {
-            const mark = colors[player.party];
-            button.append(el("span", "squad s" + mark, "Party " + mark));
-          }
+          button.append(chipRow(player, colors));
           button.append(el("b", "kda", (player.kills || "0") + "/" + (player.deaths || "0") + "/" + (player.assists || "0")));
           button.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
           block.append(button);

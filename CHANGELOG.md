@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.15
+
+History shows Unranked when a player has no rank.
+Rank, peak, MVP, and party chips share one size.
+
 ## 1.9.14
 
 Recent history games load current rank and peak.
