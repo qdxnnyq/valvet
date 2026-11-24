@@ -117,6 +117,10 @@ func (c *riotClient) matches(ctx context.Context, queue string) []recentMatch {
 	if hit, ok := c.queueHist[queue]; ok && len(hit.rows) > 0 && time.Since(hit.at) < 3*time.Minute {
 		rows := append([]recentMatch(nil), hit.rows...)
 		c.mu.Unlock()
+		for i := range rows {
+			c.decorate(rows[i].Players)
+			c.paintRanks(rows[i].Players)
+		}
 		return rows
 	}
 	want := prettyMode(queue)
@@ -132,6 +136,26 @@ func (c *riotClient) matches(ctx context.Context, queue string) []recentMatch {
 		agents[key] = info
 	}
 	c.mu.Unlock()
+	for i := range saved {
+		c.decorate(saved[i].Players)
+		c.paintRanks(saved[i].Players)
+	}
+	if sess.shard != "" && len(saved) > 0 {
+		c.mu.Lock()
+		quiet := c.rankQuiet
+		c.mu.Unlock()
+		if !quiet {
+			flat := []player{}
+			n := len(saved)
+			if n > 2 {
+				n = 2
+			}
+			for i := 0; i < n; i++ {
+				flat = append(flat, saved[i].Players...)
+			}
+			c.kickRanks(sess, flat)
+		}
+	}
 	if sess.shard == "" || len(saved) > 0 {
 		if sess.shard != "" {
 			c.kickHistory(sess)

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.14
+
+Recent history games load current rank and peak.
+Expanded match headers explain KDA, damage, shots, ADR, and ACS on hover.
+
 ## 1.9.13
 
 History rows show the current rank and the peak on the same player line.

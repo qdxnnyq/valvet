@@ -11,11 +11,12 @@ import (
 )
 
 type rankHit struct {
-	tier  int
-	rr    int
-	peak  int
-	at    time.Time
-	known bool
+	tier    int
+	rr      int
+	peak    int
+	at      time.Time
+	known   bool
+	fetched bool
 }
 
 func rankHitFresh(hit rankHit, ok bool, now time.Time) bool {
@@ -71,10 +72,10 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 				continue
 			}
 			hit, ok := c.rankCache[id]
-			if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3) {
+			if rankDone(hit, ok, now) {
 				continue
 			}
-			if p.Tier >= 3 && rankHitFresh(hit, ok, now) {
+			if ok && !hit.fetched && now.Sub(hit.at) < 2*time.Minute {
 				continue
 			}
 			seen[id] = true
@@ -126,7 +127,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 			}
 			tier, rr := tierFromMMR(body)
 			peak := peakTier(body)
-			hit := rankHit{tier: tier, rr: rr, peak: peak, at: time.Now(), known: tier >= 3 || peak >= 3}
+			hit := rankHit{tier: tier, rr: rr, peak: peak, at: time.Now(), known: tier >= 3 || peak >= 3, fetched: true}
 			store(id, hit)
 			out[i] = hit
 			if !quiet && tier < 3 {
@@ -155,6 +156,10 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 	c.saveRanks()
 }
 
+func rankDone(hit rankHit, ok bool, now time.Time) bool {
+	return ok && hit.fetched && now.Sub(hit.at) < 6*time.Hour
+}
+
 func (c *riotClient) kickRanks(sess riotSession, players []player) {
 	if sess.shard == "" || len(players) == 0 {
 		return
@@ -168,7 +173,10 @@ func (c *riotClient) kickRanks(sess riotSession, players []player) {
 			continue
 		}
 		hit, ok := c.rankCache[id]
-		if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3 || p.Tier >= 3) {
+		if rankDone(hit, ok, now) {
+			continue
+		}
+		if ok && !hit.fetched && now.Sub(hit.at) < 2*time.Minute {
 			continue
 		}
 		need = true
@@ -249,11 +257,12 @@ func (c *riotClient) tierFromUpdates(ctx context.Context, sess riotSession, id s
 }
 
 type savedRank struct {
-	ID   string `json:"id"`
-	Tier int    `json:"tier"`
-	RR   int    `json:"rr"`
-	Peak int    `json:"peak"`
-	At   int64  `json:"at"`
+	ID      string `json:"id"`
+	Tier    int    `json:"tier"`
+	RR      int    `json:"rr"`
+	Peak    int    `json:"peak"`
+	At      int64  `json:"at"`
+	Fetched bool   `json:"fetched,omitempty"`
 }
 
 func loadRankCache() map[string]rankHit {
@@ -272,7 +281,7 @@ func loadRankCache() map[string]rankHit {
 		if now.Sub(at) > 6*time.Hour {
 			continue
 		}
-		out[id] = rankHit{tier: row.Tier, rr: row.RR, peak: row.Peak, at: at, known: true}
+		out[id] = rankHit{tier: row.Tier, rr: row.RR, peak: row.Peak, at: at, known: true, fetched: row.Fetched || row.Peak >= 3}
 	}
 	return out
 }
@@ -284,7 +293,7 @@ func (c *riotClient) saveRanks() {
 		if !hit.known || (hit.tier < 3 && hit.peak < 3) {
 			continue
 		}
-		rows = append(rows, savedRank{ID: id, Tier: hit.tier, RR: hit.rr, Peak: hit.peak, At: hit.at.Unix()})
+		rows = append(rows, savedRank{ID: id, Tier: hit.tier, RR: hit.rr, Peak: hit.peak, At: hit.at.Unix(), Fetched: hit.fetched})
 	}
 	c.mu.Unlock()
 	if len(rows) == 0 {
@@ -313,7 +322,7 @@ func (c *riotClient) rememberRank(id string, tier, rr, peak int) {
 	if rr == 0 && prev.rr > 0 && prev.tier == tier {
 		rr = prev.rr
 	}
-	c.rankCache[id] = rankHit{tier: tier, rr: rr, peak: peak, at: time.Now(), known: true}
+	c.rankCache[id] = rankHit{tier: tier, rr: rr, peak: peak, at: time.Now(), known: true, fetched: prev.fetched}
 	c.mu.Unlock()
 }
 

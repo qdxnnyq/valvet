@@ -259,16 +259,40 @@
           const name = String((player && player.name) || "").trim();
           return name && name !== "Player" && name !== "Hidden";
         }).length;
+        const rankScore = (player) => (player && player.rank && player.rank !== "Unranked" ? 2 : 0) + (player && player.peak ? 2 : 0) + (player && player.rankIcon ? 1 : 0);
+        const takeRank = (dst, src) => {
+          if (!dst || !src || rankScore(src) <= rankScore(dst)) return false;
+          if (src.rank) dst.rank = src.rank;
+          if (src.rankIcon) dst.rankIcon = src.rankIcon;
+          if (src.peak) dst.peak = src.peak;
+          if (src.peakIcon) dst.peakIcon = src.peakIcon;
+          if (src.rr) dst.rr = src.rr;
+          dst.rankPeak = !!src.rankPeak;
+          dst.tier = src.tier || dst.tier;
+          return true;
+        };
+        const mergeRanks = (dst, src) => {
+          const by = new Map();
+          for (const player of (src && src.players) || []) by.set(String(player.puuid || "").toLowerCase(), player);
+          let changed = false;
+          for (const player of (dst && dst.players) || []) {
+            const next = by.get(String(player.puuid || "").toLowerCase());
+            if (takeRank(player, next)) changed = true;
+          }
+          return changed;
+        };
         for (const row of keepNames(rows)) {
           if (!row || !row.id) continue;
           if (row.map) row.map = mapName(row.map);
           const id = String(row.id).toLowerCase();
           const prev = by.get(id);
+          if (prev) mergeRanks(prev, row);
           if (prev) {
             const nextW = weight(row);
             const prevW = weight(prev);
             if (nextW < prevW || named(row) + 1 < named(prev)) continue;
             if (nextW === prevW && named(row) <= named(prev)) continue;
+            mergeRanks(row, prev);
           }
           by.set(id, row);
         }

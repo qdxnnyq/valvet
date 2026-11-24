@@ -489,7 +489,22 @@
         const board = el("div", "boardstat");
         const head = () => {
           const row = el("div", "boardline head");
-          for (const label of ["", "Player", "KDA", "Dmg", "H B L", "ADR", "ACS"]) row.append(el("span", null, label));
+          const gloss = {
+            KDA: ["KDA", "Kills, deaths, and assists in that game."],
+            Dmg: ["Damage", "Total damage dealt."],
+            "H B L": ["Shots", "Head, body, and leg hits."],
+            ADR: ["ADR", "Average damage per round."],
+            ACS: ["ACS", "Average combat score."],
+          };
+          for (const label of ["", "Player", "KDA", "Dmg", "H B L", "ADR", "ACS"]) {
+            const cell = el("span", null, label);
+            const tip = gloss[label];
+            if (tip && typeof bindHoverTip === "function") bindHoverTip(cell, (box) => {
+              box.append(el("div", "tip-kicker", tip[0]));
+              box.append(el("div", "tip-line", tip[1]));
+            });
+            row.append(cell);
+          }
           return row;
         };
         const addRow = (player) => {

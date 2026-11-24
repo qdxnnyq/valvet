@@ -26,6 +26,7 @@
       .kicker { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; margin: 8px 0 4px; }
       .person .hrank, .stats .hrank { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 720; white-space: nowrap; }
       .person .hrank.is-peak { box-shadow: inset 0 0 0 1px #ffb4d4; color: #ffd0e4; }
+      .boardline.head span[data-tip="1"] { cursor: help; }
       .person .hrank .rankimg, .who .rankimg { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; background: transparent; }
       .person img { width: 18px; height: 18px; border-radius: 5px; object-fit: cover; }
       .shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
