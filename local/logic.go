@@ -88,6 +88,7 @@ type roundBeat struct {
 	Vs     int    `json:"vs,omitempty"`
 	ScoreY int    `json:"scoreY,omitempty"`
 	ScoreN int    `json:"scoreN,omitempty"`
+	Fail   bool   `json:"fail,omitempty"`
 }
 
 type recentMatch struct {
@@ -1592,6 +1593,10 @@ func buildRecent(detail map[string]any, self string, agents map[string]agentInfo
 	if len(players) == 0 {
 		return nil
 	}
+	rawColor := map[string]string{}
+	for i := range players {
+		rawColor[strings.ToLower(players[i].PUUID)] = strings.ToLower(players[i].Team)
+	}
 	markParties(players, partyHintsFrom(players))
 	applyHistorySides(players, detail, queue)
 	var me *player
@@ -1640,7 +1645,29 @@ func buildRecent(detail map[string]any, self string, agents map[string]agentInfo
 			row.Won = won
 		}
 	}
-	row.Score1, row.Score2 = intPtr(blue), intPtr(red)
+	raw := ""
+	if me != nil {
+		raw = rawColor[strings.ToLower(me.PUUID)]
+	}
+	if row.Won == nil {
+		if won, ok := wonOf[colorOf(raw)]; ok {
+			row.Won = won
+		} else if raw == "blue" || raw == "red" {
+			mineScore := scoreOf[raw]
+			otherScore := scoreOf["blue"]
+			if raw == "blue" {
+				otherScore = scoreOf["red"]
+			}
+			if mineScore != otherScore {
+				row.Won = boolPtr(mineScore > otherScore)
+			}
+		}
+	}
+	if raw == "red" {
+		row.Score1, row.Score2 = intPtr(red), intPtr(blue)
+	} else {
+		row.Score1, row.Score2 = intPtr(blue), intPtr(red)
+	}
 	if row.Team1 == "" {
 		row.Team1, row.Team2 = "Blue", "Red"
 	}
@@ -1857,7 +1884,8 @@ func matchRounds(detail map[string]any, players []player) []roundBeat {
 		} else if winner != "" {
 			ns++
 		}
-		out = append(out, roundBeat{N: n, You: you, How: roundHow(round), Side: mine, ScoreY: ys, ScoreN: ns, Vs: roundClutch(round, me)})
+		vs := clutchCount(round, me, players)
+		out = append(out, roundBeat{N: n, You: you, How: roundHow(round), Side: mine, ScoreY: ys, ScoreN: ns, Vs: vs, Fail: vs > 0 && !you})
 	}
 	return out
 }
@@ -1881,37 +1909,66 @@ func roundHow(round map[string]any) string {
 	}
 }
 
-func roundClutch(round map[string]any, me string) int {
-	if me == "" {
+func clutchCount(round map[string]any, me string, players []player) int {
+	me = strings.ToLower(me)
+	if me == "" || len(players) == 0 {
 		return 0
 	}
+	side := map[string]string{}
+	mine := ""
+	for _, p := range players {
+		id := strings.ToLower(p.PUUID)
+		if id == "" {
+			continue
+		}
+		side[id] = p.Team
+		if id == me {
+			mine = p.Team
+		}
+	}
+	if mine == "" {
+		return 0
+	}
+	type hit struct {
+		at  int
+		vid string
+	}
 	alive := map[string]bool{}
-	team := map[string]string{}
+	kills := []hit{}
 	for _, stat := range asArr(pick(round, "playerStats", "PlayerStats")) {
 		row := asMap(stat)
 		id := strings.ToLower(str(pick(row, "subject", "Subject")))
+		if id == "" || side[id] == "" {
+			continue
+		}
 		alive[id] = true
-	}
-	kills := []struct{ kid, vid string }{}
-	for _, stat := range asArr(pick(round, "playerStats", "PlayerStats")) {
-		row := asMap(stat)
-		kid := strings.ToLower(str(pick(row, "subject", "Subject")))
 		for _, kill := range asArr(pick(row, "kills", "Kills")) {
 			k := asMap(kill)
-			kills = append(kills, struct{ kid, vid string }{kid, strings.ToLower(str(pick(k, "victim", "Victim")))})
+			kills = append(kills, hit{at: num(pick(k, "roundTime", "RoundTime", "time", "Time")), vid: strings.ToLower(str(pick(k, "victim", "Victim")))})
 		}
 	}
-	_ = team
-	mineKills := 0
+	sort.SliceStable(kills, func(i, j int) bool { return kills[i].at < kills[j].at })
+	best := 0
 	for _, k := range kills {
-		if k.kid == me {
-			mineKills++
+		if k.vid != "" {
+			delete(alive, k.vid)
+		}
+		allies, enemies, meAlive := 0, 0, false
+		for id := range alive {
+			if id == me {
+				meAlive = true
+			}
+			if side[id] == mine {
+				allies++
+			} else if side[id] != "" {
+				enemies++
+			}
+		}
+		if meAlive && allies == 1 && enemies >= 1 && enemies > best {
+			best = enemies
 		}
 	}
-	if mineKills >= 2 {
-		return mineKills
-	}
-	return 0
+	return best
 }
 
 func scoreForSide(detail map[string]any, side string) int {

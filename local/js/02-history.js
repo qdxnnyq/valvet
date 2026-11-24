@@ -216,7 +216,8 @@
         const form = formStrip(showing);
         if (form) recent.append(form);
         showing.forEach((match, index) => {
-          const card = el("article", "game" + (match.won == null ? "" : match.won ? " win" : " loss"));
+          const won = resultOf(match);
+          const card = el("article", "game" + (won == null ? "" : won ? " win" : " loss"));
           card.style.animationDelay = Math.min(index, 10) * 36 + "ms";
           const button = el("button", "match");
           button.type = "button";
@@ -235,8 +236,8 @@
           if (sub.childNodes.length) grow.append(sub);
           const yours = match.side === "Attack" ? "Attackers" : match.side === "Defense" ? "Defenders" : "";
           const result = el("div", "result");
-          result.append(el("div", "wl" + (match.won == null ? "" : match.won ? " w" : " l"), match.won == null ? "—" : match.won ? "Win" : "Loss"));
-          if (match.won === true || match.won === false) result.append(catFace(match.won === true));
+          result.append(el("div", "wl" + (won == null ? "" : won ? " w" : " l"), won == null ? "—" : won ? "Win" : "Loss"));
+          if (won === true || won === false) result.append(catFace(won === true));
           button.append(result, grow, tally(match.score1, match.score2, match.team1, match.team2, yours));
           const sides = el("div", "sides");
           const colors = partyColors(match.players);
@@ -988,21 +989,24 @@
         const mapRows = [...maps.values()].map((row) => ({ ...row, games: row.wins + row.losses })).sort((a, b) => b.games - a.games).slice(0, 6);
         return { rival, chemistry, bestKills, bestACS, guns: gunRows, maps: mapRows, games, wins, losses: games - wins, kills, deaths };
       }
-      function dailyChallenge(matches) {
-        const day = new Date().toDateString();
-        let saved = null;
-        try { saved = JSON.parse(localStorage.getItem("velvet-challenge") || "null"); } catch {}
-        if (saved && saved.day === day && saved.text) return saved;
-        const recent = (matches || []).slice(0, 8);
-        const loss = recent.find((match) => match.won === false && match.map);
-        const you = recent[0] && (recent[0].players || []).find((player) => player.you);
-        let text = "Play one game and beat your last combat score.";
-        if (loss) text = "Win a game on " + loss.map + ".";
-        else if (you && you.hs) text = "Beat " + you.hs + " headshots in your next game.";
-        else if (you && you.kills) text = "Beat " + you.kills + " kills in one game.";
-        const row = { day, text };
-        localStorage.setItem("velvet-challenge", JSON.stringify(row));
-        return row;
+      function resultOf(match) {
+        if (!match) return null;
+        if (match.won === true || match.won === false) return match.won;
+        const you = (match.players || []).find((player) => player.you);
+        const s1 = Number(match.score1);
+        const s2 = Number(match.score2);
+        if (Number.isFinite(s1) && Number.isFinite(s2) && s1 !== s2) {
+          if (you && you.team && you.team === match.team1) return s1 > s2;
+          if (you && you.team && you.team === match.team2) return s2 > s1;
+        }
+        const rounds = match.rounds || [];
+        if (rounds.length) {
+          const last = rounds[rounds.length - 1];
+          const y = Number(last.scoreY) || 0;
+          const n = Number(last.scoreN) || 0;
+          if (y + n > 0 && y !== n) return y > n;
+        }
+        return null;
       }
       let insightSig = "";
       function maybeInsights() {
@@ -1063,10 +1067,7 @@
       }
       function paintChallenge() {
         const node = document.getElementById("challenge");
-        if (!node) return;
-        if (!history.length) { node.hidden = true; return; }
-        node.hidden = false;
-        node.replaceChildren(el("b", null, "Daily"), document.createTextNode(" " + dailyChallenge(history).text));
+        if (node) node.hidden = true;
       }
       let trendMore = false;
       let clutchMore = false;

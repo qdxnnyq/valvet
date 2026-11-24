@@ -88,7 +88,8 @@
       body[data-size="large"] .shop { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
       .wish-search { width: 100%; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: #140c11; color: var(--ink); padding: 0 12px; margin: 8px 0 12px; }
       .wish-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
-      .wish-pick { content-visibility: auto; contain-intrinsic-size: auto 156px; border: 1px solid var(--line); border-radius: 16px; background: #140c11; padding: 8px; text-align: left; cursor: pointer; min-width: 0; }
+      .wish-pick { content-visibility: auto; contain-intrinsic-size: auto 188px; display: flex; flex-direction: column; align-items: stretch; border: 1px solid var(--line); border-radius: 16px; background: #140c11; padding: 8px; text-align: left; cursor: pointer; min-width: 0; }
+      .wish-pick span { display: block; }
       .wish-pick img { width: 100%; height: 86px; object-fit: contain; background: #1b1218; border-radius: 12px; display: block; }
       .wish-pick b { display: block; margin-top: 8px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .wish-pick span { color: var(--muted); font-size: 11px; }

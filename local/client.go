@@ -716,22 +716,20 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 				raw[id] = partyHint{id: strings.ToLower(hint.id), size: hint.size}
 			}
 		}
-		if !lookupsPaused() {
-			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
-			for _, kind := range []string{"pregame", "core-game"} {
-				if doc := c.glzMatch(ctx, sess, kind); doc != nil {
-					got := map[string]string{}
-					harvestParties(doc, got)
-					for id, party := range got {
-						if party != "" && raw[strings.ToLower(id)].id == "" {
-							raw[strings.ToLower(id)] = partyHint{id: strings.ToLower(party)}
-						}
+		ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+		for _, kind := range []string{"pregame", "core-game"} {
+			if doc := c.glzMatch(ctx, sess, kind); doc != nil {
+				got := map[string]string{}
+				harvestParties(doc, got)
+				for id, party := range got {
+					if party != "" && raw[strings.ToLower(id)].id == "" {
+						raw[strings.ToLower(id)] = partyHint{id: strings.ToLower(party)}
 					}
-					fillGroups(found, hintsFromIDs(got))
 				}
+				fillGroups(found, hintsFromIDs(got))
 			}
-			cancel()
 		}
+		cancel()
 		keep(partyHintsFrom(copied))
 		ids, heard := c.partyIDs(sess, copied)
 		remote := map[string]partyHint{}

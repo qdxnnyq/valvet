@@ -2766,7 +2766,7 @@
       setInterval(() => { if (tab === "store" || tab === "pass") paintNightClock(); }, 1000);
       const TOUR = [
         { tab: "live", mark: "tab-live", kicker: "Start", title: "This is Valvet", body: "Valvet follows the Riot Client already open on this PC. It never asks for your password. Leave the client open and the pages fill in." },
-        { tab: "live", mark: "challenge", kicker: "Live", title: "The match", body: "Your side is on the left and the other side is on the right. Each player shows name, agent, party, and rank. The header is the average rank of that side." },
+        { tab: "live", mark: "board", kicker: "Live", title: "The match", body: "Your side is on the left and the other side is on the right. Each player shows name, agent, party, and rank. The header is the average rank of that side." },
         { tab: "live", mark: "post", card: "sample", kicker: "After the match", title: "Result", body: "When the match ends, this card shows the result. Copy card saves a picture." },
         { tab: "friends", mark: "tab-friends", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. An empty list stays empty." },
         { tab: "history", mark: "tab-history", kicker: "History", title: "This act", body: "History keeps the games from this act. Each side is sorted by KDA. Highlight a name and the same person lights up in the stats. The next act replaces this one." },
@@ -2804,18 +2804,8 @@
         quietNav = false;
         if (step.card === "sample") showSampleCard();
         else hideSampleCard();
-        const challenge = document.getElementById("challenge");
-        if (challenge && challenge.dataset.sample === "1" && step.mark !== "challenge") {
-          challenge.dataset.sample = "";
-          paintChallenge();
-        }
         const mark = document.getElementById(step.mark);
         if (mark) {
-          if (step.mark === "challenge" && mark.hidden) {
-            mark.hidden = false;
-            mark.dataset.sample = "1";
-            mark.replaceChildren(el("b", null, "Daily"), document.createTextNode(" Win a game on Ascent."));
-          }
           mark.classList.add("tour-mark");
           requestAnimationFrame(() => mark.scrollIntoView({ block: "start", inline: "nearest" }));
         }
