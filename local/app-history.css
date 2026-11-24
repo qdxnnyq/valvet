@@ -22,8 +22,8 @@
       .person img { width: 18px; height: 18px; border-radius: 5px; object-fit: cover; }
       .shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
       .skin, .reward, .xh-card, .hero-card { animation: rise .45s ease both; }
-      #pane-store .skin { overflow: visible; background: radial-gradient(160px 90px at 50% 12%, rgba(255,255,255,.14), transparent 58%), #07040a; }
-      #pane-store .skin img { -webkit-box-reflect: below 1px linear-gradient(transparent 46%, rgba(255,255,255,.2)); }
+      #pane-store .skin, #pane-bundle .skin { overflow: visible; background: radial-gradient(160px 90px at 50% 12%, rgba(255,255,255,.14), transparent 58%), #07040a; }
+      #pane-store .skin img, #pane-bundle .skin img { -webkit-box-reflect: below 1px linear-gradient(transparent 46%, rgba(255,255,255,.2)); }
       .skin { position: relative; overflow: hidden; border-radius: 10px; transition: transform .2s ease, border-color .2s ease; background:
         linear-gradient(180deg, rgba(255,255,255,.04), transparent 28%),
         repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 7px),

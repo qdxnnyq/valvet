@@ -1488,6 +1488,16 @@
       }
       const copyCode = document.getElementById("copy-code");
       if (copyCode) copyCode.onclick = () => copyId(copyCode);
+      const showCode = document.getElementById("show-code");
+      if (showCode) showCode.onclick = () => {
+        const node = document.getElementById("my-code");
+        if (!node) return;
+        const open = node.dataset.open !== "1";
+        node.dataset.open = open ? "1" : "";
+        showCode.textContent = open ? "Hide" : "Show";
+        paintRoom();
+      };
+      paintRoom();
       function bindAdd(formId, inputId) {
         const form = document.getElementById(formId);
         if (!form) return;

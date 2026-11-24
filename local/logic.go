@@ -1164,8 +1164,7 @@ func matchEdges(detail map[string]any, players []player) []killEdge {
 				k := asMap(kill)
 				vid := strings.ToLower(str(pick(k, "victim", "Victim")))
 				loc := asMap(pick(k, "victimLocation", "VictimLocation"))
-				kloc := asMap(pick(k, "playerLocations", "PlayerLocations"))
-				_ = kloc
+				kx, ky := killerPoint(k, kid)
 				fin := asArr(pick(k, "finishingDamage", "FinishingDamage"))
 				gun := ""
 				if dmg := asMap(pick(k, "finishingDamage", "FinishingDamage")); dmg != nil {
@@ -1178,6 +1177,7 @@ func matchEdges(detail map[string]any, players []player) []killEdge {
 				edges = append(edges, killEdge{
 					Round: n, T: num(pick(k, "timeSinceRoundStartMillis", "roundTime")),
 					KID: kid, VID: vid, Killer: names[kid], Victim: names[vid], Gun: gun,
+					KX: kx, KY: ky,
 					VX: flt(pick(loc, "x", "X")), VY: flt(pick(loc, "y", "Y")),
 				})
 			}
@@ -1185,6 +1185,44 @@ func matchEdges(detail map[string]any, players []player) []killEdge {
 	}
 	markEdgeFlags(edges, players)
 	return edges
+}
+
+func killerPoint(k map[string]any, kid string) (float64, float64) {
+	var fallback map[string]any
+	for _, item := range asArr(pick(k, "playerLocations", "PlayerLocations")) {
+		row := asMap(item)
+		if row == nil {
+			continue
+		}
+		loc := asMap(pick(row, "location", "Location"))
+		if loc == nil {
+			loc = row
+		}
+		if fallback == nil {
+			fallback = loc
+		}
+		id := strings.ToLower(str(pick(row, "subject", "Subject")))
+		if kid != "" && id == kid {
+			return flt(pick(loc, "x", "X")), flt(pick(loc, "y", "Y"))
+		}
+	}
+	if fallback == nil {
+		return 0, 0
+	}
+	return flt(pick(fallback, "x", "X")), flt(pick(fallback, "y", "Y"))
+}
+
+func edgesHaveLines(edges []killEdge) bool {
+	if len(edges) == 0 {
+		return false
+	}
+	lined := 0
+	for _, edge := range edges {
+		if (edge.KX != 0 || edge.KY != 0) && (edge.VX != 0 || edge.VY != 0) {
+			lined++
+		}
+	}
+	return lined*2 >= len(edges)
 }
 
 func flt(v any) float64 {

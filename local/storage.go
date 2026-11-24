@@ -82,15 +82,22 @@ func storageNow() storageView {
 	games := fileSize(filepath.Join(base, "records.json"))
 	cache := dirSize(cacheDir())
 	all := dirSize(base)
-	other := all - games - cache
-	if other < 0 {
-		other = 0
-	}
 	webN := dirSize(web)
 	picN := dirSize(pics)
 	vidN := int64(0)
-	if home, err := os.UserHomeDir(); err == nil {
-		vidN = dirSize(filepath.Join(home, "Videos", "Valvet"))
+	vidCount := 0
+	if videos, err := roundVideoDir(); err == nil {
+		vidN = dirSize(videos)
+		entries, _ := os.ReadDir(videos)
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			ext := strings.ToLower(filepath.Ext(entry.Name()))
+			if ext == ".mp4" || ext == ".webm" {
+				vidCount++
+			}
+		}
 	}
 	total := all + webN + picN + vidN
 	parts := []string{}
@@ -109,14 +116,15 @@ func storageNow() storageView {
 	if vidN > 0 {
 		parts = append(parts, "Round videos "+formatBytes(vidN))
 	}
-	if other > 0 {
-		parts = append(parts, "Other "+formatBytes(other))
-	}
-	detail := "Nothing saved yet."
-	if len(parts) > 0 {
+	detail := "No round videos yet."
+	if vidCount == 1 {
+		detail = "1 round video in Videos\\Valvet."
+	} else if vidCount > 1 {
+		detail = fmt.Sprintf("%d round videos in Videos\\Valvet.", vidCount)
+	} else if len(parts) > 0 {
 		detail = strings.Join(parts, " · ")
 	}
-	return storageView{OK: true, Label: "Valvet is using " + formatBytes(total) + " on this PC.", Detail: detail, Videos: formatBytes(vidN)}
+	return storageView{OK: true, Label: "Using " + formatBytes(total) + ".", Detail: detail, Videos: formatBytes(vidN)}
 }
 
 func clearOldStorage() storageView {

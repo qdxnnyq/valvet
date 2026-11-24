@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.0
+
+Play the round draws the kill lines again, with a glow on yours.
+History stats are one short strip. Empty numbers stay off.
+Bundles use the same cards as the store. Heat on the map is lighter.
+Your share id stays hidden until you show it.
+Each round video is its own file. Older clips are gathered into Videos\Valvet.
+
 ## 1.8.44
 
 Parties are a colored line. Shots split into head, body, and legs.

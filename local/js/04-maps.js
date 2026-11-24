@@ -55,17 +55,15 @@
           const x = (Number(spot.x) / 100) * size;
           const y = (Number(spot.y) / 100) * size;
           if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-          const radius = 28;
+          const radius = 14;
           const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
           if (kill) {
-            glow.addColorStop(0, "rgba(255,255,240,0.95)");
-            glow.addColorStop(0.16, "rgba(255,214,64,0.92)");
-            glow.addColorStop(0.42, "rgba(255,120,16,0.55)");
+            glow.addColorStop(0, "rgba(255,236,170,0.55)");
+            glow.addColorStop(0.35, "rgba(255,140,40,0.28)");
             glow.addColorStop(1, "rgba(255,70,0,0)");
           } else {
-            glow.addColorStop(0, "rgba(255,236,240,0.95)");
-            glow.addColorStop(0.18, "rgba(255,48,82,0.9)");
-            glow.addColorStop(0.48, "rgba(150,8,32,0.5)");
+            glow.addColorStop(0, "rgba(255,180,196,0.5)");
+            glow.addColorStop(0.4, "rgba(255,48,82,0.22)");
             glow.addColorStop(1, "rgba(80,0,16,0)");
           }
           ctx.fillStyle = glow;
@@ -80,7 +78,7 @@
           if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
           ctx.beginPath();
           ctx.fillStyle = kill ? "#fff6c2" : "#ffe4ea";
-          ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+          ctx.arc(x, y, 2, 0, Math.PI * 2);
           ctx.fill();
           ctx.lineWidth = 1.5;
           ctx.strokeStyle = kill ? "rgba(80,40,0,.85)" : "rgba(40,0,10,.8)";

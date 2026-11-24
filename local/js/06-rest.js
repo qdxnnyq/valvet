@@ -141,27 +141,21 @@
         const newer = hasUpdate(data);
         if (chip && chip.dataset.busy !== "1") chip.textContent = build;
         if (chip) {
-          chip.classList.toggle("hot", newer);
+          chip.classList.remove("hot");
           chip.title = newer ? "Update to " + ((data && data.name) || "the newest build") : "";
-          if (!newer) chip.onclick = null;
+          chip.onclick = null;
         }
         if (line) {
           line.textContent = newer
-            ? "Valvet " + build + ". Update to " + ((data && data.name) || "the newest build") + " is the pink bar, the sidebar button, and this version chip."
+            ? "Valvet " + build + ". The pink bar installs " + ((data && data.name) || "the newest build") + "."
             : "Valvet " + build + ". This is the newest build.";
         }
+        if (button) button.hidden = true;
         if (!newer) {
           if (bar && bar.dataset.busy !== "1") bar.hidden = true;
-          if (button && button.dataset.busy !== "1") button.hidden = true;
           return;
         }
         const label = "Update to " + ((data && data.name) || "the newest build");
-        if (button) {
-          button.hidden = false;
-          button.textContent = "Update";
-          button.classList.add("pop");
-          button.onclick = () => installUpdate(button);
-        }
         if (bar) {
           bar.hidden = false;
           const text = document.getElementById("update-bar-text");
@@ -169,12 +163,6 @@
         }
         const barGo = document.getElementById("update-go");
         if (barGo) barGo.onclick = () => installUpdate(barGo);
-        if (chip) {
-          chip.textContent = "Update";
-          chip.classList.add("hot");
-          chip.title = label;
-          chip.onclick = () => installUpdate(chip);
-        }
       }
       async function checkUpdate(manual) {
         const ticket = ++updateTicket;
@@ -852,6 +840,9 @@
           }
           const chunks = [];
           const ext = mime.indexOf("mp4") >= 0 ? "mp4" : "webm";
+          const when = new Date();
+          const pad = (n) => String(n).padStart(2, "0");
+          const clip = "valvet-round-" + when.getFullYear() + pad(when.getMonth() + 1) + pad(when.getDate()) + "-" + pad(when.getHours()) + pad(when.getMinutes()) + pad(when.getSeconds()) + "." + ext;
           rec.ondataavailable = (event) => { if (event.data && event.data.size) chunks.push(event.data); };
           rec.onerror = () => fail("Couldn't save");
           rec.onstop = () => {
@@ -860,7 +851,7 @@
             const reader = new FileReader();
             reader.onload = async () => {
               try {
-                const result = await (await fetch("/api/picture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "valvet-round." + ext, data: reader.result, video: true }) })).json();
+                const result = await (await fetch("/api/picture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: clip, data: reader.result, video: true }) })).json();
                 if (result && result.ok) {
                   saveVid.dataset.busy = "";
                   saveVid.dataset.note = "Saved. Open it from Settings, Storage.";
@@ -1046,18 +1037,26 @@
             const fade = solo >= 0 || at === visible.length - 1 ? 1 : 0.4;
             const color = mineKill ? "#ff5fa2" : mineDeath ? "#ff4d6a" : "rgba(61,206,134," + (0.85 * fade) + ")";
             if (killer && victim) {
+              ctx.save();
+              ctx.lineCap = "round";
+              ctx.lineJoin = "round";
               ctx.strokeStyle = color;
-              ctx.lineWidth = mineKill || mineDeath ? 4 : 2;
+              ctx.globalAlpha = 0.28 * fade;
+              ctx.lineWidth = mineKill || mineDeath ? 12 : 8;
               ctx.beginPath();
               ctx.moveTo(px(killer), py(killer));
               ctx.lineTo(px(victim), py(victim));
               ctx.stroke();
+              ctx.globalAlpha = fade;
+              ctx.lineWidth = mineKill || mineDeath ? 3.4 : 2.2;
+              ctx.stroke();
+              ctx.restore();
               const ang = Math.atan2(py(victim) - py(killer), px(victim) - px(killer));
               ctx.fillStyle = color;
               ctx.beginPath();
               ctx.moveTo(px(victim), py(victim));
-              ctx.lineTo(px(victim) - 12 * Math.cos(ang - 0.4), py(victim) - 12 * Math.sin(ang - 0.4));
-              ctx.lineTo(px(victim) - 12 * Math.cos(ang + 0.4), py(victim) - 12 * Math.sin(ang + 0.4));
+              ctx.lineTo(px(victim) - 14 * Math.cos(ang - 0.45), py(victim) - 14 * Math.sin(ang - 0.45));
+              ctx.lineTo(px(victim) - 14 * Math.cos(ang + 0.45), py(victim) - 14 * Math.sin(ang + 0.45));
               ctx.closePath();
               ctx.fill();
             }
@@ -1100,17 +1099,18 @@
             if (victim && at === visible.length - 1) {
               const pulse = (now / 700) % 1;
               ctx.beginPath();
-              ctx.arc(px(victim), py(victim), 16 + pulse * 22, 0, Math.PI * 2);
-              ctx.strokeStyle = "rgba(255,247,250," + ((1 - pulse) * 0.85).toFixed(3) + ")";
-              ctx.lineWidth = 2;
+              ctx.arc(px(victim), py(victim), 12 + pulse * 8, 0, Math.PI * 2);
+              ctx.strokeStyle = "rgba(255,247,250," + ((1 - pulse) * 0.45).toFixed(3) + ")";
+              ctx.lineWidth = 1.5;
               ctx.stroke();
             }
           });
           requestAnimationFrame(draw);
         };
         requestAnimationFrame(draw);
+        const lined = (rows) => (rows || []).filter((edge) => (Number(edge.kx) || Number(edge.ky)) && (Number(edge.vx) || Number(edge.vy))).length;
         const weakRows = edges.filter((edge) => weak(edge.killer) || weak(edge.victim));
-        if (match.id && edges.length && weakRows.length * 2 >= edges.length) {
+        if (match.id && edges.length && (weakRows.length * 2 >= edges.length || lined(edges) * 2 < edges.length)) {
           fetch("/api/replay?id=" + encodeURIComponent(match.id), { cache: "no-store" }).then((res) => res.json()).then((data) => {
             if (!alive || !data || !data.ok || !(data.edges || []).length) return;
             edges = data.edges.slice().sort((a, b) => a.round - b.round || a.t - b.t);

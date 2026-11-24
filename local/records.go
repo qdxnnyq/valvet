@@ -1044,7 +1044,7 @@ func (c *riotClient) replayMatch(ctx context.Context, id string) *recentMatch {
 	if !looksUUID(id) {
 		return nil
 	}
-	if pack, ok := loadRoundPack(id); ok && pack.Full {
+	if pack, ok := loadRoundPack(id); ok && pack.Full && edgesHaveLines(pack.Edges) {
 		return pack.asMatch()
 	}
 	c.mu.Lock()

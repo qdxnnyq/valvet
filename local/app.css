@@ -233,7 +233,13 @@
         .credit::after, .credit i, .wait h1, .ring, .ring::after, .logo span, .today-bar, .row.tracked, .wait-scan, .wait-cat, .wait-cat::before, .wait-cat::after, .wait-pips i { animation: none; }
         main > section.enter, .pcard, .skin, .hero-card, .nav button { transition: none; animation: none; }
       }
-      #update { margin: 0 8px 8px; height: 36px; border: 0; border-radius: 10px; background: var(--accent); color: #1a0610; font-weight: 760; cursor: pointer; flex: none; }
+      #update { display: none !important; }
+      #pane-settings { display: flex; flex-direction: column; gap: 12px; }
+      #pane-settings .set-card { margin: 0; }
+      #pane-settings .set-card h2 { margin: 0 0 8px; font-size: 20px; letter-spacing: -0.04em; color: var(--ink); }
+      #pane-settings .set-card .sub { margin: 0 0 10px; max-width: 68ch; color: var(--muted); }
+      #pane-settings .idline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 12px; }
+      #pane-settings .idline b { min-width: 9ch; font-size: 18px; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
       body > #update-bar { flex: 0 0 auto; position: relative; z-index: 24; margin: 0; border-radius: 0; border-left: 0; border-right: 0; border-top: 0; }
       .side-foot { margin-top: auto; display: flex; flex-direction: column; flex: none; }
       .badge { margin-left: 6px; font-size: 9px; letter-spacing: 0.08em; font-weight: 800; border-radius: 99px; padding: 1px 5px; }

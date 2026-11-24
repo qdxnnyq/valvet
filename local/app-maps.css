@@ -13,8 +13,9 @@
       .coin .face { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; align-content: center; gap: 1px; backface-visibility: hidden; background: radial-gradient(circle at 32% 28%, #fff8ee, #e4d0b4 38%, #a18468 62%, #4a3424 86%); box-shadow: inset 0 0 0 3px rgba(255, 236, 210, .45), inset 0 -8px 12px rgba(0,0,0,.28), 0 5px 0 #2a1c12; }
       .coin .face.back { transform: rotateY(180deg); filter: grayscale(.45); background: radial-gradient(circle at 40% 32%, #c8b8a4, #6e6458 58%, #2a241e); }
       .coin .rankimg { width: 28px; height: 28px; }
-      #pane-store .skin, #pane-store .shop-hero, #pane-store .bundle-hero { background: radial-gradient(420px 180px at 16% 0%, rgba(255, 214, 160, .28), transparent 58%), #07060a; }
-      #pane-store .skin img { background: radial-gradient(140px 70px at 28% 18%, rgba(255, 220, 170, .22), transparent 70%), #050308; }
+      #pane-store .skin, #pane-store .shop-hero, #pane-store .bundle-hero,
+      #pane-bundle .skin, #pane-bundle .shop-hero, #pane-bundle .bundle-hero { background: radial-gradient(420px 180px at 16% 0%, rgba(255, 214, 160, .28), transparent 58%), #07060a; }
+      #pane-store .skin img, #pane-bundle .skin img { background: radial-gradient(140px 70px at 28% 18%, rgba(255, 220, 170, .22), transparent 70%), #050308; }
       .record-grid, .clutch-grid, .polaroids, .rings { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
       .rec-hero, .rec-podium { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 12px; }
       .rec-podium { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 16px; }
@@ -264,10 +265,10 @@
       #pane-live.match .live-party { min-width: 0; }
       #pane-live.match .live-party .squad { margin: 0; }
       #pane-live.match .live-side { align-items: flex-end; }
-      .perf { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 0 0 8px; }
-      .perf article { padding: 5px 8px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel, #140c11) 88%, transparent); }
-      .perf b { display: block; font-size: 15px; line-height: 1.1; letter-spacing: -0.03em; color: var(--ink); }
-      .perf span { letter-spacing: .06em; }
+      .perf { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+      .perf article { min-width: 108px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 14px; background: #120910; }
+      .perf b { display: block; font-size: 16px; line-height: 1.1; letter-spacing: -0.03em; color: var(--ink); }
+      .perf span { letter-spacing: .08em; }
       .hist-picks { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
       .hist-pick { height: 28px; border-radius: 999px; border: 1px solid var(--line); background: #140c11; color: #fff7fa; color-scheme: dark; padding: 0 10px; max-width: 160px; }
       .hist-pick option, select option { background: #1a1016; color: #fff7fa; }

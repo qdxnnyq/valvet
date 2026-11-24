@@ -116,9 +116,6 @@
         const agent = {};
         const site = {};
         const guns = {};
-        let aimHit = 0;
-        let aimN = 0;
-        let multis = 0;
         for (const match of matches || []) {
           const you = youOf(match);
           if (!you) continue;
@@ -139,11 +136,6 @@
             if (round.you) row.w += 1;
             site[round.site] = row;
           }
-          if (you.aim != null && you.aim !== "") { aimN += 1; aimHit += Number(you.aim) || 0; }
-          for (const part of String(you.multi || "").split(",")) {
-            const bits = part.split(":");
-            if (Number(bits[0]) >= 2) multis += Number(bits[1]) || 0;
-          }
           for (const part of String(you.gunHs || "").split(",")) {
             const bits = part.split(":");
             const ratio = String(bits[1] || "").split("/");
@@ -155,31 +147,63 @@
           }
         }
         const best = (book) => Object.entries(book).sort((a, b) => (b[1].n - a[1].n) || (b[1].w / b[1].n) - (a[1].w / a[1].n))[0];
-        const rate = (row) => (row && row.n ? Math.round((row.w / row.n) * 100) + "%" : "—");
-        const card = el("div", "perf");
-        const loud = (value, label) => {
-          const box = el("article");
-          box.append(el("b", null, value || "—"));
-          box.append(el("span", null, label));
-          card.append(box);
+        const rate = (row) => (row && row.n ? Math.round((row.w / row.n) * 100) + "%" : "");
+        const tiles = [];
+        const add = (value, label) => {
+          const text = String(value || "").trim();
+          if (!text || text === "—" || text === "0" || text === "0%") return;
+          tiles.push([text, label]);
         };
         const topMap = best(map);
         const topAgent = best(agent);
         const topSite = best(site);
         const gun = Object.entries(guns).sort((a, b) => b[1].s - a[1].s)[0];
-        loud(topMap ? rate(topMap[1]) : "—", topMap ? topMap[0] : "Map");
-        loud(topAgent ? rate(topAgent[1]) : "—", topAgent ? topAgent[0] : "Agent");
-        loud(topSite ? rate(topSite[1]) : "—", topSite ? "Site " + topSite[0] : "Site");
-        loud(gun && gun[1].s ? Math.round((gun[1].h / gun[1].s) * 100) + "%" : "—", gun ? gun[0] + " HS" : "Gun HS");
-        loud(aimN ? Math.round(aimHit / aimN) + "%" : "—", "First bullet");
-        loud(multis ? String(multis) : "—", "Multikills");
+        add(topMap ? rate(topMap[1]) : "", topMap ? topMap[0] : "Map");
+        add(topAgent ? rate(topAgent[1]) : "", topAgent ? topAgent[0] : "Agent");
+        add(topSite ? rate(topSite[1]) : "", topSite ? "Site " + topSite[0] : "Site");
+        add(gun && gun[1].s ? Math.round((gun[1].h / gun[1].s) * 100) + "%" : "", gun ? gun[0] + " HS" : "Gun HS");
+        let hsN = 0;
+        let hsSum = 0;
+        let multis = 0;
+        const seenMulti = new Set();
+        for (const match of matches || []) {
+          const you = (match.players || []).find((player) => player.you);
+          if (!you) continue;
+          const hs = parseInt(String(you.hs || you.aim || "").replace("%", ""), 10);
+          if (!Number.isNaN(hs)) { hsN += 1; hsSum += hs; }
+          const id = String(you.puuid || "").toLowerCase();
+          const byRound = {};
+          for (const edge of match.edges || []) {
+            const mine = (id && String(edge.kid || "").toLowerCase() === id) || /^you\b/i.test(String(edge.killer || ""));
+            if (!mine) continue;
+            const key = match.id + ":" + edge.round;
+            byRound[key] = (byRound[key] || 0) + 1;
+          }
+          for (const [key, count] of Object.entries(byRound)) {
+            if (count >= 2 && !seenMulti.has(key)) { seenMulti.add(key); multis += 1; }
+          }
+        }
+        add(hsN ? Math.round(hsSum / hsN) + "%" : "", "First bullet");
+        add(multis ? String(multis) : "", "Multikills");
         const fight = fightFacts(matches);
-        if (fight.n) loud(Math.round(fight.head / fight.n) + " · " + Math.round(fight.body / fight.n) + " · " + Math.round(fight.leg / fight.n), "Head · body · legs");
-        if (fight.firstK || fight.firstD) loud(fight.firstK + " / " + fight.firstD, "First blood / death");
-        if (fight.plants || fight.defuses || fight.post) loud([fight.plants + " plant", fight.defuses + " defuse", fight.post + " after plant"].join(" · "), "Spike");
-        if (fight.trades) loud(String(fight.trades), "Trades");
-        const pair = (name) => fight.kind[name][1] ? fight.kind[name][0] + "/" + fight.kind[name][1] : "—";
-        if (fight.kind.pistol[1] || fight.kind.bonus[1] || fight.kind.gun[1]) loud(pair("pistol") + " · " + pair("bonus") + " · " + pair("gun"), "Pistol · bonus · gun");
+        if (fight.n) add(Math.round(fight.head / fight.n) + " / " + Math.round(fight.body / fight.n) + " / " + Math.round(fight.leg / fight.n), "Head / body / legs");
+        if (fight.firstK || fight.firstD) add(fight.firstK + " / " + fight.firstD, "First blood");
+        if (fight.plants) add(String(fight.plants), "Plants");
+        if (fight.defuses) add(String(fight.defuses), "Defuses");
+        if (fight.post) add(String(fight.post), "After plant");
+        if (fight.trades) add(String(fight.trades), "Trades");
+        const pair = (name) => fight.kind[name][1] ? Math.round(fight.kind[name][0] / fight.kind[name][1] * 100) + "%" : "";
+        add(pair("pistol"), "Pistol");
+        add(pair("bonus"), "Bonus");
+        add(pair("gun"), "Gun rounds");
+        if (!tiles.length) return null;
+        const card = el("div", "perf");
+        for (const [value, label] of tiles) {
+          const box = el("article");
+          box.append(el("b", null, value));
+          box.append(el("span", null, label));
+          card.append(box);
+        }
         return card;
       }
       function fightFacts(matches) {
@@ -273,7 +297,8 @@
           recent.append(el("div", "empty", showAct && !(actArchive || []).length ? "Last act is not saved on this PC yet. It is kept the next time an act ends." : typed || histMap || histAgent || histParty || histWith ? "Nothing matches that filter." : mode === "All" ? "No games loaded yet." : "No " + mode + " games in the recent list."));
           return;
         }
-        recent.append(performanceCard(showing));
+        const perf = performanceCard(showing);
+        if (perf) recent.append(perf);
         const form = formStrip(showing);
         if (form) recent.append(form);
         showing.forEach((match, index) => {
@@ -864,43 +889,26 @@
           return;
         }
         bundles.forEach((bundle, index) => {
-          const id = bundle.name || String(index);
-          const poster = el("article", "bundle-poster");
-          if (bundle.icon) poster.style.backgroundImage = "linear-gradient(100deg, rgba(10,4,8,.2), transparent 55%), url('" + String(bundle.icon).replace(/'/g, "%27") + "')";
-          poster.append(el("div", "veil"));
-          if (bundle.icon) {
-            const art = document.createElement("img");
-            art.className = "bundle-art";
-            art.alt = "";
-            art.src = bundle.icon;
-            poster.append(art);
-          }
-          const body = el("div", "copy");
-          body.append(el("div", "eyebrow", "Featured bundle"));
-          body.append(el("h1", null, bundle.name || "Bundle"));
+          const hero = el("div", "shop-hero bundle-hero");
+          const copy = el("div", "copy");
+          copy.append(el("div", "eyebrow", "Featured bundle"));
+          copy.append(el("h1", null, bundle.name || "Bundle"));
           const items = bundle.items || [];
           const owned = items.filter((item) => owns(item.name)).length;
-          const bits = [items.length ? owned + " of " + items.length + " owned" : "", bundle.left ? bundle.left + " left" : "", bundle.desc || "", openBundle === id ? "Click to close" : "Click to open"].filter(Boolean);
-          body.append(el("div", "sub", bits.join(" · ")));
+          const bits = [items.length ? owned + " of " + items.length + " owned" : "", bundle.left ? bundle.left + " left" : ""].filter(Boolean);
+          if (bits.length) copy.append(el("p", "sub", bits.join(" · ")));
           if (bundle.price) {
             const pill = el("div", "price-pill");
             if (bundle.was && bundle.was !== bundle.price) pill.append(el("s", null, bundle.was + " VP"));
             pill.append(document.createTextNode(bundle.price + " VP"));
-            body.append(pill);
+            copy.append(pill);
           }
-          poster.append(body);
-          poster.onclick = () => { openBundle = openBundle === id ? "" : id; bundleKey = ""; drawBundle(shop); };
-          root.append(poster);
-          if (openBundle === id) {
-            const wrap = el("div", "bundle-open");
-            wrap.append(el("h2", null, "Inside"));
-            const grid = el("div", "shop");
-            const items = bundle.items || [];
-            if (!items.length) grid.append(el("div", "empty", "Valorant didn't list the items in this bundle."));
-            for (const item of items) grid.append(skinCard(item));
-            wrap.append(grid);
-            root.append(wrap);
-          }
+          hero.append(copy);
+          root.append(hero);
+          const grid = el("div", "shop");
+          if (!items.length) grid.append(el("div", "empty", "Valorant didn't list the items in this bundle."));
+          for (const item of items) grid.append(skinCard(item));
+          root.append(grid);
         });
       }
       let agentCache = null;

@@ -341,10 +341,10 @@
       }
       function paintRoom() {
         const code = ensureCode();
-        for (const id of ["my-code", "my-code-2"]) {
-          const node = document.getElementById(id);
-          if (node) node.textContent = code;
-        }
+        const node = document.getElementById("my-code");
+        if (node) node.textContent = node.dataset.open === "1" ? code : "········";
+        const other = document.getElementById("my-code-2");
+        if (other) other.textContent = code;
         const hero = document.getElementById("duo-you");
         if (hero) {
           const riot = riotID();
@@ -885,7 +885,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.8.44", title: "Valvet", lines: ["What's new only keeps the last few updates.", "The background canvas no longer draws.", "Esports only loads when that page is open.", "Team reads Premier from the client.", "Saved settings use the Valvet name.", "A win has a green edge and a loss has a red edge.", "A party is a colored line on the row. A locked agent flips in.", "Store skins sit on a dark stage. Ranks use the coin.", "A kill in Play the round leaves a ring.", "Shots split into head, body, and legs. First blood, plants, trades, and pistol rounds are on the history card.", "The round scrub says eco, force, or full.", "Lineups opens for this map and your agent. Ten pro crosshairs can be saved.", "The last act is kept in its own folder. A penalty shows the minutes left."] },
+        { ver: "1.9.0", title: "Valvet", lines: ["Play the round draws the kill lines again.", "History stats sit on one short strip. Empty numbers stay off.", "Bundles use the same cards as the store.", "Heat on the map is smaller. Your share id can be shown.", "Round videos keep every clip."] },
         { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },

@@ -194,6 +194,26 @@ func TestEnemyOnSelect(t *testing.T) {
 	if multiText(map[int]int{2: 4, 3: 1}) != "2:4,3:1" {
 		t.Fatal(multiText(map[int]int{2: 4, 3: 1}))
 	}
+	edges := matchEdges(map[string]any{
+		"roundResults": []any{map[string]any{
+			"roundNum": float64(1),
+			"playerStats": []any{map[string]any{
+				"subject": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+				"kills": []any{map[string]any{
+					"timeSinceRoundStartMillis": float64(1200),
+					"victim":                    "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+					"victimLocation":            map[string]any{"x": float64(400), "y": float64(800)},
+					"playerLocations": []any{map[string]any{
+						"subject":  "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+						"location": map[string]any{"x": float64(10), "y": float64(20)},
+					}},
+				}},
+			}},
+		}},
+	}, nil)
+	if len(edges) != 1 || edges[0].KX != 10 || edges[0].KY != 20 || edges[0].VX != 400 || edges[0].VY != 800 || !edgesHaveLines(edges) {
+		t.Fatalf("%+v", edges)
+	}
 	if num(presencePick(map[string]any{"playerPresenceData": map[string]any{"competitiveTier": float64(15)}}, "competitiveTier", "CompetitiveTier")) != 15 {
 		t.Fatal("nested tier")
 	}
