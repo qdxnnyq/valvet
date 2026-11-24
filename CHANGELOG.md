@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.12
+
+Deathmatch columns are both sorted by kills.
+
 ## 1.9.11
 
 Deathmatch uses the same two-column player rows as the rest of history.

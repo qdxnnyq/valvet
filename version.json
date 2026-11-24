@@ -1,7 +1,7 @@
 {
-  "version": 201,
-  "label": "1.9.11",
-  "name": "1.9.11",
-  "notes": "Deathmatch uses the same history rows as every other mode.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v201/Valvet.exe"
+  "version": 202,
+  "label": "1.9.12",
+  "name": "1.9.12",
+  "notes": "Deathmatch columns are both sorted by kills.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v202/Valvet.exe"
 }

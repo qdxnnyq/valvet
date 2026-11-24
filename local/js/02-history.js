@@ -425,8 +425,9 @@
         const leftPlayers = players.slice(0, mid);
         const rightPlayers = players.slice(mid);
         const youRight = rightPlayers.some((player) => player.you);
-        const left = sideList(leftPlayers, leftPlayers, youRight ? "" : "ally", colors, "");
-        const right = sideList(rightPlayers, rightPlayers, youRight ? "ally" : "", colors, "");
+        const byKills = (list) => [...(list || [])].sort((a, b) => killCount(b) - killCount(a) || String(a.name || "").localeCompare(String(b.name || "")));
+        const left = sideList(leftPlayers, leftPlayers, youRight ? "" : "ally", colors, "", byKills);
+        const right = sideList(rightPlayers, rightPlayers, youRight ? "ally" : "", colors, "", byKills);
         if (left) sides.append(left);
         if (right) sides.append(right);
         return sides;

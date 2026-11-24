@@ -281,8 +281,9 @@
         if (player.rankPeak) wrap.append(el("i", "peak-flag", "Not active"));
         return wrap;
       }
-      function sideList(players, team, tone, colors, titleText) {
-        const list = byKDA(Array.isArray(team) ? team : (players || []).filter((player) => player.team === team));
+      function sideList(players, team, tone, colors, titleText, sortFn) {
+        const raw = Array.isArray(team) ? [...team] : (players || []).filter((player) => player.team === team);
+        const list = (sortFn || byKDA)(raw);
         const label = Array.isArray(team) ? "" : sideLabel(team);
         if (!list.length) return null;
         const block = el("div", "sidecol " + (tone || ""));
