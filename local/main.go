@@ -56,15 +56,15 @@ func main() {
 			_ = json.NewDecoder(io.LimitReader(r.Body, 2000)).Decode(&body)
 			if path, ok := replayPath(body.Name); ok {
 				if err := openReplayFile(path); err != nil {
-					_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error(), "replays": loadReplayIndex()})
+					_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error(), "game": valorantOpen(), "replays": loadReplayIndex()})
 					return
 				}
-				_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "replays": loadReplayIndex()})
+				_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "game": valorantOpen(), "replays": loadReplayIndex()})
 				return
 			}
 		}
 		rows := archiveReplays()
-		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "replays": rows})
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "game": valorantOpen(), "replays": rows})
 	})
 	mux.HandleFunc("/api/log", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -765,7 +765,7 @@ func main() {
 		w.Header().Set("Cache-Control", "no-store")
 		app.setLiveOnly(r.URL.Query().Get("live") == "1")
 		app.noteIdle(r.URL.Query().Get("asleep") == "1", r.URL.Query().Get("store") == "0", r.URL.Query().Get("book") == "0")
-		if r.URL.Query().Get("asleep") != "1" {
+		if r.URL.Query().Get("asleep") != "1" && !app.busyPhase() {
 			maybeArchiveReplays()
 		}
 		snap := app.state(ctx)

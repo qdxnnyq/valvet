@@ -502,6 +502,7 @@
       function playResult(kind, force) {
         const pick = localStorage.getItem(kind === "loss" ? "valvet-loss" : "valvet-win") || (kind === "loss" ? "sad" : "gg");
         if (pick === "none") return;
+        if (!force && sessionStorage.getItem("valvet-mute-results") === "1") return;
         if (!force && quietNow()) return;
         const vol = resultVolume();
         if (vol <= 0) return;
@@ -665,12 +666,35 @@
         if (node) node.classList.toggle("win", card && card.won === true);
         if (node) node.classList.toggle("loss", card && card.won === false);
         if (score) {
-          score.replaceChildren();
-          if (card && card.score) {
-            score.append(document.createTextNode(card.score));
-            const tag = document.createElement("span");
-            tag.textContent = card.won === true ? "Win" : card.won === false ? "Loss" : (card.mode || "Score");
-            score.append(tag);
+          const next = (card && card.score) || "";
+          if (score.dataset.score !== next) {
+            score.dataset.score = next;
+            score.replaceChildren();
+            if (next) {
+              const text = document.createTextNode(next);
+              score.append(text);
+              const tag = document.createElement("span");
+              tag.textContent = card.won === true ? "Win" : card.won === false ? "Loss" : (card.mode || "Score");
+              score.append(tag);
+              const node = document.getElementById("post");
+              if (node) {
+                node.classList.remove("reveal");
+                void node.offsetWidth;
+                node.classList.add("reveal");
+              }
+              const parts = String(next).match(/(\d+)\s*[–-]\s*(\d+)/);
+              if (parts) {
+                const a = Number(parts[1]);
+                const b = Number(parts[2]);
+                let step = 0;
+                clearInterval(score.timer);
+                score.timer = setInterval(() => {
+                  step += 1;
+                  text.textContent = Math.round(a * step / 10) + "–" + Math.round(b * step / 10);
+                  if (step >= 10) clearInterval(score.timer);
+                }, 45);
+              }
+            }
           }
         }
         const cat = document.getElementById("post-cat");
@@ -702,6 +726,26 @@
           cell.append(strong, name);
           host.append(cell);
         }
+        const actions = document.querySelector("#post .post-actions");
+        if (!actions) return;
+        let mute = document.getElementById("post-mute");
+        const decided = (history || []).filter((match) => match && (match.won === true || match.won === false));
+        const tilted = decided.length >= 2 && decided[0].won === false && decided[1].won === false;
+        if (!tilted || sessionStorage.getItem("valvet-mute-results") === "1") {
+          if (mute) mute.remove();
+          return;
+        }
+        if (mute) return;
+        mute = document.createElement("button");
+        mute.id = "post-mute";
+        mute.type = "button";
+        mute.className = "tiny";
+        mute.textContent = "Mute win and loss for this session";
+        mute.onclick = () => {
+          sessionStorage.setItem("valvet-mute-results", "1");
+          mute.remove();
+        };
+        actions.append(mute);
       }
       async function fillPostRR() {
         try {
@@ -744,6 +788,7 @@
           document.getElementById("post-line").textContent = postCard.mode || "";
           paintPostStats(postCard);
           paintRounds();
+          attachDeathBeat(arrived);
         }
         if (!resultWait || Date.now() > resultWait) return;
         const ended = (history || [])[0];

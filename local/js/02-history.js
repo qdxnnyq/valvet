@@ -375,7 +375,7 @@
               box.append(statTable(match.players));
             }
           };
-          const strip = roundStrip(match.rounds);
+          const strip = roundStrip(match.rounds, match);
           card.append(button);
           if (strip) card.append(strip);
           card.append(sides, box);
@@ -635,12 +635,20 @@
             }
             scoreEl.dataset.n = stamp;
             board.replaceChildren(roster(data.players, data.mode || data.queue));
+            board.classList.toggle("select-stage", data.phase === "Agent select");
+            paintSameLobby(data);
+            const markBtn = document.getElementById("mark-round");
+            if (markBtn) markBtn.hidden = data.phase !== "In game";
           }
         } else {
           status.hidden = true;
           note.hidden = true;
           paintMapArt("");
           applyLiveLayout("");
+          const markBtn = document.getElementById("mark-round");
+          if (markBtn) markBtn.hidden = true;
+          const sameLobby = document.getElementById("same-lobby");
+          if (sameLobby) sameLobby.hidden = true;
           if (boardKey) { boardKey = ""; board.replaceChildren(); }
         }
         if (tab === "history" && !modeQueue) drawRecent(history);
@@ -1362,6 +1370,26 @@
             root.append(mapGrid);
           }
           if (rec.note) root.append(el("p", "sub", rec.note));
+          const chemRows = duoChemistry(history);
+          if (chemRows.length) {
+            root.append(el("h2", null, "Chemistry"));
+            const chem = el("div", "insight");
+            for (const row of chemRows) {
+              const bits = [];
+              if (row.pistolN) bits.push(row.pistol + "/" + row.pistolN + " pistols");
+              if (row.trades) bits.push(row.trades + " trades");
+              if (row.first) bits.push("died first " + row.first);
+              chem.append(insightCard(row.wins + "–" + row.losses, row.name, bits.join(" · ") || "Together"));
+            }
+            root.append(chem);
+          }
+          const habits = tendencyCards(history);
+          if (habits.length) {
+            root.append(el("h2", null, "Tendencies"));
+            const grid = el("div", "insight");
+            for (const card of habits) grid.append(insightCard(card.value, card.label, card.note));
+            root.append(grid);
+          }
           return;
         }
         const study = studyHistory(history, friendIds(latestState));
@@ -1376,15 +1404,27 @@
           ? insightCard(study.rival.wins + "–" + study.rival.losses, study.rival.name, study.rival.games + " games")
           : el("p", "sub", "A rival needs two games against the same enemy."));
         root.append(el("h2", null, "With friends"));
-        if (study.chemistry.length) {
+        const chemRows = duoChemistry(history);
+        if (chemRows.length) {
           const chem = el("div", "insight");
-          for (const row of study.chemistry) {
+          for (const row of chemRows) {
             const played = row.wins + row.losses;
-            const pct = played ? Math.round((row.wins / played) * 100) + "% wins" : "Together";
-            chem.append(insightCard(pct, row.name, row.wins + "–" + row.losses + " together"));
+            const pct = played ? Math.round((row.wins / played) * 100) + "%" : "Together";
+            const bits = [row.wins + "–" + row.losses];
+            if (row.pistolN) bits.push(row.pistol + "/" + row.pistolN + " pistols");
+            if (row.trades) bits.push(row.trades + " trades");
+            if (row.first) bits.push(row.first + " first deaths");
+            chem.append(insightCard(pct, row.name, bits.join(" · ")));
           }
           root.append(chem);
         } else root.append(el("p", "sub", "Only Riot friends, after two games together. Random teammates are skipped."));
+        const habits = tendencyCards(history);
+        if (habits.length) {
+          root.append(el("h2", null, "Tendencies"));
+          const grid = el("div", "insight");
+          for (const card of habits) grid.append(insightCard(card.value, card.label, card.note));
+          root.append(grid);
+        }
         if (study.maps.length) {
           root.append(el("h2", null, "Maps"));
           const mapGrid = el("div", "insight");
@@ -1416,6 +1456,10 @@
           card.append(id);
           root.append(card);
           paintActCompare(root);
+          const poster = el("button", "tiny", "Act poster");
+          poster.type = "button";
+          poster.onclick = () => copyActPoster();
+          root.append(poster);
           const slot = el("div");
           slot.id = "insight-slot";
           root.append(slot);
@@ -1812,6 +1856,235 @@
         }
         return rows.slice(0, 8);
       }
+      function duoChemistry(matches) {
+        const book = new Map();
+        for (const match of matches || []) {
+          const you = (match.players || []).find((player) => player.you);
+          if (!you) continue;
+          const youId = String(you.puuid || "").toLowerCase();
+          const mates = (match.players || []).filter((player) => !player.you && player.team && you.team && player.team === you.team && player.puuid);
+          if (!mates.length) continue;
+          for (const mate of mates) {
+            const id = String(mate.puuid).toLowerCase();
+            const row = book.get(id) || { name: shownName(mate), wins: 0, losses: 0, pistol: 0, pistolN: 0, trades: 0, first: 0 };
+            if (mate.name && mate.name !== "Player" && mate.name !== "Hidden") row.name = shownName(mate);
+            if (match.won === true) row.wins += 1;
+            else if (match.won === false) row.losses += 1;
+            book.set(id, row);
+          }
+          for (const round of match.rounds || []) {
+            const n = Number(round.n);
+            if (n !== 1 && n !== 13) continue;
+            for (const mate of mates) {
+              const row = book.get(String(mate.puuid).toLowerCase());
+              if (!row) continue;
+              row.pistolN += 1;
+              if (round.you) row.pistol += 1;
+            }
+          }
+          const seen = new Set();
+          for (const edge of (match.edges || []).slice().sort((a, b) => a.round - b.round || a.t - b.t)) {
+            if (edge.trade) {
+              const row = book.get(String(edge.kid || "").toLowerCase());
+              if (row) row.trades += 1;
+            }
+            if (seen.has(edge.round)) continue;
+            seen.add(edge.round);
+            const vid = String(edge.vid || "").toLowerCase();
+            const youDied = (youId && vid === youId) || /^you\b/i.test(String(edge.victim || ""));
+            if (!youDied) continue;
+            for (const mate of mates) {
+              const row = book.get(String(mate.puuid).toLowerCase());
+              if (row) row.first += 1;
+            }
+          }
+        }
+        return [...book.values()].filter((row) => row.wins + row.losses >= 2).sort((a, b) => (b.wins + b.losses) - (a.wins + a.losses)).slice(0, 6);
+      }
+      function tendencyCards(matches) {
+        let rounds = 0;
+        let firstK = 0;
+        let firstD = 0;
+        let lost = 0;
+        let saved = 0;
+        for (const match of matches || []) {
+          const you = (match.players || []).find((player) => player.you);
+          if (!you || !(match.rounds || []).length) continue;
+          const youId = String(you.puuid || "").toLowerCase();
+          const byRound = {};
+          for (const edge of match.edges || []) {
+            const list = byRound[edge.round] || [];
+            list.push(edge);
+            byRound[edge.round] = list;
+          }
+          for (const round of match.rounds) {
+            rounds += 1;
+            const edges = (byRound[round.n] || []).slice().sort((a, b) => a.t - b.t);
+            const first = edges.find((edge) => edge.first) || edges[0];
+            if (first) {
+              const kid = String(first.kid || "").toLowerCase();
+              const vid = String(first.vid || "").toLowerCase();
+              if ((youId && kid === youId) || /^you\b/i.test(String(first.killer || ""))) firstK += 1;
+              if ((youId && vid === youId) || /^you\b/i.test(String(first.victim || ""))) firstD += 1;
+            }
+            if (round.you === false) {
+              lost += 1;
+              const died = edges.some((edge) => {
+                const vid = String(edge.vid || "").toLowerCase();
+                return (youId && vid === youId) || /^you\b/i.test(String(edge.victim || ""));
+              });
+              if (!died) saved += 1;
+            }
+          }
+        }
+        if (!rounds) return [];
+        const cards = [
+          { value: firstK + " / " + rounds, label: "Swing first", note: "Rounds you took the first kill" },
+          { value: firstD + " / " + rounds, label: "Die first", note: "Rounds you were the first death" },
+        ];
+        if (lost) cards.push({ value: saved + " / " + lost, label: "Saves", note: "Lost rounds you were still alive" });
+        return cards;
+      }
+      function scoutCard(player) {
+        const id = String((player && player.puuid) || "").toLowerCase();
+        if (!id) return null;
+        const rows = [];
+        let yours = 0;
+        let theirs = 0;
+        for (const match of history || []) {
+          const hit = (match.players || []).find((person) => String(person.puuid || "").toLowerCase() === id);
+          if (!hit) continue;
+          const you = (match.players || []).find((person) => person.you);
+          const same = !!(you && you.team && hit.team && you.team === hit.team);
+          if (rows.length < 5) rows.push({ map: mapName(match.map) || match.map || "Map", agent: hit.agent || "", won: match.won, same });
+          if (!same && (match.won === true || match.won === false)) {
+            if (match.won === true) yours += 1;
+            else theirs += 1;
+          }
+        }
+        if (!rows.length) return null;
+        const card = el("div", "scout");
+        card.append(el("div", "eyebrow", "Scout"));
+        card.append(el("b", null, (yours + theirs) ? "You " + yours + "–" + theirs : "Shared games"));
+        const line = el("div", "scout-line");
+        for (const row of rows) {
+          const mark = row.won === true ? (row.same ? "W" : "L") : row.won === false ? (row.same ? "L" : "W") : "–";
+          line.append(el("span", null, mark + "  " + row.map + (row.agent ? " · " + row.agent : "")));
+        }
+        card.append(line);
+        return card;
+      }
+      function copyActPoster() {
+        const canvas = document.createElement("canvas");
+        canvas.width = 900;
+        canvas.height = 1200;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.fillStyle = "#14080f";
+        ctx.fillRect(0, 0, 900, 1200);
+        ctx.fillStyle = "#ff5fa2";
+        ctx.font = "700 28px Segoe UI, sans-serif";
+        ctx.fillText("VALVET", 64, 96);
+        const games = (history || []).length;
+        let wins = 0;
+        const agents = {};
+        const maps = {};
+        for (const match of history || []) {
+          if (match.won === true) wins += 1;
+          const you = (match.players || []).find((player) => player.you);
+          if (you && you.agent && you.agent !== "Picking") agents[you.agent] = (agents[you.agent] || 0) + 1;
+          if (match.map) maps[match.map] = (maps[match.map] || 0) + 1;
+        }
+        const best = (book) => Object.entries(book).sort((a, b) => b[1] - a[1])[0];
+        const agent = best(agents);
+        const map = best(maps);
+        const last = (rrPoints || [])[(rrPoints || []).length - 1];
+        ctx.fillStyle = "#fff7fa";
+        ctx.font = "760 68px Segoe UI, sans-serif";
+        ctx.fillText(last && last.rank ? last.rank : "This act", 64, 230);
+        ctx.fillStyle = "#ffd0e4";
+        ctx.font = "650 32px Segoe UI, sans-serif";
+        ctx.fillText(wins + " wins   " + Math.max(0, games - wins) + " losses", 64, 310);
+        ctx.fillStyle = "#fff7fa";
+        ctx.font = "700 40px Segoe UI, sans-serif";
+        ctx.fillText(agent ? agent[0] : "—", 64, 460);
+        ctx.fillStyle = "#b89aaa";
+        ctx.font = "600 22px Segoe UI, sans-serif";
+        ctx.fillText("Most played agent", 64, 500);
+        ctx.fillStyle = "#fff7fa";
+        ctx.font = "700 40px Segoe UI, sans-serif";
+        ctx.fillText(map ? (mapName(map[0]) || map[0]) : "—", 64, 620);
+        ctx.fillStyle = "#b89aaa";
+        ctx.font = "600 22px Segoe UI, sans-serif";
+        ctx.fillText("Most played map", 64, 660);
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "valvet-act.png";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+        });
+      }
+      function attachDeathBeat(match) {
+        const host = document.getElementById("post-death");
+        if (!host || !match || !match.id) return;
+        if (host.dataset.id === String(match.id)) return;
+        host.dataset.id = String(match.id);
+        host.replaceChildren();
+        const you = (match.players || []).find((player) => player.you);
+        const youId = String((you && you.puuid) || "").toLowerCase();
+        const deaths = (match.edges || []).filter((edge) => {
+          const vid = String(edge.vid || "").toLowerCase();
+          return (youId && vid === youId) || /^you\b/i.test(String(edge.victim || ""));
+        });
+        if (!deaths.length && !(match.deaths || []).length) {
+          host.hidden = true;
+          return;
+        }
+        host.hidden = false;
+        const box = el("div", "death-beat");
+        const canvas = document.createElement("canvas");
+        canvas.width = 520;
+        canvas.height = 168;
+        box.append(canvas, el("div", "sub", "Your last death"));
+        host.append(box);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        const art = MAP_ART[mapName(match.map) || match.map || ""] || "";
+        const img = new Image();
+        if (art) img.src = art;
+        const started = performance.now();
+        const draw = (now) => {
+          if (host.dataset.id !== String(match.id)) return;
+          const t = Math.min(1, (now - started) / 8000);
+          ctx.clearRect(0, 0, 520, 168);
+          ctx.fillStyle = "#10080d";
+          ctx.fillRect(0, 0, 520, 168);
+          if (img.complete && img.naturalWidth) {
+            ctx.globalAlpha = 0.28;
+            ctx.drawImage(img, 0, 0, 520, 168);
+            ctx.globalAlpha = 1;
+          }
+          const x = 36 + t * 430;
+          const y = 84 + Math.sin(t * Math.PI) * -26;
+          ctx.strokeStyle = "rgba(255,95,162,.9)";
+          ctx.lineWidth = 3;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(36, 96);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          ctx.fillStyle = "#fff7fa";
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+          if (t < 1 && document.body.dataset.motion !== "calm") requestAnimationFrame(draw);
+        };
+        if (document.body.dataset.motion === "calm") draw(started + 8000);
+        else requestAnimationFrame(draw);
+      }
       function profileRow(match) {
         markAwards(match);
         const you = (match.players || []).find((player) => player.you);
@@ -1835,6 +2108,67 @@
         row.onclick = () => openMatchSheet(match);
         wrap.append(row);
         return wrap;
+      }
+      function dropRoundMark() {
+        if (!latestState || latestState.phase !== "In game") return;
+        const round = (Number(latestState.score1) || 0) + (Number(latestState.score2) || 0) + 1;
+        const rows = readJSON("valvet-marks");
+        const marks = Array.isArray(rows) ? rows : [];
+        marks.unshift({ at: Date.now(), round, map: latestState.map || "" });
+        localStorage.setItem("valvet-marks", JSON.stringify(marks.slice(0, 24)));
+        const btn = document.getElementById("mark-round");
+        if (btn) {
+          btn.textContent = "Marked " + round;
+          setTimeout(() => { if (btn.textContent.indexOf("Marked") === 0) btn.textContent = "Mark round"; }, 1200);
+        }
+      }
+      function paintSameLobby(data) {
+        const node = document.getElementById("same-lobby");
+        if (!node) return;
+        const live = data && (data.phase === "Agent select" || data.phase === "In game" || data.phase === "Loading lobby");
+        const ids = new Set(((data && data.players) || []).filter((player) => player && player.puuid && !player.you).map((player) => String(player.puuid).toLowerCase()));
+        if (!live || ids.size < 3) { node.hidden = true; return; }
+        let best = null;
+        for (const match of history || []) {
+          const names = [];
+          const seen = new Set();
+          for (const player of match.players || []) {
+            const id = String(player.puuid || "").toLowerCase();
+            if (!id || player.you || !ids.has(id) || seen.has(id)) continue;
+            seen.add(id);
+            if (player.name) names.push(player.name);
+          }
+          if (seen.size >= 3 && (!best || seen.size > best.n)) best = { n: seen.size, names, map: match.map };
+        }
+        if (!best) { node.hidden = true; return; }
+        const text = best.n + " from " + (mapName(best.map) || "an older game") + " · " + best.names.slice(0, 4).join(", ");
+        if (node.textContent !== text) node.textContent = text;
+        node.hidden = false;
+      }
+      function markedRoundSet(match) {
+        const rows = readJSON("valvet-marks");
+        const marks = Array.isArray(rows) ? rows : [];
+        const when = Date.parse((match && match.when) || 0);
+        const out = new Set();
+        for (const mark of marks) {
+          if (!mark || !mark.round) continue;
+          if (mark.map && match && match.map && mapName(mark.map) !== mapName(match.map)) continue;
+          if (when && mark.at && (when < mark.at - 120000 || when > mark.at + 3 * 3600000)) continue;
+          out.add(Number(mark.round));
+        }
+        return out;
+      }
+      if (!document.body.dataset.markKey) {
+        document.body.dataset.markKey = "1";
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "b" && event.key !== "B") return;
+          if (event.metaKey || event.ctrlKey || event.altKey) return;
+          const tag = event.target && event.target.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+          dropRoundMark();
+        });
+        const markBtn = document.getElementById("mark-round");
+        if (markBtn) markBtn.onclick = () => dropRoundMark();
       }
       function roundScrub(match) {
         const rounds = (match && match.rounds) || [];
@@ -1868,20 +2202,42 @@
           const youBuy = ((match.buys || []).find((row) => Number(row.round) === Number(round.n) && String(row.id || "").toLowerCase() === String(((match.players || []).find((player) => player.you) || {}).puuid || "").toLowerCase())) || null;
           const buyBit = youBuy && youBuy.buy ? youBuy.buy + (youBuy.gun ? " " + youBuy.gun : "") : "";
           view.replaceChildren(el("b", null, "Round " + (round.n || at)), el("div", "scrub-score", yours + "–" + theirs), el("div", "sub", [round.you ? "Won" : "Lost", round.how, round.side, buyBit, round.vs ? "1v" + round.vs : ""].filter(Boolean).join(" · ")));
+          ticks.replaceChildren();
+          if (round.plant || round.hold) ticks.append(el("span", "scrub-tick", round.plant ? "Plant" : "Hold"));
+          const youId = String((((match.players || []).find((player) => player.you)) || {}).puuid || "").toLowerCase();
+          for (const edge of match.edges || []) {
+            if (Number(edge.round) !== Number(round.n || at)) continue;
+            const kid = String(edge.kid || "").toLowerCase();
+            const vid = String(edge.vid || "").toLowerCase();
+            const kill = (youId && kid === youId) || /^you\b/i.test(String(edge.killer || ""));
+            const death = (youId && vid === youId) || /^you\b/i.test(String(edge.victim || ""));
+            if (!kill && !death) continue;
+            const tick = el("button", "tiny scrub-tick", kill ? "Kill" : "Death");
+            tick.type = "button";
+            tick.onclick = (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              ticks.querySelectorAll(".scrub-tick").forEach((node) => node.classList.remove("on"));
+              tick.classList.add("on");
+            };
+            ticks.append(tick);
+          }
         };
+        const ticks = el("div", "scrub-ticks");
         prev.onclick = (event) => { event.preventDefault(); event.stopPropagation(); slider.value = String(Number(slider.value) - 1); paint(); };
         next.onclick = (event) => { event.preventDefault(); event.stopPropagation(); slider.value = String(Number(slider.value) + 1); paint(); };
         slider.oninput = paint;
         row.append(prev, slider, next);
-        wrap.append(view, row);
+        wrap.append(view, row, ticks);
         paint();
         return wrap;
       }
-      function roundStrip(rounds) {
+      function roundStrip(rounds, match) {
         if (!rounds || !rounds.length) return null;
+        const marks = match ? markedRoundSet(match) : new Set();
         const line = el("div", "round-line");
         for (const round of rounds) {
-          const pip = el("i", round.you ? "win" : "loss", String(round.n));
+          const pip = el("i", (round.you ? "win" : "loss") + (marks.has(Number(round.n)) ? " marked" : ""), String(round.n));
           bindHoverTip(pip, (tip) => {
             tip.append(el("div", "tip-kicker", "Round " + round.n));
             tip.append(el("b", null, round.you ? "Won" : "Lost"));
@@ -1913,7 +2269,7 @@
           const block = sideList(list, team, mine ? "ally" : "enemy", colors);
           if (block) sides.append(block);
         }
-        const strip = roundStrip(match.rounds);
+        const strip = roundStrip(match.rounds, match);
         const scrub = roundScrub(match);
         if (scrub) body.append(scrub);
         if (strip) body.append(strip);
@@ -2122,6 +2478,8 @@
         id.append(open);
         hero.append(img, id);
         slot.append(hero);
+        const scout = scoutCard(seed);
+        if (scout) slot.append(scout);
         const board = compareBoard();
         if (board) slot.append(board);
         const was = (data && data.was) || seed.was || "";
@@ -2145,9 +2503,13 @@
       }
       async function openPlayer(player) {
         if (!player || !player.puuid) return;
+        const phase = (latestState && latestState.phase) || "";
+        const live = phase === "In game" || phase === "Loading lobby" || phase === "Agent select";
         document.getElementById("scrim").hidden = false;
+        const local = { matches: sharedGames(player), cached: true };
+        renderProfile(player, local);
+        if (live) return;
         const job = fetch("/api/player?id=" + encodeURIComponent(player.puuid), { cache: "no-store" });
-        renderProfile(player, { matches: sharedGames(player), cached: true });
         try {
           renderProfile(player, await (await job).json());
         } catch {

@@ -73,6 +73,31 @@
           root.append(card);
         }
       }
+      function playClutch(row) {
+        const phase = (latestState && latestState.phase) || "";
+        if (phase === "In game" || phase === "Loading lobby" || phase === "Agent select") return;
+        const match = (history || []).find((item) => row && row.id && item.id === row.id) || (history || []).find((item) => (item.rounds || []).some((round) => round.vs));
+        if (match) openDirector(match);
+      }
+      function sessionLadder() {
+        if (!rrPoints || rrPoints.length < 2) return null;
+        const first = rrPoints[0];
+        const last = rrPoints[rrPoints.length - 1];
+        const box = el("div", "ladder");
+        box.append(el("div", "eyebrow", "This act"));
+        box.append(el("b", null, (first.rank || "Rank") + "  →  " + (last.rank || "Rank")));
+        const track = el("div", "ladder-track");
+        const marker = document.createElement("i");
+        const start = (Number(first.tier) || 0) * 100 + (Number(first.rr) || 0);
+        const end = (Number(last.tier) || 0) * 100 + (Number(last.rr) || 0);
+        const span = Math.max(40, Math.abs(end - start));
+        marker.style.left = Math.max(6, Math.min(94, 50 + ((end - start) / span) * 40)) + "%";
+        track.append(marker);
+        box.append(track);
+        const delta = end - start;
+        box.append(el("div", "sub", (delta >= 0 ? "+" : "") + delta + " RR across " + rrPoints.length + " games"));
+        return box;
+      }
       function paintClutches() {
         const root = document.getElementById("clutches");
         if (!root) return;
@@ -115,6 +140,10 @@
           split.append(card);
         }
         board.append(rateCard, split);
+        const playAll = el("button", "tiny solid", "Play clutches");
+        playAll.type = "button";
+        playAll.onclick = () => playClutch(rows[0]);
+        board.append(playAll);
         root.append(board);
         const list = el("div", "clutch-list");
         const picked = clutchPick ? rows.filter((row) => Number(row.vs) === clutchPick) : rows;
@@ -127,6 +156,7 @@
           const when = row.when ? new Date(row.when).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
           mid.append(el("div", "sub", [row.side, row.how, row.mode, row.score, when].filter(Boolean).join(" · ")));
           card.append(mid, el("div", "end", row.fail ? "Died" : "Held"));
+          card.onclick = () => playClutch(row);
           list.append(card);
         });
         root.append(list);
@@ -477,6 +507,8 @@
         root.className = "";
         root.replaceChildren();
         root.append(paintMonth(monthBars()));
+        const ladder = sessionLadder();
+        if (ladder) root.append(ladder);
         if (sessionDay) root.append(paintDayMatches(sessionDay));
         root.append(deskClock(total));
         if (!items.length) root.append(el("div", "empty", "No session yet today. It starts when a game is found."));
@@ -1015,17 +1047,22 @@
             const line = el("div", "status-line");
             const label = el("b", null, row.name || "Replay");
             const meta = el("span", "subline", [row.patch || "Patch unknown", row.saved ? "saved" : ""].filter(Boolean).join(" · "));
-            const open = el("button", "tiny", "Open in Valorant");
-            open.type = "button";
-            open.onclick = async () => {
-              open.textContent = "Opening…";
-              try {
-                const result = await (await fetch("/api/replays", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: row.name }) })).json();
-                open.textContent = result && result.ok ? "Opening Valorant" : ((result && result.error) || "Couldn't open");
-              } catch { open.textContent = "Open in Valorant"; }
-              setTimeout(() => { open.textContent = "Open in Valorant"; }, 1600);
-            };
-            line.append(label, meta, open);
+            line.append(label, meta);
+            if (data && data.game) {
+              const open = el("button", "tiny", "Open in Valorant");
+              open.type = "button";
+              open.onclick = async () => {
+                open.disabled = true;
+                open.textContent = "Asking Valorant…";
+                try {
+                  const result = await (await fetch("/api/replays", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: row.name }) })).json();
+                  open.textContent = result && result.ok ? "Sent to Valorant" : "In your Demos folder";
+                } catch {
+                  open.textContent = "In your Demos folder";
+                }
+              };
+              line.append(open);
+            }
             root.append(line);
           }
         } catch {

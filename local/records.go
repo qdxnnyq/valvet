@@ -936,6 +936,19 @@ func diskFriendIDs() map[string]bool {
 }
 
 func (c *riotClient) withRecords(out snapshot) snapshot {
+	live := out.Phase == "In game" || out.Phase == "Loading lobby" || out.Phase == "Agent select"
+	c.mu.Lock()
+	if live && c.recordsReady && time.Since(c.recordsAt) < 45*time.Second {
+		out.Records = c.recordsView
+		out.Pings = append([]string(nil), c.recordsPings...)
+		if c.recordsAct != nil {
+			got := *c.recordsAct
+			out.LastAct = &got
+		}
+		c.mu.Unlock()
+		return out
+	}
+	c.mu.Unlock()
 	friends := diskFriendIDs()
 	for _, id := range out.FriendIDs {
 		if id != "" {
@@ -953,6 +966,17 @@ func (c *riotClient) withRecords(out snapshot) snapshot {
 		got := brief
 		out.LastAct = &got
 	}
+	c.mu.Lock()
+	c.recordsView = out.Records
+	c.recordsPings = append([]string(nil), out.Pings...)
+	c.recordsAct = nil
+	if out.LastAct != nil {
+		got := *out.LastAct
+		c.recordsAct = &got
+	}
+	c.recordsAt = time.Now()
+	c.recordsReady = true
+	c.mu.Unlock()
 	return out
 }
 

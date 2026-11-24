@@ -1,9 +1,14 @@
+      const rankSeen = new Map();
       function liveRank(player) {
         const peaked = !!player.rankPeak || ((!player.rank || player.rank === "Unranked") && !!player.peak);
         const name = peaked ? (player.peak || player.rank || "Unranked") : (player.rank || "Unranked");
         const icon = peaked ? (player.peakIcon || player.rankIcon) : player.rankIcon;
-        const box = el("button", "live-rank" + (peaked ? " peaked" : ""));
+        const box = el("button", "live-rank coin" + (peaked ? " peaked" : ""));
         box.type = "button";
+        const token = String(player.puuid || player.name || "") ;
+        const coin = token + ":" + name + ":" + (player.rr || "");
+        if (token && rankSeen.has(token) && rankSeen.get(token) !== coin) box.classList.add("flip");
+        if (token) rankSeen.set(token, coin);
         if (icon) {
           const img = document.createElement("img");
           img.alt = "";
@@ -109,9 +114,10 @@
           const host = shape === "ffa" ? el("div", "ffa-grid") : card;
           if (shape === "ffa") card.append(host);
           const colors = partyColors(players);
-          for (const player of list) {
+          list.forEach((player, at) => {
             const tone = colors[player.party] || "";
             const row = el("div", "row" + (playerTracked(player) ? " tracked" : "") + (tone ? " p" + tone : ""));
+            row.style.setProperty("--i", String(at));
             const img = face(player);
             img.className = "agent" + (player.locked ? " just-locked" : "");
             const id = el("div", "live-id");
@@ -133,7 +139,7 @@
             side.append(liveRank(player));
             row.append(img, id, side);
             host.append(row);
-          }
+          });
           grid.append(card);
         });
         const chance = expectedWin(players);

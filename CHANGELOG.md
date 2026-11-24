@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.3
+
+A live match no longer calls Riot while Valorant is connecting, and it stops rereading your history on every refresh.
+Open in Valorant only shows when the game is already open. It does not launch a console.
+Match end, agent select, the rank coin, the dim map, your last death, the round scrubber, duo chemistry, tendencies, round marks, same lobby, clutch playback, the session ladder, the two-loss mute, the act poster, and the scout card are in.
+
 ## 1.9.2
 
 History has a button to hide the stats on top.

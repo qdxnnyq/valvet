@@ -108,6 +108,8 @@ type riotClient struct {
 	friendIDs    []string
 	friendNames  map[string]friendNote
 	liveOnly     bool
+	rankQuiet    bool
+	logAt        time.Time
 	gotAgents    time.Time
 	scoreScan    time.Time
 	partyAt      time.Time
@@ -120,6 +122,16 @@ type riotClient struct {
 	skipBook     bool
 	penalty      string
 	penaltyAt    time.Time
+	gameAt       time.Time
+	lobbyParty   []friend
+	lobbyFriends []friend
+	lobbyAt      time.Time
+	lobbyOK      bool
+	recordsAt    time.Time
+	recordsView  recordView
+	recordsPings []string
+	recordsAct   *actBrief
+	recordsReady bool
 }
 
 func newRiotClient() *riotClient {
@@ -149,8 +161,8 @@ func newRiotClient() *riotClient {
 			MaxIdleConnsPerHost: 4,
 		}},
 		rankHTTP: &http.Client{Timeout: 6 * time.Second, Transport: &http.Transport{
-			MaxConnsPerHost:     8,
-			MaxIdleConnsPerHost: 8,
+			MaxConnsPerHost:     3,
+			MaxIdleConnsPerHost: 2,
 		}},
 		agents:    map[string]agentInfo{},
 		rankIcons: map[int]string{},
@@ -242,6 +254,15 @@ func (c *riotClient) playerLevel(ctx context.Context, sess riotSession, priv map
 			return level
 		}
 		return cached
+	}
+	c.mu.Lock()
+	quiet := c.rankQuiet
+	c.mu.Unlock()
+	if quiet {
+		if cached > 0 {
+			return cached
+		}
+		return level
 	}
 	if got := c.accountXP(ctx, sess); got > 0 {
 		return got
@@ -700,6 +721,10 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 			c.stackBusy = false
 			c.mu.Unlock()
 		}()
+		time.Sleep(12 * time.Second)
+		c.mu.Lock()
+		quietNow := c.rankQuiet
+		c.mu.Unlock()
 		found := map[string]partyHint{}
 		roster := map[string]bool{}
 		for _, p := range copied {
@@ -716,29 +741,42 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 				raw[id] = partyHint{id: strings.ToLower(hint.id), size: hint.size}
 			}
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
-		for _, kind := range []string{"pregame", "core-game"} {
-			if doc := c.glzMatch(ctx, sess, kind); doc != nil {
-				got := map[string]string{}
-				harvestParties(doc, got)
-				for id, party := range got {
-					if party != "" && raw[strings.ToLower(id)].id == "" {
-						raw[strings.ToLower(id)] = partyHint{id: strings.ToLower(party)}
+		presenceN := 0
+		for id := range roster {
+			if hint, ok := presence[id]; ok && hint.id != "" {
+				presenceN++
+			}
+		}
+		skipRemote := quietNow || (len(roster) > 0 && presenceN*2 >= len(roster))
+		heard := 0
+		if !skipRemote {
+			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+			for _, kind := range []string{"pregame", "core-game"} {
+				if doc := c.glzMatch(ctx, sess, kind); doc != nil {
+					got := map[string]string{}
+					harvestParties(doc, got)
+					for id, party := range got {
+						if party != "" && raw[strings.ToLower(id)].id == "" {
+							raw[strings.ToLower(id)] = partyHint{id: strings.ToLower(party)}
+						}
 					}
+					fillGroups(found, hintsFromIDs(got))
 				}
-				fillGroups(found, hintsFromIDs(got))
 			}
+			cancel()
 		}
-		cancel()
 		keep(partyHintsFrom(copied))
-		ids, heard := c.partyIDs(sess, copied)
-		remote := map[string]partyHint{}
-		for id, party := range ids {
-			if party != "" {
-				remote[id] = partyHint{id: strings.ToLower(party)}
+		if !skipRemote {
+			ids, n := c.partyIDs(sess, copied)
+			heard = n
+			remote := map[string]partyHint{}
+			for id, party := range ids {
+				if party != "" {
+					remote[id] = partyHint{id: strings.ToLower(party)}
+				}
 			}
+			keep(remote)
 		}
-		keep(remote)
 		keep(presence)
 		missing := make([]player, 0, len(copied))
 		for _, p := range copied {
@@ -775,13 +813,15 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 			}
 		}
 		pinned := 0
-		for partyID := range parties {
-			if pinned >= 6 {
-				break
+		if !skipRemote {
+			for partyID := range parties {
+				if pinned >= 3 {
+					break
+				}
+				pinned++
+				extraMembers := c.fetchPartyMembers(sess, port, auth, partyID)
+				pinMembers(found, partyID, extraMembers, roster)
 			}
-			pinned++
-			extraMembers := c.fetchPartyMembers(sess, port, auth, partyID)
-			pinMembers(found, partyID, extraMembers, roster)
 		}
 		fillGroups(found, raw)
 		fillGroups(found, c.archiveStacks(copied))
@@ -799,7 +839,7 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 		passes := c.stackPasses
 		c.mu.Unlock()
 		rosterN := len(roster)
-		presenceN := 0
+		presenceN = 0
 		for id := range roster {
 			if _, ok := presence[id]; ok && presence[id].id != "" {
 				presenceN++
@@ -807,7 +847,7 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 		}
 		seen := rosterN > 0 && presenceN*3 >= rosterN*2
 		foreign := foreignStack(grouped, me, mine)
-		if passes >= 10 || (passes >= 2 && seen && (foreign || heard*4 >= rosterN*3)) {
+		if passes >= 10 || skipRemote || (passes >= 2 && seen && (foreign || heard*4 >= rosterN*3)) {
 			c.mu.Lock()
 			c.stackDoneID = matchID
 			c.mu.Unlock()
@@ -903,7 +943,7 @@ func (c *riotClient) fetchPartyMembers(sess riotSession, port, auth, partyID str
 
 func (c *riotClient) archiveStacks(players []player) map[string]partyHint {
 	c.mu.Lock()
-	if c.stackRows == nil || time.Since(c.stackRowsAt) > 20*time.Second {
+	if c.stackRows == nil || time.Since(c.stackRowsAt) > 90*time.Second {
 		c.mu.Unlock()
 		rows := loadMatchArchive()
 		if rows == nil {
@@ -1170,7 +1210,7 @@ func (c *riotClient) applySavedParties(rows []recentMatch) {
 
 func (c *riotClient) flushRanks() {
 	c.mu.Lock()
-	if time.Since(c.rankSaved) < 5*time.Second {
+	if time.Since(c.rankSaved) < 30*time.Second {
 		c.mu.Unlock()
 		return
 	}
@@ -1199,7 +1239,7 @@ func (c *riotClient) partyIDs(sess riotSession, players []player) (map[string]st
 	found := make([]string, len(ids))
 	heard := make([]bool, len(ids))
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 6)
+	sem := make(chan struct{}, 2)
 	for i, id := range ids {
 		wg.Add(1)
 		go func(i int, id string) {

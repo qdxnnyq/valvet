@@ -1,7 +1,7 @@
 {
-  "version": 192,
-  "label": "1.9.2",
-  "name": "1.9.2",
-  "notes": "History can hide the top stats. Sound file and quiet hours match the app. A friend sound uses the alert, only when they are in the match and not in your party.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v192/Valvet.exe"
+  "version": 193,
+  "label": "1.9.3",
+  "name": "1.9.3",
+  "notes": "Live matches no longer call out while Valorant is connecting. Open in Valorant only appears when the game is already open.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v193/Valvet.exe"
 }

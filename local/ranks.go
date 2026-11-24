@@ -61,6 +61,9 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 	need := []string{}
 	seen := map[string]bool{}
 	c.mu.Lock()
+	quiet := c.rankQuiet
+	c.mu.Unlock()
+	c.mu.Lock()
 	for _, group := range groups {
 		for _, p := range group {
 			id := strings.ToLower(p.PUUID)
@@ -75,6 +78,11 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 				continue
 			}
 			seen[id] = true
+			if quiet {
+				if ok && now.Sub(hit.at) < 8*time.Minute {
+					continue
+				}
+			}
 			need = append(need, p.PUUID)
 		}
 	}
@@ -87,7 +95,11 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 	}
 	out := make([]rankHit, len(need))
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 8)
+	limit := 3
+	if quiet {
+		limit = 1
+	}
+	sem := make(chan struct{}, limit)
 	store := func(id string, hit rankHit) {
 		c.mu.Lock()
 		if c.rankCache == nil {
@@ -100,6 +112,9 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 		wg.Add(1)
 		go func(i int, id string) {
 			defer wg.Done()
+			if quiet {
+				time.Sleep(2 * time.Second)
+			}
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			call, cancel := context.WithTimeout(context.Background(), 4*time.Second)
@@ -114,7 +129,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 			hit := rankHit{tier: tier, rr: rr, peak: peak, at: time.Now(), known: tier >= 3 || peak >= 3}
 			store(id, hit)
 			out[i] = hit
-			if tier < 3 {
+			if !quiet && tier < 3 {
 				if t, r := c.tierFromUpdates(call, sess, id); t >= 3 {
 					hit.tier = t
 					hit.rr = r

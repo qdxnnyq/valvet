@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+func (c *riotClient) busyPhase() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	switch c.snap.Phase {
+	case "In game", "Loading lobby", "Agent select":
+		return true
+	default:
+		return false
+	}
+}
+
 func (c *riotClient) noteIdle(asleep, skipStore, skipBook bool) {
 	c.mu.Lock()
 	c.asleep = asleep
@@ -30,7 +41,16 @@ func (c *riotClient) state(ctx context.Context) snapshot {
 		out.Recent = pollRecent(c.recent)
 		return c.withRecords(out)
 	}
-	if time.Since(c.last) < 800*time.Millisecond && !c.last.IsZero() {
+	minGap := 2 * time.Second
+	switch c.snap.Phase {
+	case "Loading lobby":
+		minGap = 12 * time.Second
+	case "In game":
+		minGap = 8 * time.Second
+	case "Agent select":
+		minGap = 4 * time.Second
+	}
+	if time.Since(c.last) < minGap && !c.last.IsZero() {
 		out := c.snap
 		players := append([]player(nil), out.Players...)
 		c.mu.Unlock()
@@ -50,6 +70,18 @@ func (c *riotClient) state(ctx context.Context) snapshot {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if next.OK || c.snap.You == "" {
+		if (next.Phase == "In game" || next.Phase == "Loading lobby") && len(next.Players) == 0 && len(c.snap.Players) > 0 {
+			next.Players = append([]player(nil), c.snap.Players...)
+			if next.Map == "" || next.Map == "Unknown map" {
+				next.Map = c.snap.Map
+			}
+			if next.Mode == "" {
+				next.Mode = c.snap.Mode
+			}
+			if next.Score1 == nil {
+				next.Score1, next.Score2 = c.snap.Score1, c.snap.Score2
+			}
+		}
 		if next.Level == 0 {
 			if c.acctLevel > 0 {
 				next.Level = c.acctLevel
@@ -127,7 +159,24 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		sess.access = got.access
 		sess.entitlement = got.entitlement
 	}
-	party, friends := c.lobby(ctx, port, auth, sess)
+	party, friends := []friend{}, []friend{}
+	c.mu.Lock()
+	heldPhase := c.snap.Phase
+	useLobby := (heldPhase == "In game" || heldPhase == "Loading lobby" || heldPhase == "Agent select") && c.lobbyOK && time.Since(c.lobbyAt) < 20*time.Second
+	if useLobby {
+		party = append([]friend(nil), c.lobbyParty...)
+		friends = append([]friend(nil), c.lobbyFriends...)
+	}
+	c.mu.Unlock()
+	if !useLobby {
+		party, friends = c.lobby(ctx, port, auth, sess)
+		c.mu.Lock()
+		c.lobbyParty = append([]friend(nil), party...)
+		c.lobbyFriends = append([]friend(nil), friends...)
+		c.lobbyAt = time.Now()
+		c.lobbyOK = true
+		c.mu.Unlock()
+	}
 	clientOnly := func() snapshot {
 		c.mu.Lock()
 		level := selfLevel(party)
@@ -152,18 +201,42 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	if entErr != nil || sess.puuid == "" || sess.access == "" || sess.entitlement == "" {
 		return clientOnly()
 	}
-	c.ensureVersion(ctx)
-	logText := readTail(filepath.Join(os.Getenv("LOCALAPPDATA"), "VALORANT", "Saved", "Logs", "ShooterGame.log"), 700_000)
-	region, shard := parseRegion(logText)
-	if region == "" {
-		if locale, err := c.localJSON(ctx, "GET", "https://127.0.0.1:"+port+"/riotclient/region-locale", auth, nil); err == nil {
-			region, shard = normalizeRegion(str(pick(locale, "region")))
+	c.mu.Lock()
+	liveOnly := c.liveOnly
+	skipStore := c.skipStore
+	skipBook := c.skipBook
+	prevPhase := c.snap.Phase
+	prevRegion, prevShard, prevVer := c.session.region, c.session.shard, c.session.version
+	logAt := c.logAt
+	c.mu.Unlock()
+	hot := prevPhase == "In game" || prevPhase == "Loading lobby" || prevPhase == "Agent select" || prevPhase == "In queue"
+	region, shard := "", ""
+	if (hot || time.Since(logAt) < 3*time.Minute) && prevRegion != "" && prevShard != "" {
+		region, shard = prevRegion, prevShard
+		if prevVer != "" {
+			sess.version = prevVer
+		} else {
+			sess.version = c.version
 		}
-	}
-	if ver := parseClientVersion(logText); strings.Contains(ver, "shipping") {
-		sess.version = ver
 	} else {
-		sess.version = c.version
+		if !hot {
+			c.ensureVersion(ctx)
+		}
+		logText := readTail(filepath.Join(os.Getenv("LOCALAPPDATA"), "VALORANT", "Saved", "Logs", "ShooterGame.log"), 180_000)
+		region, shard = parseRegion(logText)
+		if region == "" {
+			if locale, err := c.localJSON(ctx, "GET", "https://127.0.0.1:"+port+"/riotclient/region-locale", auth, nil); err == nil {
+				region, shard = normalizeRegion(str(pick(locale, "region")))
+			}
+		}
+		if ver := parseClientVersion(logText); strings.Contains(ver, "shipping") {
+			sess.version = ver
+		} else if sess.version == "" {
+			sess.version = c.version
+		}
+		c.mu.Lock()
+		c.logAt = time.Now()
+		c.mu.Unlock()
 	}
 	if region == "" || shard == "" {
 		return clientOnly()
@@ -172,20 +245,17 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	c.mu.Lock()
 	c.session = sess
 	c.mu.Unlock()
-	c.ensureAgents(ctx)
-	c.ensureRanks(ctx)
-	c.mu.Lock()
-	liveOnly := c.liveOnly
-	skipStore := c.skipStore
-	skipBook := c.skipBook
-	c.mu.Unlock()
+	if !hot {
+		c.ensureAgents(ctx)
+		c.ensureRanks(ctx)
+	}
 	store := shop{Offers: []storeItem{}, Night: []storeItem{}, Bundles: []bundleView{}, Kingdom: []storeItem{}}
-	if !liveOnly && !skipStore {
-		store = c.dailyStore(ctx, sess)
-	} else if !liveOnly {
+	if hot || liveOnly || skipStore {
 		c.mu.Lock()
 		store = c.shop
 		c.mu.Unlock()
+	} else {
+		store = c.dailyStore(ctx, sess)
 	}
 
 	priv := c.selfPresence(ctx, port, auth, sess.puuid)
@@ -203,16 +273,16 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	switch loop {
 	case "PREGAME":
 		phase = "Agent select"
-		match = c.matchDoc(ctx, port, auth, sess, "pregame")
+		match = c.localMatch(ctx, port, auth, "pregame", sess.puuid)
 	case "INGAME":
 		phase = "In game"
-		match = c.matchDoc(ctx, port, auth, sess, "core-game")
+		match = c.localMatch(ctx, port, auth, "core-game", sess.puuid)
 	default:
-		if m := c.matchDoc(ctx, port, auth, sess, "pregame"); m != nil {
+		if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
 			phase = "Agent select"
 			match = m
 		} else if loop != "MENUS" {
-			if m := c.matchDoc(ctx, port, auth, sess, "core-game"); m != nil {
+			if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
 				phase = "In game"
 				match = m
 			}
@@ -245,35 +315,25 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	players := []player{}
 	if match != nil {
 		players = namedPlayers(match, c.agents)
-		if len(players) < 10 {
-			if extra := c.glzMatch(ctx, sess, "core-game"); extra != nil {
-				players = mergePlayers(players, namedPlayers(extra, c.agents))
-				if len(players) >= 10 && phase == "Agent select" {
-					phase = "Agent select"
-				}
-			} else if id := str(pick(match, "ID", "id")); id != "" {
-				if extra := c.glzByID(ctx, sess, "core-game", id); extra != nil {
-					players = mergePlayers(players, namedPlayers(extra, c.agents))
-				}
-			}
-		}
-		ids := make([]string, 0, len(players))
-		needNames := false
-		for _, p := range players {
-			ids = append(ids, p.PUUID)
-			if blankName(p.Name) {
-				needNames = true
-			}
-		}
-		if needNames {
-			nameCtx, cancelNames := context.WithTimeout(ctx, 2*time.Second)
-			book := c.names(nameCtx, sess, ids)
-			cancelNames()
-			applyNames(players, book)
-			c.rememberNames(book)
-		}
-		if len(players) < 10 {
+		if len(players) < 10 && phase != "In game" && phase != "Loading lobby" {
 			players = c.foldChat(ctx, port, auth, sess.puuid, ourColor, match, players)
+		}
+		if phase != "In game" && phase != "Loading lobby" {
+			ids := make([]string, 0, len(players))
+			needNames := false
+			for _, p := range players {
+				ids = append(ids, p.PUUID)
+				if blankName(p.Name) {
+					needNames = true
+				}
+			}
+			if needNames {
+				nameCtx, cancelNames := context.WithTimeout(ctx, 1500*time.Millisecond)
+				book := c.names(nameCtx, sess, ids)
+				cancelNames()
+				applyNames(players, book)
+				c.rememberNames(book)
+			}
 		}
 		c.applyKnownNames(players)
 		if ourColor == "" {
@@ -309,24 +369,6 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			}
 		}
 		c.decorate(players)
-		if phase == "Agent select" || phase == "In game" || phase == "Loading lobby" {
-			if !lookupsPaused() {
-				c.queueCareer(ctx, sess, players)
-			}
-		}
-		if phase == "Loading lobby" || phase == "Agent select" {
-			missing := 0
-			for _, p := range players {
-				if p.Tier < 3 {
-					missing++
-				}
-			}
-			if missing > 0 {
-				if extra := c.glzMatch(ctx, sess, "pregame"); extra != nil {
-					players = mergePlayers(players, namedPlayers(extra, c.agents))
-				}
-			}
-		}
 		sort.Slice(players, func(i, j int) bool {
 			if players[i].You != players[j].You {
 				return players[i].You
@@ -362,24 +404,41 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		}
 	}
 	c.paintRanks(players)
-	if live && c.ranksMissing(players) {
+	c.mu.Lock()
+	if phase == "In game" || phase == "Loading lobby" {
+		if c.snap.Phase != "In game" && c.snap.Phase != "Loading lobby" {
+			c.gameAt = time.Now()
+		}
+	} else if phase != "Agent select" {
+		c.gameAt = time.Time{}
+	}
+	c.rankQuiet = live
+	gameAge := time.Since(c.gameAt)
+	c.mu.Unlock()
+	rankWait := phase == "Loading lobby" || (phase == "In game" && gameAge < 25*time.Second)
+	if live && !rankWait && c.ranksMissing(players) {
 		c.kickRanks(sess, players)
 	}
 	c.mu.Lock()
 	recent := append([]recentMatch(nil), c.recent...)
 	c.mu.Unlock()
-	if liveOnly {
+	if live || liveOnly {
 		recent = nil
 	}
-	for i := range recent {
-		c.decorate(recent[i].Players)
-		c.paintRanks(recent[i].Players)
+	if !live {
+		for i := range recent {
+			c.decorate(recent[i].Players)
+			c.paintRanks(recent[i].Players)
+		}
 	}
 	if !live && !liveOnly && len(recent) > 0 {
 		flat := []player{}
 		for i := range recent {
 			flat = append(flat, recent[i].Players...)
 		}
+		c.mu.Lock()
+		c.rankQuiet = false
+		c.mu.Unlock()
 		c.kickRanks(sess, flat)
 	}
 	if !live && !skipBook {
@@ -455,7 +514,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			mine = "mine"
 		}
 		forceParty(hints, mine, members, roster)
-		if !c.stacksDone(matchID) {
+		if !c.stacksDone(matchID) && phase != "In game" && phase != "Loading lobby" {
 			c.kickStacks(sess, port, auth, matchID, players, presenceHints, mine, me)
 		}
 		if matchID != "" && partyGrouped(hints) && c.stacksDone(matchID) {
@@ -512,7 +571,13 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	out.Party = party
 	out.Friends = friends
 	out.Store = store
-	out.Penalty = c.penaltyText(ctx)
+	if live {
+		c.mu.Lock()
+		out.Penalty = c.penalty
+		c.mu.Unlock()
+	} else {
+		out.Penalty = c.penaltyText(ctx)
+	}
 	stampSelfLevel(out.Party, out.Level)
 	c.mu.Lock()
 	out.FriendIDs = append([]string(nil), c.friendIDs...)
