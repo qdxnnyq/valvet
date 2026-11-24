@@ -2353,8 +2353,76 @@
         const quietFrom = document.getElementById("set-quiet-from");
         const quietTo = document.getElementById("set-quiet-to");
         if (quietFrom && quietTo) {
+          const dressTime = (input) => {
+            if (!input || input.dataset.dressed) return;
+            input.dataset.dressed = "1";
+            const wrap = document.createElement("span");
+            wrap.className = "time-field";
+            const text = document.createElement("input");
+            text.type = "text";
+            text.inputMode = "numeric";
+            text.placeholder = "00:00";
+            text.maxLength = 5;
+            text.spellcheck = false;
+            text.autocomplete = "off";
+            text.value = input.value || "";
+            const open = document.createElement("button");
+            open.type = "button";
+            open.className = "time-open";
+            open.textContent = "▾";
+            open.setAttribute("aria-label", "Choose a time");
+            const commit = (value) => {
+              const bits = String(value || "").trim().match(/^(\d{1,2}):(\d{2})$/);
+              const next = bits ? String(Math.min(23, Number(bits[1]))).padStart(2, "0") + ":" + String(Math.min(59, Number(bits[2]))).padStart(2, "0") : "";
+              text.value = next;
+              input.value = next;
+              input.dispatchEvent(new Event("change"));
+            };
+            text.addEventListener("keydown", (event) => {
+              if (event.key === "Enter") { event.preventDefault(); commit(text.value); text.blur(); }
+            });
+            text.addEventListener("blur", () => commit(text.value));
+            open.onclick = (event) => {
+              event.preventDefault();
+              document.querySelectorAll(".sound-menu").forEach((menu) => menu.remove());
+              const menu = document.createElement("div");
+              menu.className = "sound-menu";
+              const rect = wrap.getBoundingClientRect();
+              menu.style.left = Math.max(8, rect.left) + "px";
+              menu.style.top = Math.min(window.innerHeight - 12, rect.bottom + 4) + "px";
+              menu.style.width = Math.max(140, rect.width) + "px";
+              menu.style.maxHeight = "240px";
+              for (let hour = 0; hour < 24; hour++) {
+                for (const minute of [0, 30]) {
+                  const value = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+                  const row = document.createElement("button");
+                  row.type = "button";
+                  row.textContent = value;
+                  if (value === text.value) row.classList.add("on");
+                  row.addEventListener("mousedown", (click) => {
+                    click.preventDefault();
+                    commit(value);
+                    menu.remove();
+                  });
+                  menu.append(row);
+                }
+              }
+              document.body.append(menu);
+              const close = (click) => {
+                if (menu.contains(click.target) || wrap.contains(click.target)) return;
+                menu.remove();
+                document.removeEventListener("mousedown", close, true);
+              };
+              setTimeout(() => document.addEventListener("mousedown", close, true), 0);
+            };
+            input.hidden = true;
+            input.parentNode.insertBefore(wrap, input);
+            wrap.append(text, open, input);
+          };
           quietFrom.value = localStorage.getItem("valvet-quiet-from") || "";
           quietTo.value = localStorage.getItem("valvet-quiet-to") || "";
+          dressTime(quietFrom);
+          dressTime(quietTo);
           const saveQuiet = () => {
             localStorage.setItem("valvet-quiet-from", quietFrom.value || "");
             localStorage.setItem("valvet-quiet-to", quietTo.value || "");
@@ -2439,6 +2507,25 @@
         const bindFile = (id, kind, after) => {
           const input = document.getElementById(id);
           if (!input) return;
+          if (!input.dataset.dressed) {
+            input.dataset.dressed = "1";
+            const wrap = document.createElement("span");
+            wrap.className = "file-field";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "tiny solid";
+            btn.textContent = "Choose";
+            const name = document.createElement("b");
+            name.textContent = "None";
+            btn.onclick = (event) => { event.preventDefault(); input.click(); };
+            input.addEventListener("change", () => {
+              const file = input.files && input.files[0];
+              name.textContent = file ? file.name : "None";
+            });
+            input.classList.add("file-hidden");
+            input.parentNode.insertBefore(wrap, input);
+            wrap.append(btn, name, input);
+          }
           input.onchange = () => send(input.files && input.files[0]);
           const row = input.closest(".set-row") || input;
           row.addEventListener("dragover", (event) => { event.preventDefault(); row.classList.add("drop"); });

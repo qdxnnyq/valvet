@@ -68,7 +68,6 @@ func (c *riotClient) state(ctx context.Context) snapshot {
 	c.readMu.Unlock()
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	if next.OK || c.snap.You == "" {
 		if (next.Phase == "In game" || next.Phase == "Loading lobby") && len(next.Players) == 0 && len(c.snap.Players) > 0 {
 			next.Players = append([]player(nil), c.snap.Players...)
@@ -134,7 +133,9 @@ func (c *riotClient) state(ctx context.Context) snapshot {
 	if c.snap.Store.Offers == nil {
 		c.snap.Store.Offers = []storeItem{}
 	}
-	return c.withRecords(c.snap)
+	out := c.snap
+	c.mu.Unlock()
+	return c.withRecords(out)
 }
 
 func (c *riotClient) read(ctx context.Context) snapshot {

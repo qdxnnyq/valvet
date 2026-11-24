@@ -24,11 +24,14 @@
       .set-row input[type="checkbox"]:checked { background: var(--accent); }
       .set-row input[type="checkbox"]:checked::after { transform: translateX(18px); }
       .set-row input[type="range"] { width: 168px; accent-color: var(--accent); }
-      .set-row select, .set-row input[type="url"], .set-row input[type="text"], .set-row input[type="number"], .set-row input[type="time"], .set-row input[type="email"] { width: min(230px, 46%); height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #140c11; color: var(--ink); padding: 0 10px; color-scheme: dark; }
-      .set-row input[type="time"] { width: 132px; font: inherit; }
-      .set-row input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .85; filter: invert(1); }
-      .set-row input[type="file"] { width: min(250px, 54%); height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #140c11; color: var(--muted); font: inherit; font-size: 12px; padding: 3px 8px 3px 4px; }
-      .set-row input[type="file"]::file-selector-button { height: 26px; margin-right: 8px; border: 0; border-radius: 8px; background: var(--accent); color: #1a0610; font: inherit; font-size: 12px; font-weight: 760; padding: 0 10px; cursor: pointer; }
+      .set-row select, .set-row input[type="url"], .set-row input[type="text"], .set-row input[type="number"], .set-row input[type="email"] { width: min(230px, 46%); height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #140c11; color: var(--ink); padding: 0 10px; color-scheme: dark; caret-color: var(--accent); }
+      .file-field, .time-field { display: flex; align-items: center; gap: 8px; width: min(230px, 54%); min-width: 0; }
+      .file-field .tiny, .time-field .time-open { flex: none; height: 34px; }
+      .file-field b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 12px; font-weight: 650; }
+      .file-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+      .time-field input { width: auto; flex: 1; min-width: 0; height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #140c11; color: var(--ink); caret-color: var(--accent); padding: 0 10px; font: inherit; }
+      .time-field input:focus { outline: 1px solid var(--accent); outline-offset: 1px; }
+      .time-field .time-open { width: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #140c11; color: var(--accent); cursor: pointer; font: inherit; font-weight: 760; }
       #pane-settings .tiny.solid { background: var(--accent); color: #1a0610; border: 0; font-weight: 760; }
       .set-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0 8px; }
       #pane-settings .swatches { gap: 8px; margin: 4px 0 12px; flex-wrap: wrap; }

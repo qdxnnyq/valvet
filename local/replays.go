@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -16,6 +21,83 @@ type savedReplay struct {
 	Patch string `json:"patch"`
 	Bytes int64  `json:"bytes"`
 	Saved string `json:"saved"`
+}
+
+var quietLocal = &http.Client{Timeout: 1200 * time.Millisecond, Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}}
+
+func valorantSessions() map[string]any {
+	port, password, err := readLockfile()
+	if err != nil || port == "" {
+		return nil
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 700*time.Millisecond)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://127.0.0.1:"+port+"/product-session/v1/external-sessions", nil)
+	if err != nil {
+		return nil
+	}
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("riot:"+password)))
+	res, err := quietLocal.Do(req)
+	if err != nil {
+		return nil
+	}
+	defer res.Body.Close()
+	if res.StatusCode >= 400 {
+		return nil
+	}
+	var body map[string]any
+	if json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&body) != nil {
+		return nil
+	}
+	return body
+}
+
+func valorantOpen() bool {
+	for _, item := range valorantSessions() {
+		row := asMap(item)
+		if strings.EqualFold(str(pick(row, "productId", "ProductId")), "valorant") {
+			return true
+		}
+	}
+	return false
+}
+
+func askValorantReplay(id string) bool {
+	port, password, err := readLockfile()
+	if err != nil || port == "" || id == "" {
+		return false
+	}
+	auth := "Basic " + base64.StdEncoding.EncodeToString([]byte("riot:"+password))
+	body, _ := json.Marshal(map[string]any{
+		"productId":   "valorant",
+		"patchlineId": "live",
+		"arguments":   []string{"-replay=" + id},
+	})
+	paths := []string{
+		"/product-session/v1/external-sessions",
+		"/riotclient/launch-product?product=valorant&patchline=live&args=-replay%3D" + id,
+	}
+	for _, path := range paths {
+		ctx, cancel := context.WithTimeout(context.Background(), 900*time.Millisecond)
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://127.0.0.1:"+port+path, bytes.NewReader(body))
+		if err != nil {
+			cancel()
+			continue
+		}
+		req.Header.Set("Authorization", auth)
+		req.Header.Set("Content-Type", "application/json")
+		res, err := quietLocal.Do(req)
+		cancel()
+		if err != nil || res == nil {
+			continue
+		}
+		io.Copy(io.Discard, io.LimitReader(res.Body, 4096))
+		res.Body.Close()
+		if res.StatusCode < 400 {
+			return true
+		}
+	}
+	return false
 }
 
 var replayScan struct {

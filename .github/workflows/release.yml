@@ -1,8 +1,6 @@
 name: Release
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
 jobs:
   windows:
     runs-on: windows-latest
@@ -14,6 +12,3 @@ jobs:
       - name: Build
         working-directory: local
         run: go build -ldflags "-H windowsgui" -o ../Valvet.exe .
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: Valvet.exe

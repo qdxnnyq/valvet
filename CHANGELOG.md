@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.4
+
+Friends, the store, bundles, and your profile load again.
+Choose file fits the sound row. Quiet hours are a list, and you can type the time.
+The GitHub release workflow no longer runs on every tag.
+
 ## 1.9.3
 
 A live match no longer calls Riot while Valorant is connecting, and it stops rereading your history on every refresh.
