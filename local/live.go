@@ -281,14 +281,14 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	}
 
 	priv := c.selfPresence(ctx, port, auth, sess.puuid)
-	loop := strings.ToUpper(strings.TrimSpace(str(pick(priv, "sessionLoopState", "SessionLoopState"))))
-	queue := str(pick(priv, "queueId", "queueID", "QueueID"))
-	mapPath := str(pick(priv, "matchMap", "MatchMap"))
+	loop := strings.ToUpper(strings.TrimSpace(str(presencePick(priv, "sessionLoopState", "SessionLoopState", "session_loop_state", "partyOwnerSessionLoopState", "PartyOwnerSessionLoopState"))))
+	queue := str(presencePick(priv, "queueId", "queueID", "QueueID", "partyOwnerQueueId", "PartyOwnerQueueId"))
+	mapPath := str(presencePick(priv, "matchMap", "MatchMap"))
 	if mapPath == "" {
-		mapPath = str(pick(priv, "partyOwnerMatchMap", "PartyOwnerMatchMap"))
+		mapPath = str(presencePick(priv, "partyOwnerMatchMap", "PartyOwnerMatchMap"))
 	}
 	ally, enemy := liveScores(priv)
-	ourColor := str(pick(priv, "partyOwnerMatchCurrentTeam", "PartyOwnerMatchCurrentTeam"))
+	ourColor := str(presencePick(priv, "partyOwnerMatchCurrentTeam", "PartyOwnerMatchCurrentTeam"))
 
 	var match map[string]any
 	phase := "In menu"
@@ -300,23 +300,12 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			phase = "Agent select"
 		}
 	} else {
-		switch loop {
-		case "PREGAME":
+		if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
 			phase = "Agent select"
-			match = c.localMatch(ctx, port, auth, "pregame", sess.puuid)
-		case "INGAME":
+			match = m
+		} else if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
 			phase = "In game"
-			match = c.localMatch(ctx, port, auth, "core-game", sess.puuid)
-		default:
-			if m := c.localMatch(ctx, port, auth, "pregame", sess.puuid); m != nil {
-				phase = "Agent select"
-				match = m
-			} else if loop != "MENUS" {
-				if m := c.localMatch(ctx, port, auth, "core-game", sess.puuid); m != nil {
-					phase = "In game"
-					match = m
-				}
-			}
+			match = m
 		}
 	}
 	if match == nil && (loop == "PREGAME" || loop == "INGAME") && sess.region != "" && sess.shard != "" {
@@ -328,9 +317,22 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			match = m
 			if loop == "PREGAME" {
 				phase = "Agent select"
-			} else if phase != "Loading lobby" {
+			} else {
 				phase = "In game"
 			}
+		}
+	}
+	if match == nil {
+		state, _, _, _, _, _, _, _, _, _, _ := activity(priv, "", "valorant")
+		switch state {
+		case "In queue":
+			phase = "In queue"
+		case "In lobby":
+			phase = "In lobby"
+		case "Agent select":
+			phase = "Agent select"
+		case "In game":
+			phase = "In game"
 		}
 	}
 	if match != nil {
@@ -346,15 +348,6 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			} else if strings.Contains(state, "provision") || strings.Contains(state, "finished") {
 				phase = "Loading lobby"
 			}
-		}
-	}
-	if match == nil {
-		state, _, _, _, _, _, _, _, _, _, _ := activity(priv, "", "valorant")
-		switch state {
-		case "In queue":
-			phase = "In queue"
-		case "In lobby":
-			phase = "In lobby"
 		}
 	}
 	players := []player{}

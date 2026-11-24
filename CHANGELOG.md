@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.19
+
+A live game leaves the waiting screen and shows the lobby.
+
 ## 1.9.18
 
 A found match leaves the waiting screen and opens the live lobby.

@@ -153,8 +153,8 @@ func newRiotClient() *riotClient {
 	return &riotClient{
 		local: &http.Client{Timeout: 8 * time.Second, Transport: &http.Transport{
 			TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
-			MaxConnsPerHost:     2,
-			MaxIdleConnsPerHost: 2,
+			MaxConnsPerHost:     8,
+			MaxIdleConnsPerHost: 8,
 		}},
 		remote: &http.Client{Timeout: 12 * time.Second, Transport: &http.Transport{
 			MaxConnsPerHost:     6,

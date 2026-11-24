@@ -36,7 +36,7 @@
         const phase = (latestState && latestState.phase) || "";
         const active = phase === "In game" || phase === "Agent select" || phase === "Loading lobby" || phase === "In queue" || phase === "In lobby";
         const ranksDue = ((latestState && latestState.players) || []).some((player) => player && player.puuid && (!player.rank || (player.rank === "Unranked" && !(Number(player.tier) >= 3))));
-        const wait = document.hidden ? 60000 : phase === "Loading lobby" ? 12000 : phase === "In game" ? 8000 : phase === "Agent select" ? 5000 : active ? 10000 : 16000;
+        const wait = document.hidden ? 60000 : phase === "Loading lobby" ? 4000 : phase === "In game" ? 4000 : phase === "Agent select" ? 2500 : active ? 4000 : 4000;
         setTimeout(() => {
           if (gen !== tickGen) return;
           tick().finally(() => { if (gen === tickGen) armTick(); });

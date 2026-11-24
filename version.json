@@ -1,7 +1,7 @@
 {
-  "version": 208,
-  "label": "1.9.18",
-  "name": "1.9.18",
-  "notes": "A found match leaves the waiting screen and opens the live lobby.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v208/Valvet.exe"
+  "version": 209,
+  "label": "1.9.19",
+  "name": "1.9.19",
+  "notes": "A live game leaves the waiting screen and shows the lobby.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v209/Valvet.exe"
 }
