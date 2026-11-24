@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.21
+
+Live board uses the history bubbles, with current rank, peak, and parties.
+
 ## 1.9.20
 
 The live board is the 1.8.23 one again.

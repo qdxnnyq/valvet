@@ -733,10 +733,7 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 			c.stackBusy = false
 			c.mu.Unlock()
 		}()
-		time.Sleep(12 * time.Second)
-		c.mu.Lock()
-		quietNow := c.rankQuiet
-		c.mu.Unlock()
+		time.Sleep(time.Second)
 		found := map[string]partyHint{}
 		roster := map[string]bool{}
 		for _, p := range copied {
@@ -759,7 +756,16 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 				presenceN++
 			}
 		}
-		skipRemote := quietNow || (len(roster) > 0 && presenceN*2 >= len(roster))
+		skipRemote := false
+		if len(roster) > 0 {
+			covered := 0
+			for id := range roster {
+				if hint, ok := presence[id]; ok && hint.id != "" {
+					covered++
+				}
+			}
+			skipRemote = covered == len(roster)
+		}
 		heard := 0
 		if !skipRemote {
 			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
@@ -827,7 +833,7 @@ func (c *riotClient) kickStacks(sess riotSession, port, auth, matchID string, pl
 		pinned := 0
 		if !skipRemote {
 			for partyID := range parties {
-				if pinned >= 3 {
+				if pinned >= 6 {
 					break
 				}
 				pinned++

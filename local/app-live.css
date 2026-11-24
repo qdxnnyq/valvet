@@ -174,9 +174,22 @@
       #pane-live.match .team h2, #pane-live.match .team-name { flex: none; margin: 0; font-size: 22px; letter-spacing: -0.04em; text-transform: none; color: var(--ink); font-weight: 740; }
       #pane-live.match .team.ally h2, #pane-live.match .team.ally .team-name { color: var(--you); }
       #pane-live.match .team.enemy h2, #pane-live.match .team.enemy .team-name { color: var(--enemy); }
-      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 10px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) 78px 128px; align-items: center; gap: 10px; }
+      #pane-live.match .row { flex: 0 0 auto; min-height: 72px; padding: 8px 8px 8px 10px; overflow: visible; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
       #pane-live.match .agent { width: 56px; height: 56px; border-radius: 14px; object-fit: contain; object-position: center; background: #1a1016; padding: 2px; box-sizing: border-box; }
-      #pane-live.match .squad { margin: 0; font-size: 11px; padding: 3px 8px; }
+      #pane-live.match .live-side { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
+      #pane-live.match .live-side .ranks { display: inline-flex; align-items: center; gap: 4px; }
+      #pane-live.match .hrank,
+      #pane-live.match .squad { display: inline-flex; align-items: center; gap: 4px; height: 20px; margin: 0; padding: 0 7px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0,0,0,.28); color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; line-height: 1; white-space: nowrap; width: auto; }
+      #pane-live.match .hrank.is-peak { color: #ffd0e4; border-color: rgba(255,180,212,.7); background: rgba(255,95,162,.1); }
+      #pane-live.match .hrank .rankimg { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; background: transparent; }
+      #pane-live.match .squad.sA { color: #ffb3d4; border-color: rgba(255,95,162,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sB { color: #b9d6ff; border-color: rgba(126,182,255,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sC { color: #f0d48a; border-color: rgba(226,182,87,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sD { color: #b7ebc9; border-color: rgba(125,206,160,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sE { color: #ddc6ff; border-color: rgba(195,155,255,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sF { color: #ffc7aa; border-color: rgba(255,155,106,.55); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sG { color: #b8fff6; border-color: rgba(61,255,242,.45); background: rgba(0,0,0,.28); }
+      #pane-live.match .squad.sH { color: #e7ff9a; border-color: rgba(214,255,74,.45); background: rgba(0,0,0,.28); }
       #pane-live.match .who { display: block; max-width: 100%; font-size: 14px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
       #pane-live.match .who .meta { display: inline; margin: 0; color: var(--accent); font-size: 12px; }
       #pane-live.match .live-rank b { font-size: 15px; }

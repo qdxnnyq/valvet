@@ -113,11 +113,11 @@
             id.append(top);
             const agent = player.agent && player.agent !== "Picking" ? player.agent : "";
             if (agent) id.append(el("div", "live-agent", agent));
-            const partyCell = el("div", "live-party");
-            if (tone) partyCell.append(el("span", "squad s" + tone, "Party " + tone));
             const side = el("div", "live-side");
-            side.append(liveRank(player));
-            row.append(img, id, partyCell, side);
+            const rank = rankMark(player);
+            if (rank) side.append(rank);
+            if (tone) side.append(el("span", "squad s" + tone, "P" + tone));
+            row.append(img, id, side);
             host.append(row);
           }
           grid.append(card);

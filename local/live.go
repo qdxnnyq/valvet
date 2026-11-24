@@ -421,11 +421,11 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	} else if phase != "Agent select" {
 		c.gameAt = time.Time{}
 	}
-	c.rankQuiet = live
-	gameAge := time.Since(c.gameAt)
+	if live {
+		c.rankQuiet = false
+	}
 	c.mu.Unlock()
-	rankWait := phase == "Loading lobby" || (phase == "In game" && gameAge < 25*time.Second)
-	if live && !rankWait && c.ranksMissing(players) {
+	if live && c.ranksMissing(players) {
 		c.kickRanks(sess, players)
 	}
 	c.mu.Lock()
@@ -530,7 +530,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 			mine = "mine"
 		}
 		forceParty(hints, mine, members, roster)
-		if !c.stacksDone(matchID) && phase != "In game" && phase != "Loading lobby" {
+		if !c.stacksDone(matchID) {
 			c.kickStacks(sess, port, auth, matchID, players, presenceHints, mine, me)
 		}
 		if matchID != "" && partyGrouped(hints) && c.stacksDone(matchID) {

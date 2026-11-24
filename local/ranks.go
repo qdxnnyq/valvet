@@ -46,7 +46,7 @@ func (c *riotClient) ranksMissing(players []player) bool {
 			continue
 		}
 		hit, ok := c.rankCache[id]
-		if rankHitFresh(hit, ok, now) && (hit.tier >= 3 || hit.peak >= 3 || p.Tier >= 3) {
+		if rankDone(hit, ok, now) {
 			continue
 		}
 		return true
@@ -75,15 +75,10 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 			if rankDone(hit, ok, now) {
 				continue
 			}
-			if ok && !hit.fetched && now.Sub(hit.at) < 2*time.Minute {
+			if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 45*time.Second {
 				continue
 			}
 			seen[id] = true
-			if quiet {
-				if ok && now.Sub(hit.at) < 8*time.Minute {
-					continue
-				}
-			}
 			need = append(need, p.PUUID)
 		}
 	}
@@ -114,7 +109,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 		go func(i int, id string) {
 			defer wg.Done()
 			if quiet {
-				time.Sleep(2 * time.Second)
+				time.Sleep(150 * time.Millisecond)
 			}
 			sem <- struct{}{}
 			defer func() { <-sem }()
@@ -176,7 +171,7 @@ func (c *riotClient) kickRanks(sess riotSession, players []player) {
 		if rankDone(hit, ok, now) {
 			continue
 		}
-		if ok && !hit.fetched && now.Sub(hit.at) < 2*time.Minute {
+		if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 45*time.Second {
 			continue
 		}
 		need = true
