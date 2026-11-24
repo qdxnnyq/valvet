@@ -391,6 +391,15 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	if match != nil {
 		matchID = strings.ToLower(str(pick(match, "ID", "id", "MatchID", "matchId")))
 	}
+	c.paintRanks(players)
+	if live {
+		c.mu.Lock()
+		c.rankQuiet = false
+		c.mu.Unlock()
+		if c.ranksMissing(players) {
+			c.kickRanks(sess, players)
+		}
+	}
 	presenceHints := map[string]partyHint{}
 	if live && len(players) > 0 {
 		pctx, cancelPresence := context.WithTimeout(ctx, 1200*time.Millisecond)
@@ -421,13 +430,7 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 	} else if phase != "Agent select" {
 		c.gameAt = time.Time{}
 	}
-	if live {
-		c.rankQuiet = false
-	}
 	c.mu.Unlock()
-	if live && c.ranksMissing(players) {
-		c.kickRanks(sess, players)
-	}
 	c.mu.Lock()
 	recent := append([]recentMatch(nil), c.recent...)
 	c.mu.Unlock()

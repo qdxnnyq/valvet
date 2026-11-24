@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.23
+
+Live ranks and every party load together, without waiting on each other.
+
 ## 1.9.22
 
 The after-game card is cleaned up. Mute is no longer on it.

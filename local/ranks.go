@@ -75,7 +75,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 			if rankDone(hit, ok, now) {
 				continue
 			}
-			if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 45*time.Second {
+			if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 8*time.Second {
 				continue
 			}
 			seen[id] = true
@@ -91,10 +91,7 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 	}
 	out := make([]rankHit, len(need))
 	var wg sync.WaitGroup
-	limit := 3
-	if quiet {
-		limit = 1
-	}
+	limit := 5
 	sem := make(chan struct{}, limit)
 	store := func(id string, hit rankHit) {
 		c.mu.Lock()
@@ -108,9 +105,6 @@ func (c *riotClient) fillRanks(ctx context.Context, sess riotSession, groups ...
 		wg.Add(1)
 		go func(i int, id string) {
 			defer wg.Done()
-			if quiet {
-				time.Sleep(150 * time.Millisecond)
-			}
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			call, cancel := context.WithTimeout(context.Background(), 4*time.Second)
@@ -171,7 +165,7 @@ func (c *riotClient) kickRanks(sess riotSession, players []player) {
 		if rankDone(hit, ok, now) {
 			continue
 		}
-		if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 45*time.Second {
+		if ok && !hit.fetched && !hit.known && now.Sub(hit.at) < 8*time.Second {
 			continue
 		}
 		need = true
@@ -190,12 +184,16 @@ func (c *riotClient) kickRanks(sess riotSession, players []player) {
 	go func() {
 		defer func() {
 			c.mu.Lock()
-			c.rankBusy = false
+			left := append([]player(nil), c.rankWait...)
 			c.rankWait = nil
+			c.rankBusy = false
 			c.mu.Unlock()
+			if len(left) > 0 {
+				c.kickRanks(sess, left)
+			}
 		}()
 		for {
-			ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
 			c.fillRanks(ctx, sess, copied)
 			cancel()
 			c.mu.Lock()

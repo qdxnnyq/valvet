@@ -1,7 +1,7 @@
 {
-  "version": 212,
-  "label": "1.9.22",
-  "name": "1.9.22",
-  "notes": "The after-game card is cleaned up. Mute is no longer on it.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v212/Valvet.exe"
+  "version": 213,
+  "label": "1.9.23",
+  "name": "1.9.23",
+  "notes": "Live ranks and every party load together, without waiting on each other.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v213/Valvet.exe"
 }
