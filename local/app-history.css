@@ -6,14 +6,6 @@
       .wl.l { color: #ffb3c4; border-color: rgba(255,77,109,.4); background: rgba(255,77,109,.1); }
       .game .line b { font-size: 26px; letter-spacing: -0.04em; }
       .game.shape-ffa .line .lbl, .game.shape-duo .line .lbl, .game.shape-pairs .line .lbl { letter-spacing: .08em; }
-      .ffa-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 2px 18px; margin: 0 0 10px; }
-      .ffa-chip { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; text-align: left; }
-      .ffa-chip:hover { background: rgba(255,255,255,.04); }
-      .ffa-chip i { color: var(--muted); font-style: normal; font-size: 11px; font-weight: 750; }
-      .ffa-chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-      .ffa-chip b { font-size: 13px; font-variant-numeric: tabular-nums; }
-      .ffa-chip.me span { color: var(--you); }
-      .ffa-chip.top b { color: var(--accent); }
       .pair-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
       .pair { min-width: 180px; padding: 6px 10px 8px; border: 1px solid var(--line); border-radius: 12px; background: #140c11; color: inherit; }
       .pair.mine { box-shadow: inset 2px 0 0 var(--you); }

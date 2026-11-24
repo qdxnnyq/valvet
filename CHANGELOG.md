@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.11
+
+Deathmatch uses the same two-column player rows as the rest of history.
+
 ## 1.9.10
 
 Player cards use one layout.

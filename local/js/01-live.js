@@ -281,14 +281,14 @@
         if (player.rankPeak) wrap.append(el("i", "peak-flag", "Not active"));
         return wrap;
       }
-      function sideList(players, team, tone, colors) {
+      function sideList(players, team, tone, colors, titleText) {
         const list = byKDA(Array.isArray(team) ? team : (players || []).filter((player) => player.team === team));
         const label = Array.isArray(team) ? "" : sideLabel(team);
         if (!list.length) return null;
         const block = el("div", "sidecol " + (tone || ""));
         const avg = averageRank(list);
-        const title = (label || (tone === "ally" ? "Your side" : tone === "enemy" ? "Enemy" : "Players")) + (avg ? " · avg " + avg : "");
-        block.append(el("div", "kicker", title));
+        const title = titleText != null ? titleText : ((label || (tone === "ally" ? "Your side" : tone === "enemy" ? "Enemy" : "Players")) + (avg ? " · avg " + avg : ""));
+        if (title) block.append(el("div", "kicker", title));
         for (const player of list) {
           const button = el("button", "person" + (player.you ? " me" : ""));
           button.type = "button";

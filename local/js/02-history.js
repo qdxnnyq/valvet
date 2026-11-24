@@ -379,7 +379,7 @@
           const strip = shape === "sides" ? roundStrip(match.rounds, match) : null;
           card.append(button);
           if (strip) card.append(strip);
-          if (shape === "ffa") card.append(ffaStrip(match));
+          if (shape === "ffa") card.append(ffaSides(match));
           else if (shape === "duo" || shape === "pairs") card.append(pairRow(match, shape));
           else card.append(sides);
           card.append(box);
@@ -417,19 +417,19 @@
         wrap.append(el("span", "lbl", you && winner && whoKey(you) === whoKey(winner) ? "Won" : "Winner"));
         return wrap;
       }
-      function ffaStrip(match) {
+      function ffaSides(match) {
         const players = [...((match && match.players) || [])].sort((a, b) => killCount(b) - killCount(a) || String(a.name || "").localeCompare(String(b.name || "")));
-        const board = el("div", "ffa-board");
-        players.forEach((player, index) => {
-          const chip = el("button", "ffa-chip" + (player.you ? " me" : "") + (index === 0 ? " top" : ""));
-          chip.type = "button";
-          chip.append(el("i", null, String(index + 1)));
-          chip.append(el("span", null, player.you ? "You" : String(player.name || "Player").split("#")[0].trim()));
-          chip.append(el("b", null, String(killCount(player))));
-          chip.onclick = (event) => { event.preventDefault(); event.stopPropagation(); openPlayer(player); };
-          board.append(chip);
-        });
-        return board;
+        const mid = Math.ceil(players.length / 2);
+        const sides = el("div", "sides");
+        const colors = partyColors(players);
+        const leftPlayers = players.slice(0, mid);
+        const rightPlayers = players.slice(mid);
+        const youRight = rightPlayers.some((player) => player.you);
+        const left = sideList(leftPlayers, leftPlayers, youRight ? "" : "ally", colors, "");
+        const right = sideList(rightPlayers, rightPlayers, youRight ? "ally" : "", colors, "");
+        if (left) sides.append(left);
+        if (right) sides.append(right);
+        return sides;
       }
       function pairRow(match, shape) {
         const players = (match && match.players) || [];

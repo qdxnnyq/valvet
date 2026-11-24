@@ -1,7 +1,7 @@
 {
-  "version": 200,
-  "label": "1.9.10",
-  "name": "1.9.10",
-  "notes": "Player cards are one layout. Deathmatch shows everyone in columns. The act poster saves into Pictures and opens.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v200/Valvet.exe"
+  "version": 201,
+  "label": "1.9.11",
+  "name": "1.9.11",
+  "notes": "Deathmatch uses the same history rows as every other mode.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v201/Valvet.exe"
 }
