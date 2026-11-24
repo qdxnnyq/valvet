@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func saveUserFile(name, dataURL string, video bool) (string, error) {
+func saveUserFile(name, dataURL string, video, reveal bool) (string, error) {
 	raw := dataURL
 	if i := strings.Index(dataURL, ","); i >= 0 {
 		raw = dataURL[i+1:]
@@ -61,7 +61,7 @@ func saveUserFile(name, dataURL string, video bool) (string, error) {
 			}
 		}
 	}
-	if !video {
+	if reveal {
 		revealFile(path)
 	}
 	return path, nil

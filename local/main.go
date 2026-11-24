@@ -724,12 +724,13 @@ func main() {
 			Name  string `json:"name"`
 			Data  string `json:"data"`
 			Video bool   `json:"video"`
+			Quiet bool   `json:"quiet"`
 		}
 		if json.NewDecoder(io.LimitReader(r.Body, 48<<20)).Decode(&body) != nil || body.Data == "" {
 			_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": "Nothing to save."})
 			return
 		}
-		path, err := saveUserFile(body.Name, body.Data, body.Video)
+		path, err := saveUserFile(body.Name, body.Data, body.Video, !body.Video && !body.Quiet)
 		if err != nil {
 			_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
 			return

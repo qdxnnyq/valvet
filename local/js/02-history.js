@@ -1458,7 +1458,7 @@
           paintActCompare(root);
           const poster = el("button", "tiny", "Act poster");
           poster.type = "button";
-          poster.onclick = () => copyActPoster();
+          poster.onclick = () => copyActPoster(poster);
           root.append(poster);
           const slot = el("div");
           slot.id = "insight-slot";
@@ -1974,58 +1974,215 @@
         card.append(line);
         return card;
       }
-      function copyActPoster() {
+      function copyActPoster(button) {
         const canvas = document.createElement("canvas");
-        canvas.width = 900;
-        canvas.height = 1200;
+        const W = 1080;
+        const H = 1520;
+        canvas.width = W;
+        canvas.height = H;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        ctx.fillStyle = "#14080f";
-        ctx.fillRect(0, 0, 900, 1200);
-        ctx.fillStyle = "#ff5fa2";
-        ctx.font = "700 28px Segoe UI, sans-serif";
-        ctx.fillText("VALVET", 64, 96);
         const games = (history || []).length;
         let wins = 0;
+        let kills = 0;
+        let deaths = 0;
+        let hsN = 0;
+        let hsSum = 0;
         const agents = {};
         const maps = {};
         for (const match of history || []) {
           if (match.won === true) wins += 1;
           const you = (match.players || []).find((player) => player.you);
-          if (you && you.agent && you.agent !== "Picking") agents[you.agent] = (agents[you.agent] || 0) + 1;
-          if (match.map) maps[match.map] = (maps[match.map] || 0) + 1;
+          if (you) {
+            kills += Number(you.kills) || 0;
+            deaths += Number(you.deaths) || 0;
+            const hs = parseInt(String(you.hs || "").replace("%", ""), 10);
+            if (!Number.isNaN(hs)) { hsN += 1; hsSum += hs; }
+            if (you.agent && you.agent !== "Picking") agents[you.agent] = (agents[you.agent] || 0) + 1;
+          }
+          const map = mapName(match.map) || match.map;
+          if (map) maps[map] = (maps[map] || 0) + 1;
         }
         const best = (book) => Object.entries(book).sort((a, b) => b[1] - a[1])[0];
         const agent = best(agents);
         const map = best(maps);
+        const losses = Math.max(0, games - wins);
+        const rate = games ? Math.round((wins / games) * 100) : 0;
+        const kd = deaths ? (kills / deaths).toFixed(2) : (kills ? kills.toFixed(2) : "—");
+        const hs = hsN ? Math.round(hsSum / hsN) + "%" : "—";
         const last = (rrPoints || [])[(rrPoints || []).length - 1];
+        const rank = last && last.rank ? last.rank : "This act";
+        const rr = last && last.rr != null && last.rr !== "" ? String(last.rr) + " RR" : "";
+        const who = String((latestState && latestState.you) || "").trim();
+        const box = (x, y, w, h, r) => {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x, y + h, r);
+          ctx.arcTo(x, y + h, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+        };
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, "#1a0c14");
+        bg.addColorStop(0.45, "#10080d");
+        bg.addColorStop(1, "#09060a");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+        const glow = ctx.createRadialGradient(860, 180, 40, 860, 220, 520);
+        glow.addColorStop(0, "rgba(255,95,162,.34)");
+        glow.addColorStop(1, "rgba(255,95,162,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = "rgba(255,95,162,.35)";
+        ctx.lineWidth = 2;
+        box(36, 36, W - 72, H - 72, 36);
+        ctx.stroke();
         ctx.fillStyle = "#fff7fa";
-        ctx.font = "760 68px Segoe UI, sans-serif";
-        ctx.fillText(last && last.rank ? last.rank : "This act", 64, 230);
-        ctx.fillStyle = "#ffd0e4";
-        ctx.font = "650 32px Segoe UI, sans-serif";
-        ctx.fillText(wins + " wins   " + Math.max(0, games - wins) + " losses", 64, 310);
-        ctx.fillStyle = "#fff7fa";
-        ctx.font = "700 40px Segoe UI, sans-serif";
-        ctx.fillText(agent ? agent[0] : "—", 64, 460);
+        ctx.font = "760 28px Segoe UI, sans-serif";
+        ctx.fillText("VAL", 78, 118);
+        const valW = ctx.measureText("VAL").width;
+        ctx.fillStyle = "#ff5fa2";
+        ctx.fillText("VET", 78 + valW + 2, 118);
         ctx.fillStyle = "#b89aaa";
-        ctx.font = "600 22px Segoe UI, sans-serif";
-        ctx.fillText("Most played agent", 64, 500);
+        ctx.font = "650 22px Segoe UI, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText("THIS ACT", W - 78, 114);
+        ctx.textAlign = "left";
+        if (who) {
+          ctx.fillStyle = "#b89aaa";
+          ctx.font = "650 26px Segoe UI, sans-serif";
+          ctx.fillText(who, 78, 188);
+        }
         ctx.fillStyle = "#fff7fa";
-        ctx.font = "700 40px Segoe UI, sans-serif";
-        ctx.fillText(map ? (mapName(map[0]) || map[0]) : "—", 64, 620);
+        ctx.font = "760 92px Segoe UI, sans-serif";
+        ctx.fillText(rank, 78, who ? 300 : 270);
+        if (rr) {
+          ctx.fillStyle = "#ff5fa2";
+          ctx.font = "740 32px Segoe UI, sans-serif";
+          ctx.fillText(rr, 82, who ? 352 : 322);
+        }
+        const cardY = who ? 400 : 370;
+        box(78, cardY, W - 156, 250, 28);
+        ctx.fillStyle = "rgba(255,255,255,.04)";
+        ctx.fill();
+        ctx.fillStyle = "#fff7fa";
+        ctx.font = "760 108px Segoe UI, sans-serif";
+        ctx.fillText(rate + "%", 112, cardY + 128);
         ctx.fillStyle = "#b89aaa";
-        ctx.font = "600 22px Segoe UI, sans-serif";
-        ctx.fillText("Most played map", 64, 660);
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "valvet-act.png";
-          link.click();
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
+        ctx.font = "650 24px Segoe UI, sans-serif";
+        ctx.fillText("WIN RATE", 118, cardY + 168);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#9dffc3";
+        ctx.font = "760 42px Segoe UI, sans-serif";
+        ctx.fillText(String(wins), W - 118, cardY + 96);
+        ctx.fillStyle = "#b89aaa";
+        ctx.font = "650 20px Segoe UI, sans-serif";
+        ctx.fillText("WINS", W - 118, cardY + 128);
+        ctx.fillStyle = "#ffb3c0";
+        ctx.font = "760 42px Segoe UI, sans-serif";
+        ctx.fillText(String(losses), W - 118, cardY + 184);
+        ctx.fillStyle = "#b89aaa";
+        ctx.font = "650 20px Segoe UI, sans-serif";
+        ctx.fillText("LOSSES", W - 118, cardY + 214);
+        ctx.textAlign = "left";
+        const barX = 118;
+        const barY = cardY + 204;
+        const barW = 430;
+        ctx.fillStyle = "rgba(255,255,255,.08)";
+        box(barX, barY, barW, 14, 7);
+        ctx.fill();
+        ctx.fillStyle = "#ff5fa2";
+        box(barX, barY, Math.max(14, barW * (rate / 100)), 14, 7);
+        ctx.fill();
+        const tiles = [
+          { value: kd, label: "K / D" },
+          { value: hs, label: "HEADSHOT" },
+          { value: String(games), label: "GAMES" },
+        ];
+        tiles.forEach((tile, index) => {
+          const x = 78 + index * 312;
+          const y = cardY + 286;
+          box(x, y, 292, 168, 24);
+          ctx.fillStyle = "rgba(255,255,255,.04)";
+          ctx.fill();
+          ctx.fillStyle = "#fff7fa";
+          ctx.font = "760 54px Segoe UI, sans-serif";
+          ctx.fillText(tile.value, x + 28, y + 86);
+          ctx.fillStyle = "#b89aaa";
+          ctx.font = "650 18px Segoe UI, sans-serif";
+          ctx.fillText(tile.label, x + 28, y + 128);
         });
+        const feature = (x, y, kicker, title, note) => {
+          box(x, y, 452, 210, 24);
+          ctx.fillStyle = "rgba(255,95,162,.08)";
+          ctx.fill();
+          ctx.fillStyle = "#ff5fa2";
+          ctx.font = "700 18px Segoe UI, sans-serif";
+          ctx.fillText(kicker, x + 28, y + 48);
+          ctx.fillStyle = "#fff7fa";
+          ctx.font = "760 40px Segoe UI, sans-serif";
+          ctx.fillText(String(title || "—").slice(0, 16), x + 28, y + 112);
+          ctx.fillStyle = "#b89aaa";
+          ctx.font = "600 22px Segoe UI, sans-serif";
+          ctx.fillText(note, x + 28, y + 158);
+        };
+        const featY = cardY + 486;
+        feature(78, featY, "AGENT", agent ? agent[0] : "—", agent ? agent[1] + " games" : "No games yet");
+        feature(550, featY, "MAP", map ? map[0] : "—", map ? map[1] + " games" : "No games yet");
+        const points = (rrPoints || []).slice(-28);
+        const sparkY = featY + 246;
+        box(78, sparkY, W - 156, 230, 24);
+        ctx.fillStyle = "rgba(255,255,255,.035)";
+        ctx.fill();
+        ctx.fillStyle = "#ff5fa2";
+        ctx.font = "700 18px Segoe UI, sans-serif";
+        ctx.fillText("RATING", 110, sparkY + 46);
+        if (points.length > 1) {
+          const vals = points.map((point) => (Number(point.tier) || 0) * 100 + (Number(point.rr) || 0));
+          const min = Math.min(...vals);
+          const max = Math.max(...vals);
+          const span = Math.max(1, max - min);
+          ctx.beginPath();
+          vals.forEach((value, index) => {
+            const x = 120 + (index / (vals.length - 1)) * (W - 280);
+            const y = sparkY + 180 - ((value - min) / span) * 100;
+            if (index) ctx.lineTo(x, y);
+            else ctx.moveTo(x, y);
+          });
+          ctx.strokeStyle = "#ff5fa2";
+          ctx.lineWidth = 4;
+          ctx.lineJoin = "round";
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = "#b89aaa";
+          ctx.font = "600 22px Segoe UI, sans-serif";
+          ctx.fillText("Rating shows after a few ranked games.", 110, sparkY + 120);
+        }
+        ctx.fillStyle = "#6e5562";
+        ctx.font = "600 18px Segoe UI, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("VALVET", 86, H - 78);
+        if (button) button.textContent = "Saving…";
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            if (button) button.textContent = "Act poster";
+            return;
+          }
+          const data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          try {
+            const res = await fetch("/api/picture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "valvet-act.png", data, quiet: true }) });
+            const body = await res.json();
+            if (button) button.textContent = body && body.ok ? "Saved to Pictures" : "Act poster";
+          } catch {
+            if (button) button.textContent = "Act poster";
+          }
+          setTimeout(() => { if (button) button.textContent = "Act poster"; }, 1600);
+        }, "image/png");
       }
       function attachDeathBeat(match) {
         const host = document.getElementById("post-death");

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.5
+
+Last seen uses the last time someone was actually online.
+The act poster saves into Pictures and does not open the Windows download bar.
+Quiet hours insert the colon as you type. Settings tabs show a hover.
+
 ## 1.9.4
 
 Friends, the store, bundles, and your profile load again.

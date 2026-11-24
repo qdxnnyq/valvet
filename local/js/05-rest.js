@@ -575,10 +575,17 @@
           if (typeof playQueue === "function") playQueue();
         }
       }
+      const seenTouch = new Map();
       function stampSeen(people, fresh) {
         const book = readJSON("valvet-last-seen") || {};
         const now = Date.now();
         const here = new Set();
+        let dirty = false;
+        const put = (id, next) => {
+          const prev = book[id];
+          book[id] = next;
+          if (!prev || prev.at !== next.at || prev.since !== next.since || prev.live !== next.live || prev.state !== next.state || prev.map !== next.map || prev.mode !== next.mode || prev.product !== next.product || prev.playSince !== next.playSince || prev.name !== next.name) dirty = true;
+        };
         for (const person of people || []) {
           const id = String(person.puuid || "").toLowerCase();
           if (!id) continue;
@@ -586,10 +593,10 @@
           const prev = book[id] || {};
           if (isRiotMobile(person)) {
             if (!prev.desk) {
-              delete book[id];
+              if (book[id]) { delete book[id]; dirty = true; }
               continue;
             }
-            book[id] = { ...prev, live: false };
+            put(id, { ...prev, live: false });
             continue;
           }
           const online = onDesktop(person);
@@ -597,10 +604,15 @@
           const state = online ? (person.state || "Online") : (prev.state || "Offline");
           const playing = /in game|agent select|loading/i.test(state);
           const wasPlaying = /in game|agent select|loading/i.test(String(prev.state || ""));
-          book[id] = {
+          if (online) seenTouch.set(id, now);
+          let at = prev.at || 0;
+          if (online) at = !prev.live || !prev.at || now - prev.at > 120000 ? now : prev.at;
+          else if (prev.live && seenTouch.has(id)) at = seenTouch.get(id);
+          put(id, {
             name: person.name || prev.name || "Player",
             tag: person.tag || prev.tag || "",
-            at: arrived || !prev.at ? (online ? now : (prev.at || 0)) : prev.at,
+            at,
+            since: online ? (arrived || !prev.since ? now : prev.since) : 0,
             playSince: playing ? (wasPlaying && prev.playSince ? prev.playSince : now) : 0,
             live: online,
             desk: online ? true : !!prev.desk,
@@ -608,14 +620,16 @@
             state,
             mode: online ? (person.mode || "") : (prev.mode || ""),
             map: online ? (person.map || "") : (prev.map || ""),
-          };
+          });
         }
         if (fresh) {
           for (const id of Object.keys(book)) {
-            if (!here.has(id) && book[id] && book[id].live) book[id] = { ...book[id], live: false };
+            if (here.has(id) || !book[id] || !book[id].live) continue;
+            const at = seenTouch.has(id) ? seenTouch.get(id) : book[id].at;
+            put(id, { ...book[id], live: false, at, since: 0, playSince: 0 });
           }
         }
-        writeJSON("valvet-last-seen", book);
+        if (dirty) writeJSON("valvet-last-seen", book);
       }
       function paintSeen() {
         const root = document.getElementById("seen");
@@ -671,7 +685,7 @@
             orb.append(el("time", null, clockLabel(row.at)));
             orb.append(el("span", "where", "Was " + where));
           }
-          const show = () => showSeenTip(orb, row, where, clock, clockLabel(row.at));
+          const show = () => showSeenTip(orb, row, where, clock, clockLabel(row.live ? (row.since || row.at) : row.at));
           orb.addEventListener("mouseenter", show);
           orb.addEventListener("mouseleave", hideSeenTip);
           return orb;
@@ -2379,7 +2393,24 @@
               input.dispatchEvent(new Event("change"));
             };
             text.addEventListener("keydown", (event) => {
+              if (event.key === "Backspace" && text.selectionStart === text.selectionEnd) {
+                const at = text.selectionStart || 0;
+                if (at > 0 && text.value[at - 1] === ":") {
+                  event.preventDefault();
+                  const digits = (text.value.slice(0, at - 1) + text.value.slice(at)).replace(/\D/g, "").slice(0, -1);
+                  text.value = digits.length > 2 ? digits.slice(0, 2) + ":" + digits.slice(2) : digits;
+                  text.setSelectionRange(text.value.length, text.value.length);
+                }
+              }
               if (event.key === "Enter") { event.preventDefault(); commit(text.value); text.blur(); }
+            });
+            text.addEventListener("input", () => {
+              const digits = text.value.replace(/\D/g, "").slice(0, 4);
+              const next = digits.length >= 2 ? digits.slice(0, 2) + ":" + digits.slice(2) : digits;
+              if (text.value !== next) {
+                text.value = next;
+                text.setSelectionRange(next.length, next.length);
+              }
             });
             text.addEventListener("blur", () => commit(text.value));
             open.onclick = (event) => {

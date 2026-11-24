@@ -511,6 +511,7 @@
         const together = [...partySrc, ...friendsSrc, ...offlineSrc].map((person) => (person.puuid || "") + ":" + lastTogether(person.puuid, history)).join("|");
         const noteSig = [...partySrc, ...friendsSrc, ...offlineSrc].map((person) => friendNote(person.puuid)).join("\n");
         const key = JSON.stringify([partySrc, friendsSrc, offlineSrc, knownLevel, together, showOfflineFriends, noteSig, q]);
+        stampSeen([].concat(partySrc, allFriends), data && data.ok !== false);
         if (key === partyKey) return;
         partyKey = key;
         const party = partySrc.filter((person) => !isLeague(person));
@@ -594,7 +595,6 @@
         }
         if (onlineBtn) onlineBtn.classList.toggle("solid", !showOfflineFriends);
         if (offlineBtn) offlineBtn.classList.toggle("solid", showOfflineFriends);
-        stampSeen([...party, ...online, ...offlineSrc, ...league, ...riot], data && data.ok !== false);
         pingCareQueue([...party, ...online, ...league]);
       }
       function drawStore(shop) {
