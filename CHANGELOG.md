@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.8
+
+Last seen follows online or AFK in the Riot Client or League. Riot Mobile is ignored.
+
 ## 1.9.7
 
 Riot Mobile no longer counts as online. Last seen uses the last desktop session or shared game.

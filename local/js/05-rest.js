@@ -642,65 +642,12 @@
           }
         }
         if (dirty) writeJSON("valvet-last-seen", book);
-        liftSeenFromHistory();
-      }
-      function matchSeenAt(match) {
-        const start = typeof matchStart === "function" ? matchStart(match) : 0;
-        const parsed = Date.parse((match && match.when) || "");
-        let at = start || (Number.isFinite(parsed) ? parsed : 0);
-        if (Number.isFinite(parsed) && parsed > at) at = parsed;
-        const length = Number(match && match.length) || 0;
-        if (length > 0 && length < 90 * 60) at += length * 1000;
-        if (!at) return 0;
-        return Math.min(Date.now(), at);
-      }
-      function historySeenBook() {
-        const played = new Map();
-        for (const match of history || []) {
-          const at = matchSeenAt(match);
-          if (!at) continue;
-          const map = (typeof mapName === "function" ? mapName(match.map) : "") || match.map || "";
-          const mode = match.mode || "";
-          for (const player of match.players || []) {
-            const id = String(player.puuid || "").toLowerCase();
-            if (!id || player.you) continue;
-            const prev = played.get(id);
-            if (!prev || at > prev.at) played.set(id, { at, map, mode });
-          }
-        }
-        return played;
-      }
-      function liftSeenFromHistory() {
-        const played = historySeenBook();
-        if (!played.size) return;
-        const book = readJSON("valvet-last-seen") || {};
-        let dirty = false;
-        for (const [id, hit] of played) {
-          const row = book[id];
-          if (!row || row.live) continue;
-          if (hit.at <= (Number(row.at) || 0) + 60000) continue;
-          book[id] = { ...row, at: hit.at, map: hit.map || row.map || "", mode: hit.mode || row.mode || "", product: "valorant", state: "In game", real: true };
-          dirty = true;
-        }
-        if (dirty) writeJSON("valvet-last-seen", book);
       }
       function paintSeen() {
         const root = document.getElementById("seen");
         if (!root) return;
         const book = readJSON("valvet-last-seen") || {};
-        const played = historySeenBook();
-        const rows = Object.entries(book).map(([id, row]) => {
-          const next = { ...row, id };
-          const hit = played.get(id);
-          if (hit && !next.live && hit.at > (Number(next.at) || 0) + 60000) {
-            next.at = hit.at;
-            next.map = hit.map || next.map || "";
-            next.mode = hit.mode || next.mode || "";
-            next.product = "valorant";
-            next.state = "In game";
-          }
-          return next;
-        }).filter((row) => row && row.at && String(row.state || "").toLowerCase() !== "mobile").sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.at || 0) - (a.at || 0));
+        const rows = Object.entries(book).map(([id, row]) => ({ ...row, id })).filter((row) => row && row.at && String(row.state || "").toLowerCase() !== "mobile" && String(row.product || "") !== "bacon").sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.at || 0) - (a.at || 0));
         const sig = rows.map((row) => [row.name, row.live ? 1 : 0, row.state, row.map, row.mode, row.product, row.at, row.playSince || 0].join(":")).join("|");
         if (root.dataset.sig === sig) return;
         root.dataset.sig = sig;
@@ -709,19 +656,23 @@
         root.className = "";
         root.replaceChildren();
         if (!rows.length) {
-          root.append(el("div", "empty", "Nobody has opened Riot or a game yet while Valvet was open. Only Riot Mobile is ignored."));
+          root.append(el("div", "empty", "Shows when a friend is online or AFK in the Riot Client or League. Riot Mobile is ignored."));
           return;
         }
         const place = (row) => {
-          const map = row.map || "";
-          const mode = row.mode || "";
-          if (map) return mode && mode !== map ? map + " · " + mode : map;
           const state = String(row.state || "");
+          const away = /afk|away|idle/i.test(state);
           const product = row.product || "";
-          if (product === "league") return state && state !== "Online" && state !== "Offline" ? "League · " + state : "League";
-          if (product === "valorant") return state && state !== "Online" && state !== "Offline" && state !== "In game" ? state : "Valorant";
-          if (product === "riot" || /^in riot$/i.test(state)) return "Riot Client";
-          return state || "Riot";
+          if (product === "league") {
+            if (away) return "League · AFK";
+            if (state && state !== "Online" && state !== "Offline") return "League · " + state;
+            return "League";
+          }
+          if (product === "riot") return away ? "Riot Client · AFK" : "Riot Client";
+          const map = row.map || "";
+          if (map && product === "valorant") return map;
+          if (product === "valorant") return away ? "Valorant · AFK" : (state && state !== "Online" && state !== "Offline" && state !== "In game" ? state : "Valorant");
+          return away ? "AFK" : (state || "Riot Client");
         };
         const clockLabel = (at) => {
           const clock = new Date(at);
