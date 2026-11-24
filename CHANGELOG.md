@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.13
+
+History rows show the current rank and the peak on the same player line.
+
 ## 1.9.12
 
 Deathmatch columns are both sorted by kills.

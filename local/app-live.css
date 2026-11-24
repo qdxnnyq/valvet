@@ -296,7 +296,9 @@
       .sidecol.ally .kicker { color: #9dffc3; }
       .sidecol.enemy .kicker { color: #ff8fa3; }
       .person { display: flex; width: 100%; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(255,255,255,.14); }
-      .person .kda { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 760; }
+      .person .nm { min-width: 0; flex: 1 1 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .person .ranks { display: inline-flex; align-items: center; gap: 4px; flex: none; min-width: 0; }
+      .person .kda { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 760; flex: none; }
       .wait { min-height: 240px; display: grid; place-items: center; text-align: center; padding: 28px 0 12px; }
       .wait h1 { margin: 8px 0 0; font-size: 48px; letter-spacing: -0.05em; animation: waitglow 2.2s ease-in-out infinite; }
       .wait .sub { margin: 8px 0 0; color: var(--muted); }

@@ -1,7 +1,7 @@
 {
-  "version": 202,
-  "label": "1.9.12",
-  "name": "1.9.12",
-  "notes": "Deathmatch columns are both sorted by kills.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v202/Valvet.exe"
+  "version": 203,
+  "label": "1.9.13",
+  "name": "1.9.13",
+  "notes": "History rows show the current rank and the peak.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v203/Valvet.exe"
 }

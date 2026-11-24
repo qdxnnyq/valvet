@@ -262,24 +262,46 @@
         if (player.rr && !player.rankPeak) return name + "  " + player.rr + " RR";
         return name;
       }
+      function shortRank(name) {
+        const text = String(name || "").trim();
+        if (!text || text === "Unranked") return text;
+        const parts = text.split(/\s+/);
+        const word = { Iron: "Iron", Bronze: "Bronze", Silver: "Silver", Gold: "Gold", Platinum: "Plat", Diamond: "Diamond", Ascendant: "Asc", Immortal: "Imm", Radiant: "Radiant" };
+        const head = word[parts[0]] || parts[0];
+        return parts[1] ? head + " " + parts[1] : head;
+      }
       function rankMark(player) {
-        if (!player || !player.rank) return null;
-        const wrap = el("span", "hrank coin" + (player.rankPeak ? " peak" : ""));
-        if (player.rankPeak) bindHoverTip(wrap, (tip) => {
-          tip.append(el("div", "tip-kicker", "Peak"));
-          tip.append(el("b", null, player.rank || "Peak"));
-          tip.append(el("div", "tip-line", "No active rank. This is their peak, not the current act rank."));
-        });
-        if (player.rankIcon) {
-          const img = document.createElement("img");
-          img.className = "rankimg";
-          img.alt = "";
-          img.src = cachedArt(player.rankIcon);
-          wrap.append(img);
+        if (!player) return null;
+        const peakName = player.peak || (player.rankPeak ? player.rank : "");
+        const currentName = player.rankPeak ? "" : (player.rank && player.rank !== "Unranked" ? player.rank : "");
+        const currentIcon = player.rankPeak ? "" : (player.rankIcon || "");
+        const peakIcon = player.peakIcon || (player.rankPeak ? player.rankIcon : "");
+        const same = peakName && currentName && peakName === currentName;
+        if (!currentName && !currentIcon && !peakName && !peakIcon) return null;
+        const box = el("span", "ranks");
+        const pill = (icon, text, peak) => {
+          const wrap = el("span", "hrank" + (peak ? " is-peak" : ""));
+          if (icon) {
+            const img = document.createElement("img");
+            img.className = "rankimg";
+            img.alt = "";
+            img.src = String(icon).indexOf("/pack/") === 0 ? icon : cachedArt(icon);
+            wrap.append(img);
+          }
+          if (text) wrap.append(document.createTextNode(shortRank(text)));
+          return wrap;
+        };
+        if (currentName || currentIcon) box.append(pill(currentIcon, currentName, false));
+        else if (!peakName) box.append(pill("", "Unranked", false));
+        if (peakName && !same) {
+          const node = pill(peakIcon, peakName, true);
+          bindHoverTip(node, (tip) => {
+            tip.append(el("div", "tip-kicker", "Peak"));
+            tip.append(el("b", null, peakName));
+          });
+          box.append(node);
         }
-        wrap.append(document.createTextNode(player.rankPeak ? "Peak " + player.rank : player.rank));
-        if (player.rankPeak) wrap.append(el("i", "peak-flag", "Not active"));
-        return wrap;
+        return box.childNodes.length ? box : null;
       }
       function sideList(players, team, tone, colors, titleText, sortFn) {
         const raw = Array.isArray(team) ? [...team] : (players || []).filter((player) => player.team === team);

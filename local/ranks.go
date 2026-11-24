@@ -360,8 +360,10 @@ func applyRankHit(p *player, hit rankHit, icons map[int]string) {
 		return
 	}
 	if hit.peak >= 3 {
-		p.Rank = rankName(hit.peak)
-		p.RankIcon = rankArt(hit.peak, icons)
+		p.Peak = rankName(hit.peak)
+		p.PeakIcon = rankArt(hit.peak, icons)
+		p.Rank = p.Peak
+		p.RankIcon = p.PeakIcon
 		p.RankPeak = true
 		p.Tier = 0
 		p.RR = 0

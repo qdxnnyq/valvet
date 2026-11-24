@@ -301,7 +301,7 @@
         for (const match of showing) {
           const won = resultOf(match);
           key += (match.id || "") + ":" + match.score1 + "-" + match.score2 + ":" + (won === true ? "w" : won === false ? "l" : "") + ":" + (rrDelta(match) == null ? "" : rrDelta(match)) + ":";
-          for (const player of byKDA(match.players)) key += whoKey(player) + "|" + shownName(player) + "|" + (player.kills || 0) + "|" + (player.deaths || 0) + "|" + (player.assists || 0) + "|" + (player.rank || "") + "|" + (player.rankPeak ? "p" : "") + ";";
+          for (const player of byKDA(match.players)) key += whoKey(player) + "|" + shownName(player) + "|" + (player.kills || 0) + "|" + (player.deaths || 0) + "|" + (player.assists || 0) + "|" + (player.rank || "") + "|" + (player.peak || "") + "|" + (player.rankPeak ? "p" : "") + ";";
         }
         if (key === recentKey) return;
         recentKey = key;
