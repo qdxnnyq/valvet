@@ -1,7 +1,7 @@
 {
-  "version": 190,
-  "label": "1.9.0",
-  "name": "1.9.0",
-  "notes": "Play the round draws kill lines again. History is a short strip. Bundles match the store. Heat is lighter. Share id can be shown. Round videos are kept.",
-  "url": "https://github.com/qdxnnyq/valvet/releases/download/v190/Valvet.exe"
+  "version": 191,
+  "label": "1.9.1",
+  "name": "1.9.1",
+  "notes": "Open in Valorant starts the game. History stays still. The bundle poster opens on click. Agents and esports stay saved. The tutorial highlights each page.",
+  "url": "https://github.com/qdxnnyq/valvet/releases/download/v191/Valvet.exe"
 }

@@ -7,7 +7,6 @@
           const today = document.getElementById("today");
           if (today) today.dataset.key = "";
           paintToday(history);
-          recentKey = "";
           if (tab === "history") drawRecent(modeQueue ? modeMatches || [] : history);
           paintRR(document.getElementById("rr-slot"));
         } catch {}
@@ -224,24 +223,39 @@
       setInterval(() => { statusKey = ""; }, 90000);
       setInterval(() => { if (tab === "store" || tab === "pass") paintNightClock(); }, 1000);
       const TOUR = [
-        { tab: "live", mark: "tab-live", kicker: "Start", title: "This is Valvet", body: "Valvet follows the Riot Client already open on this PC. It never asks for your password. Leave the client open and the pages fill in." },
-        { tab: "live", mark: "board", kicker: "Live", title: "The match", body: "Your side is on the left and the other side is on the right. Each player shows name, agent, party, and rank. The header is the average rank of that side." },
-        { tab: "live", mark: "post", kicker: "After the match", title: "Result", body: "When the match ends, this card shows the result. Copy card saves a picture." },
-        { tab: "friends", mark: "tab-friends", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. An empty list stays empty." },
-        { tab: "history", mark: "tab-history", kicker: "History", title: "This act", body: "History keeps the games from this act. Each side is sorted by KDA. Highlight a name and the same person lights up in the stats. The next act replaces this one." },
-        { tab: "profile", mark: "tab-profile", kicker: "Profile", title: "Your numbers", body: "Win rate with friends counts Riot friends, after two games together. Weapons show headshot percent. Maps show win rate. The chart is HS, ACS, and kills. A day starts at 6:00 am. Older days stay under View more." },
-        { tab: "session", mark: "tab-session", kicker: "Session", title: "Time played", body: "The chart is the last 30 days. Click a day to see the matches from that day. The clock is time played since 6:00 am." },
-        { tab: "maps", mark: "tab-maps", kicker: "Maps", title: "Maps", body: "Each map is the minimap. Bigger fits the picture in the window. Esc or Close leaves it. Death spots use the same map." },
-        { tab: "seen", mark: "tab-seen", kicker: "Seen", title: "Who is around", body: "Green is on the client or in a game right now, with where they are. Yellow is AFK. The rest is the last time and place. Riot Mobile is ignored." },
-        { tab: "news", mark: "tab-news", kicker: "News", title: "News", body: "Recent Valorant posts. Open a card to read it on playvalorant.com." },
-        { tab: "alerts", mark: "watch-block", kicker: "Trace", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked and the watch sound can play. If they finish a game you were not in, Valvet tells you." },
-        { tab: "game", mark: "tab-game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Type your mouse DPI for eDPI, cm/360, and the sensitivity for a target eDPI." },
-        { tab: "pass", mark: "tab-pass", kicker: "Pass", title: "Battle pass", body: "Level, XP, and the time left in the act. Reward tiles stay square. A free pass, if Riot ships one, shows on this page." },
-        { tab: "settings", mark: "set-switch", kicker: "Sounds", title: "Sounds", body: "Sounds are a tab in Settings. Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume." },
-        { tab: "settings", mark: "set-minimal", kicker: "Live only", title: "Live only", body: "Live only keeps the match and leaves the other pages off. Turn it off when you want the rest." },
-        { tab: "settings", mark: "swatches", kicker: "Look", title: "Colour", body: "Pick a preset, or upload a picture and Valvet takes the colours from it." },
-        { tab: "settings", mark: "feedback-card", kicker: "Contact", title: "Feedback", body: "Write what happened and press Send. The same card opens Twitter." },
-        { tab: "crosshairs", mark: "tab-crosshairs", kicker: "Crosshairs", title: "Crosshairs", body: "Paste a code, name it, and keep a set on this PC. Export copies that set. Valvet does not read the crosshair out of Valorant." },
+        { tab: "live", mark: "you", kicker: "Start", title: "This is Valvet", body: "Valvet reads the Riot Client already open on this PC. It never asks for your password. Your name on the left opens your profile. Leave the client open and the pages fill in." },
+        { tab: "live", mark: "wait", kicker: "Live", title: "The match", body: "This is the live page. When a game is found, your side is on the left and the other side is on the right. Each row is the name, the agent, the party, and the rank. A coloured line is a party." },
+        { tab: "live", mark: "post", kicker: "After the match", title: "The result", body: "When the match ends, this card shows the score. Copy card saves a picture. The cat is the win or the loss." },
+        { tab: "friends", mark: "friend-switch", kicker: "Friends", title: "Friends", body: "Valorant, League, and the Riot Client, from the friends on this PC. Online and offline are the switch. An empty list stays empty." },
+        { tab: "history", mark: "hist-switch", kicker: "History", title: "Matches and replays", body: "Matches is this act. Replay files is the other switch. Those are the .vrf files Valorant downloaded. Open in Valorant starts the game, not a file picker." },
+        { tab: "history", mark: "recent", kicker: "History", title: "A game", body: "Filters sit on top. Click a game to open it. The two teams are sorted, not one long row. Play the round draws the kill lines on the map and can save an mp4." },
+        { tab: "session", mark: "session", kicker: "Session", title: "Time played", body: "The chart is the last 30 days. Click a day for the matches from that day. The clock is time played since 6:00 am." },
+        { tab: "seen", mark: "seen", kicker: "Seen", title: "Who is around", body: "Green is on the client or in a game, with where they are. Yellow is AFK. The rest is the last time and place. Riot Mobile is ignored." },
+        { tab: "store", mark: "store", kicker: "Store", title: "Today's store", body: "Daily offers, the night market, and Kingdom Credits. Wish sits under the price. Owned stays on the card." },
+        { tab: "bundle", mark: "bundle", kicker: "Bundle", title: "Featured bundle", body: "The poster is the bundle. Click it to open the items. Click again to close it. The cards match the store." },
+        { tab: "esports", mark: "esports", kicker: "Esports", title: "Esports", body: "Live and upcoming events, then what you can buy, then every team bundle. It stays saved on this PC and only refreshes when it is old." },
+        { tab: "loadout", mark: "loadout", kicker: "Collection", title: "Your collection", body: "The skins, title, and card equipped in Valorant. It is saved here, so opening the page does not load it again." },
+        { tab: "agents", mark: "agents", kicker: "Agents", title: "Agents", body: "Click an agent for the role, the abilities, and mastery. The roster is saved. It does not reload every time you open the page." },
+        { tab: "profile", mark: "profile", kicker: "Profile", title: "Your numbers", body: "Rank and the agent picture show from what is already saved. Win rate with friends needs two games together. Weapons, maps, and the chart sit under the card." },
+        { tab: "pass", mark: "pass", kicker: "Pass", title: "Battle pass", body: "Level, XP, and the time left. Reward tiles stay square. A free pass, if Riot ships one, shows on this page." },
+        { tab: "records", mark: "records", kicker: "Records", title: "Records", body: "Agent records from the games saved on this PC. Sort them. This is your own history, not a website." },
+        { tab: "maps", mark: "maps", kicker: "Maps", title: "Maps", body: "Each map is the minimap. Bigger fits the picture in the window. Esc or Close leaves it." },
+        { tab: "deaths", mark: "deaths", kicker: "Heat", title: "Heat", body: "Deaths and kills on the minimap. The circles stay small so the map behind them is still visible." },
+        { tab: "clutches", mark: "clutches", kicker: "Clutches", title: "Clutches", body: "1v1, 1v2, and 1v3 are separate. A clutch counts only if you were last alive and the round went your way. Losses stay losses." },
+        { tab: "queues", mark: "queues", kicker: "Duos", title: "Duos", body: "Who you queue with, from the games saved here. Two players can sit side by side." },
+        { tab: "team", mark: "team", kicker: "Team", title: "Premier", body: "Your Premier team, when the client has one. The roster is the people on that team." },
+        { tab: "news", mark: "news", kicker: "News", title: "News", body: "Official posts and upcoming bundles. Open a card to read it on playvalorant.com. The list is saved until it is old." },
+        { tab: "patches", mark: "patches", kicker: "Patches", title: "Patch notes", body: "Official notes. My agents filters them to the agents you play. Notes stay saved on this PC." },
+        { tab: "alerts", mark: "watch-block", kicker: "Trace", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked. If they finish a game you were not in, Trace blinks with the map and the time." },
+        { tab: "crosshairs", mark: "pane-crosshairs", kicker: "Crosshairs", title: "Crosshairs", body: "Paste a code, name it, and keep a set on this PC. Pro codes are a button on this page. Valvet does not read the crosshair out of Valorant." },
+        { tab: "game", mark: "game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Type your mouse DPI for eDPI, cm/360, and a target eDPI." },
+        { tab: "settings", mark: "sample-swatches", set: "look", kicker: "Look", title: "Colour", body: "Pick a preset, or upload a picture and Valvet takes the colours from it. Corners, motion, and glass are on this same card." },
+        { tab: "settings", mark: "sound-card", set: "sound", kicker: "Sounds", title: "Sounds", body: "Sounds are a tab in Settings, not a page of their own. Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume." },
+        { tab: "settings", mark: "window-card", set: "window", kicker: "Window", title: "Window", body: "Size, start with Windows, and Live only. Live only keeps the match and leaves the other pages off. Pause lookups waits on headshot and combat score. Parties stay." },
+        { tab: "settings", mark: "share-card", set: "share", kicker: "Share", title: "Share", body: "Your id is hidden until you press Show. Copy it, or paste a friend's id to share queue, map, and score." },
+        { tab: "settings", mark: "discord-card", set: "discord", kicker: "Discord", title: "Discord", body: "A webhook for alerts. Discord has to be open. Test Discord sends one message." },
+        { tab: "settings", mark: "backup-card", set: "backup", kicker: "Backup", title: "Backup and update", body: "One file for settings, the watch list, wishes, and crosshairs. Check for update is on this card. The pink bar at the top is the same update." },
+        { tab: "settings", mark: "feedback-card", set: "backup", kicker: "Contact", title: "Feedback", body: "Write what happened and press Send. The same card opens Twitter." },
       ];
       let tourAt = 0;
       function tourList() {
@@ -265,11 +279,39 @@
         document.querySelectorAll(".tour-mark").forEach((node) => node.classList.remove("tour-mark"));
         quietNav = true;
         setTab(step.tab);
+        if (step.set) applySetTab(step.set);
         quietNav = false;
-        const mark = document.getElementById(step.mark);
-        if (mark) {
-          mark.classList.add("tour-mark");
-          requestAnimationFrame(() => mark.scrollIntoView({ block: "start", inline: "nearest" }));
+        const post = document.getElementById("post");
+        if (post && post.dataset.tourOpen === "1" && step.mark !== "post") {
+          post.hidden = true;
+          post.dataset.tourOpen = "";
+        }
+        let markId = step.mark;
+        if (markId === "wait") {
+          const board = document.getElementById("board");
+          if (board && board.childElementCount) markId = "board";
+        }
+        if (markId === "post" && post && post.hidden) {
+          post.hidden = false;
+          post.dataset.tourOpen = "1";
+        }
+        const tabBtn = document.getElementById("tab-" + step.tab);
+        if (tabBtn) tabBtn.classList.add("tour-mark");
+        const mark = document.getElementById(markId);
+        if (mark && mark !== tabBtn) mark.classList.add("tour-mark");
+        requestAnimationFrame(() => scrollTour(mark || tabBtn));
+      }
+      function scrollTour(mark) {
+        if (!mark) return;
+        let node = mark.parentElement;
+        while (node && node !== document.body) {
+          const oy = getComputedStyle(node).overflowY;
+          if ((oy === "auto" || oy === "scroll") && node.scrollHeight > node.clientHeight + 8) {
+            const top = mark.getBoundingClientRect().top - node.getBoundingClientRect().top + node.scrollTop - 18;
+            node.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+            return;
+          }
+          node = node.parentElement;
         }
       }
       function openTour() {
@@ -303,6 +345,11 @@
         markNotes();
         document.body.classList.remove("touring");
         document.getElementById("tour").hidden = true;
+        const post = document.getElementById("post");
+        if (post && post.dataset.tourOpen === "1") {
+          post.hidden = true;
+          post.dataset.tourOpen = "";
+        }
         hideSampleCard();
         document.querySelectorAll(".tour-mark").forEach((node) => node.classList.remove("tour-mark"));
         quietNav = true;

@@ -797,9 +797,15 @@
         const key = "valvet-cache-news2";
         const saved = readJSON(key);
         const ok = Array.isArray(saved) && saved.length;
-        if (ok) paintNews(saved);
+        const sig = ok ? saved.map((note) => (note.title || "") + (note.date || "")).join("|") : "";
+        if (ok && root.dataset.sig === sig && root.querySelector(".patch-card")) {
+          /* already on screen */
+        } else if (ok) {
+          paintNews(saved);
+          root.dataset.sig = sig;
+        }
         const force = live === "force";
-        const need = force || !ok || (live && !cacheFresh(key, 60 * 60 * 1000));
+        const need = force || !ok || !cacheFresh(key, 6 * 60 * 60 * 1000);
         if (!need) return;
         if (!ok) root.replaceChildren(el("div", "empty", "Loading Valorant news…"));
         try {
@@ -811,7 +817,11 @@
           }
           writeJSON(key, notes);
           stampCache(key);
-          if (force || JSON.stringify(saved) !== JSON.stringify(notes)) paintNews(notes);
+          const nextSig = notes.map((note) => (note.title || "") + (note.date || "")).join("|");
+          if (force || root.dataset.sig !== nextSig) {
+            paintNews(notes);
+            root.dataset.sig = nextSig;
+          }
         } catch {
           if (!ok) root.replaceChildren(el("div", "empty", "Couldn't load Valorant news."));
         }
@@ -1011,7 +1021,7 @@
               open.textContent = "Opening…";
               try {
                 const result = await (await fetch("/api/replays", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: row.name }) })).json();
-                open.textContent = result && result.ok ? "Opened" : "Same patch only";
+                open.textContent = result && result.ok ? "Opening Valorant" : ((result && result.error) || "Couldn't open");
               } catch { open.textContent = "Open in Valorant"; }
               setTimeout(() => { open.textContent = "Open in Valorant"; }, 1600);
             };
@@ -1027,8 +1037,14 @@
         const key = "valvet-cache-game";
         const saved = readJSON(key);
         const ok = saved && (saved.rows || []).length;
-        if (ok) paintGame(saved);
-        const need = !ok || (live && !cacheFresh(key, 5 * 60 * 1000));
+        const sig = ok ? (saved.rows || []).map((row) => (row.label || row.name || "") + (row.value || "")).join("|") : "";
+        if (ok && root.dataset.sig === sig && root.querySelector(".set-card")) {
+          /* already on screen */
+        } else if (ok) {
+          paintGame(saved);
+          root.dataset.sig = sig;
+        }
+        const need = !ok || (live === "force") || (live && !cacheFresh(key, 6 * 60 * 60 * 1000));
         if (!need) return;
         if (!ok) { root.className = "empty"; root.textContent = "Reading the local Valorant config…"; }
         try {
@@ -1037,7 +1053,11 @@
             writeJSON(key, data);
             stampCache(key);
           }
-          if (!saved || JSON.stringify(saved) !== JSON.stringify(data)) paintGame(data);
+          const nextSig = (data.rows || []).map((row) => (row.label || row.name || "") + (row.value || "")).join("|");
+          if (!saved || root.dataset.sig !== nextSig) {
+            paintGame(data);
+            root.dataset.sig = nextSig;
+          }
         } catch {
           if (!ok) root.textContent = "Couldn't read the game settings.";
         }

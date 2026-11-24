@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.1
+
+Open in Valorant starts the game instead of the Windows app picker.
+History no longer rebuilds and bounces every few seconds.
+The bundle is a poster again. Click it to open the items.
+Agents, esports, news, patches, the pass, and the collection stay saved until they need an update.
+The tutorial opens each page and highlights the thing it is talking about.
+
 ## 1.9.0
 
 Play the round draws the kill lines again, with a glow on yours.

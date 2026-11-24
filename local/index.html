@@ -426,7 +426,7 @@
               <button type="button" data-set="backup">Backup and feedback</button>
             </div>
             <div class="set-grid">
-            <section class="set-card sound-grid" data-set="sound">
+            <section class="set-card sound-grid" id="sound-card" data-set="sound">
               <div class="eyebrow">Sound</div>
               <h2>Sound</h2>
               <label class="set-row"><span>Interface sounds</span><input id="set-sound" type="checkbox" /></label>
@@ -591,7 +591,7 @@
                 </div>
                 <p class="sub" id="set-feedback-note"></p>
               </section>
-              <section class="set-card" data-set="share">
+              <section class="set-card" id="share-card" data-set="share">
                 <div class="eyebrow">Friends</div>
                 <h2>Share Valvet with a friend</h2>
                 <p class="sub">Paste their id to share queue, map, and score. Yours stays hidden until you show it.</p>
@@ -601,7 +601,7 @@
                   <button class="tiny" type="submit">Add</button>
                 </form>
               </section>
-              <section class="set-card set-split" data-set="window">
+              <section class="set-card set-split" id="window-card" data-set="window">
                 <div>
                 <div class="eyebrow">Window</div>
                 <h2>Size</h2>
@@ -637,7 +637,7 @@
                 <pre id="app-log" class="app-log" hidden></pre>
                 </div>
               </section>
-              <section class="set-card" data-set="backup">
+              <section class="set-card" id="backup-card" data-set="backup">
                 <div class="eyebrow">This PC</div>
                 <h2>Backup</h2>
                 <p class="sub">One file for this PC: settings, watch list, wishes, crosshairs, and the sounds you picked. Import puts that file back. The pink update bar still reads the public version list.</p>
@@ -668,7 +668,7 @@
                   <button class="tiny" id="set-clear" type="button">Delete old cache</button>
                 </div>
               </section>
-              <section class="set-card" data-set="discord">
+              <section class="set-card" id="discord-card" data-set="discord">
                 <div class="eyebrow">Discord</div>
                 <h2>Channel and profile</h2>
                 <label class="set-row"><span>Send to Discord</span><input id="set-discord" type="checkbox" /></label>

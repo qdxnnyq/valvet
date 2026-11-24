@@ -280,21 +280,29 @@
         paintHistPicks(history && history.length ? history : source);
         const showing = queryMatches(typed, (source || []).filter(passesHist));
         for (const match of showing) markAwards(match);
-        let key = mode + "|" + modeQueue + "|" + typed.toLowerCase() + "|" + histMap + "|" + histAgent + "|" + histParty + "|" + histWith + "|";
+        let key = mode + "|" + modeQueue + "|" + typed.toLowerCase() + "|" + histMap + "|" + histAgent + "|" + histParty + "|" + histWith + "|" + (showAct ? "a" : "");
         for (const match of showing) {
-          key += (match.id || "") + ":" + match.score1 + "-" + match.score2 + ":" + (rrDelta(match) == null ? "" : rrDelta(match)) + ":";
-          for (const player of byKDA(match.players)) key += whoKey(player) + shownName(player) + (player.kills || 0) + (player.deaths || 0) + (player.assists || 0) + (player.rank || "") + (player.rankIcon || "") + (player.rankPeak ? "p" : "") + ";";
+          const won = resultOf(match);
+          key += (match.id || "") + ":" + match.score1 + "-" + match.score2 + ":" + (won === true ? "w" : won === false ? "l" : "") + ":" + (rrDelta(match) == null ? "" : rrDelta(match)) + ":";
+          for (const player of byKDA(match.players)) key += whoKey(player) + "|" + shownName(player) + "|" + (player.kills || 0) + "|" + (player.deaths || 0) + "|" + (player.assists || 0) + "|" + (player.rank || "") + "|" + (player.rankPeak ? "p" : "") + ";";
         }
         if (key === recentKey) return;
         recentKey = key;
         const recent = document.getElementById("recent");
+        const pane = document.getElementById("pane-history");
+        const scroll = pane ? pane.scrollTop : 0;
+        const ids = showing.map((match) => match.id || "").join(",");
+        recent.dataset.ids = ids;
+        recent.classList.add("settled");
         recent.replaceChildren();
         if (modeQueue && modeMatches == null) {
           recent.append(el("div", "empty", "Loading " + mode + "…"));
+          if (pane) pane.scrollTop = scroll;
           return;
         }
         if (!showing.length) {
           recent.append(el("div", "empty", showAct && !(actArchive || []).length ? "Last act is not saved on this PC yet. It is kept the next time an act ends." : typed || histMap || histAgent || histParty || histWith ? "Nothing matches that filter." : mode === "All" ? "No games loaded yet." : "No " + mode + " games in the recent list."));
+          if (pane) pane.scrollTop = scroll;
           return;
         }
         const perf = performanceCard(showing);
@@ -357,6 +365,7 @@
           wireHover(card);
           recent.append(card);
         });
+        if (pane) pane.scrollTop = scroll;
       }
       function whoKey(player) {
         const id = String((player && player.puuid) || "").toLowerCase();
@@ -854,8 +863,14 @@
         const saved = readJSON(key);
         const ok = saved && ((saved.guns || []).length || saved.title || saved.card);
         const force = live === "force";
-        if (ok) paintLoadout(saved);
-        const need = force || !ok || (live && !cacheFresh(key, 3 * 60 * 1000));
+        const sig = ok ? JSON.stringify([(saved.guns || []).map((gun) => gun.name), saved.title, saved.card]) : "";
+        if (ok && root.dataset.sig === sig && root.querySelector(".identity, .collect-find, h1")) {
+          /* already on screen */
+        } else if (ok) {
+          paintLoadout(saved);
+          root.dataset.sig = sig;
+        }
+        const need = force || !ok || !cacheFresh(key, 6 * 60 * 60 * 1000);
         if (!need) return;
         if (!ok) {
           root.className = "";
@@ -867,7 +882,11 @@
             writeJSON(key, data);
             stampCache(key);
           }
-          if (force || !saved || JSON.stringify(saved) !== JSON.stringify(data)) paintLoadout(data);
+          const nextSig = JSON.stringify([((data.guns) || []).map((gun) => gun.name), data.title, data.card]);
+          if (force || root.dataset.sig !== nextSig) {
+            paintLoadout(data);
+            root.dataset.sig = nextSig;
+          }
         } catch {
           if (!ok) root.replaceChildren(el("div", "empty", "Couldn't load the loadout."));
         }
@@ -877,8 +896,8 @@
         const root = document.getElementById("bundle");
         if (!root) return;
         const bundles = (shop && shop.bundles) || [];
-        const key = JSON.stringify(bundles) + "|" + ((shop && shop.error) || "") + "|" + openBundle;
-        if (key === bundleKey) return;
+        const key = JSON.stringify(bundles.map((bundle) => [bundle.name, bundle.icon, bundle.price, bundle.was, bundle.left, (bundle.items || []).length])) + "|" + ((shop && shop.error) || "") + "|" + openBundle;
+        if (key === bundleKey && root.querySelector(".bundle-poster, .empty")) return;
         bundleKey = key;
         markFresh("bundle", bundles.map((bundle) => bundle.name || bundle.id).filter(Boolean).join("|"));
         root.className = "";
@@ -888,10 +907,22 @@
           root.textContent = (shop && shop.error) || "No featured bundle right now. Open Valorant.";
           return;
         }
-        bundles.forEach((bundle, index) => {
-          const hero = el("div", "shop-hero bundle-hero");
+        bundles.forEach((bundle) => {
+          const id = bundle.name || "Bundle";
+          const open = openBundle === id;
+          const poster = el("button", "bundle-poster");
+          poster.type = "button";
+          if (bundle.icon) {
+            poster.style.backgroundImage = "linear-gradient(100deg, rgba(10,4,8,.2), rgba(10,4,8,.55)), url(" + JSON.stringify(bundle.icon) + ")";
+            const art = document.createElement("img");
+            art.className = "bundle-art";
+            art.alt = "";
+            art.src = bundle.icon;
+            poster.append(art);
+          }
+          poster.append(el("div", "veil"));
           const copy = el("div", "copy");
-          copy.append(el("div", "eyebrow", "Featured bundle"));
+          copy.append(el("div", "eyebrow", open ? "Open · click to close" : "Featured bundle"));
           copy.append(el("h1", null, bundle.name || "Bundle"));
           const items = bundle.items || [];
           const owned = items.filter((item) => owns(item.name)).length;
@@ -903,9 +934,15 @@
             pill.append(document.createTextNode(bundle.price + " VP"));
             copy.append(pill);
           }
-          hero.append(copy);
-          root.append(hero);
-          const grid = el("div", "shop");
+          poster.append(copy);
+          poster.onclick = () => {
+            openBundle = open ? "" : id;
+            bundleKey = "";
+            drawBundle(shop);
+          };
+          root.append(poster);
+          if (!open) return;
+          const grid = el("div", "shop bundle-open");
           if (!items.length) grid.append(el("div", "empty", "Valorant didn't list the items in this bundle."));
           for (const item of items) grid.append(skinCard(item));
           root.append(grid);
@@ -1459,12 +1496,18 @@
           if (Array.isArray(saved) && saved.length) agentCache = saved;
         }
         const ok = Array.isArray(agentCache) && agentCache.length;
-        if (ok) drawAgents(agentCache);
-        else if (live) {
+        const sig = ok ? agentCache.map((agent) => agent.id || agent.name).join("|") : "";
+        if (ok && root.dataset.sig === sig && root.querySelector(".agent-pick")) {
+          /* already on screen */
+        } else if (ok) {
+          drawAgents(agentCache);
+          root.dataset.sig = sig;
+        } else if (live) {
           root.className = "";
           root.replaceChildren(el("div", "empty", "Loading agents…"));
         }
-        const need = !ok || (live && !cacheFresh(key, 12 * 60 * 60 * 1000));
+        const force = live === "force";
+        const need = force || !ok || !cacheFresh(key, 7 * 24 * 60 * 60 * 1000);
         if (!need) return;
         if (!ok && !live) {
           root.className = "";
@@ -1482,7 +1525,11 @@
           agentCache = list;
           writeJSON(key, list);
           stampCache(key);
-          if (prev !== next) drawAgents(list);
+          const nextSig = list.map((agent) => agent.id || agent.name).join("|");
+          if (force || prev !== next) {
+            drawAgents(list);
+            root.dataset.sig = nextSig;
+          }
         } catch {
           if (!agentCache) root.replaceChildren(el("div", "empty", "Couldn't load agents."));
         }
@@ -1672,9 +1719,15 @@
         const key = "valvet-cache-pass";
         const saved = readJSON(key);
         const ok = saved && (saved.level || saved.name || (saved.missions || []).length || (saved.rewards || []).length);
-        if (ok) drawPass(saved);
+        const sig = ok ? [saved.level, saved.xp, saved.name, (saved.missions || []).map((mission) => (mission.title || "") + (mission.progress || 0)).join(",")].join("|") : "";
         const force = live === "force";
-        const need = force || !ok || (live && !cacheFresh(key, 20 * 60 * 1000));
+        if (ok && root.dataset.sig === sig && root.querySelector(".pass, .reward, .mission")) {
+          /* already on screen */
+        } else if (ok) {
+          drawPass(saved);
+          root.dataset.sig = sig;
+        }
+        const need = force || !ok || !cacheFresh(key, 30 * 60 * 1000);
         if (!need) return;
         if (!ok) {
           root.className = "";
@@ -1684,7 +1737,11 @@
           const data = await (await fetch("/api/pass", { cache: "no-store" })).json();
           writeJSON(key, data);
           stampCache(key);
-          if (force || !saved || JSON.stringify(saved) !== JSON.stringify(data)) drawPass(data);
+          const nextSig = [data.level, data.xp, data.name, (data.missions || []).map((mission) => (mission.title || "") + (mission.progress || 0)).join(",")].join("|");
+          if (force || root.dataset.sig !== nextSig) {
+            drawPass(data);
+            root.dataset.sig = nextSig;
+          }
         } catch {
           if (!ok) root.replaceChildren(el("div", "empty", "Couldn't load the battle pass."));
         }

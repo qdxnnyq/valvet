@@ -160,3 +160,23 @@ func replayPath(name string) (string, bool) {
 	}
 	return path, true
 }
+
+func placeDemo(path string) {
+	base := os.Getenv("LOCALAPPDATA")
+	if base == "" || path == "" {
+		return
+	}
+	destDir := filepath.Join(base, "VALORANT", "Saved", "Demos")
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return
+	}
+	dest := filepath.Join(destDir, filepath.Base(path))
+	src, err := os.Stat(path)
+	if err != nil {
+		return
+	}
+	if dst, err := os.Stat(dest); err == nil && dst.Size() == src.Size() {
+		return
+	}
+	_ = copyFile(path, dest)
+}

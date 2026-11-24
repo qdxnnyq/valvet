@@ -544,7 +544,7 @@
           root.replaceChildren(el("div", "empty", "Loading patch notes…"));
         }
         const force = live === "force";
-        const need = force || !ok || (live && !cacheFresh(key, 6 * 60 * 60 * 1000));
+        const need = force || !ok || !cacheFresh(key, 24 * 60 * 60 * 1000);
         if (!need) return;
         try {
           const data = await (await fetch("/api/patches", { cache: "no-store" })).json();
@@ -743,7 +743,7 @@
           root.replaceChildren(el("div", "empty", "Loading the esports store…"));
         }
         const force = live === "force";
-        const need = force || !ok || (live && !cacheFresh(key, 45 * 60 * 1000));
+        const need = force || !ok || !cacheFresh(key, 6 * 60 * 60 * 1000);
         if (!need) return;
         if (root.dataset.fetching === "1") return;
         root.dataset.fetching = "1";
@@ -885,7 +885,7 @@
       const ROLE_COLOR = { Duelist: "#ff5a6a", Initiator: "#5ec8ff", Controller: "#c9a6ff", Sentinel: "#3dce86" };
       const NOTES_VER = "__VALVET__";
       const APP_NOTES = [
-        { ver: "1.9.0", title: "Valvet", lines: ["Play the round draws the kill lines again.", "History stats sit on one short strip. Empty numbers stay off.", "Bundles use the same cards as the store.", "Heat on the map is smaller. Your share id can be shown.", "Round videos keep every clip."] },
+        { ver: "1.9.1", title: "Valvet", lines: ["Open in Valorant starts the game, not a file picker.", "History stays still instead of bouncing.", "The bundle poster opens when you click it.", "Agents, esports, news, and the pass stay saved.", "The tutorial opens each page and highlights it."] },
         { ver: "1.8.43", title: "Valvet", lines: ["History filters use the dark menu, and a name in the search finds that player's games.", "Each map shows attack and defense. Two players can sit side by side.", "A bundle says how many pieces you own. The other team's agents copy as one line.", "Drop an mp3 on a sound row. Clutches split into 1v1, 1v2, and 1v3.", "Backup is one file. Parties stay on when stat lookups are paused."] },
         { ver: "1.8.34", title: "Valvet", lines: ["The live board is the same as before. Names, agent, party, and rank. No KDA on the rows."] },
         { ver: "1.8.33", title: "Valvet", lines: ["The window title is VAL in white and VET in pink, same as the sidebar.", "Check for update is under Settings, Backup and feedback.", "Your name on the left opens your profile. Party marks stay on stacks of 2 to 5."] },

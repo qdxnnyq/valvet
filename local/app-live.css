@@ -51,7 +51,8 @@
       .theme-chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 8px; border-radius: 999px; border: 1px solid var(--line); background: #140c11; color: var(--ink); cursor: pointer; }
       .theme-chip i { width: 16px; height: 16px; border-radius: 99px; display: block; }
       #pickers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 18px; }
-      .tour { position: fixed; inset: 0; z-index: 30; display: grid; align-items: end; justify-items: center; padding: 28px; background: rgba(8, 2, 6, .62); }
+      .tour { position: fixed; inset: 0; z-index: 30; display: grid; align-items: end; justify-items: center; padding: 28px; background: linear-gradient(180deg, transparent 0%, transparent 42%, rgba(8, 2, 6, .55) 100%); pointer-events: none; }
+      .tour-card { pointer-events: auto; }
       .thanks { position: fixed; inset: 0; z-index: 32; display: grid; place-items: end start; padding: 28px; background: rgba(8, 2, 6, .55); }
       .thanks[hidden], .tour[hidden] { display: none !important; }
       .thanks .tour-card { width: min(380px, 100%); transform: rotate(-1.6deg); background: #f3e6d4; color: #2a160e; border: 1px solid #e4d0b4; box-shadow: 3px 4px 0 rgba(42, 22, 14, .18), 0 18px 40px rgba(0,0,0,.45); }
@@ -63,12 +64,12 @@
       #set-feedback { width: 100%; min-height: 88px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--line); background: #140c11; color: var(--ink); padding: 10px 12px; resize: vertical; }
       .tour-card { width: min(540px, 100%); border-radius: 24px; padding: 22px 22px 16px; background: linear-gradient(180deg, #321823, #140910 70%); border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line)); box-shadow: 0 28px 80px rgba(0,0,0,.5); }
       .tour-card h2 { margin: 4px 0 8px; font-size: 32px; letter-spacing: -0.045em; text-transform: none; color: var(--ink); }
-      .tour-dots { display: flex; gap: 6px; margin-top: 14px; }
+      .tour-dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; max-width: 100%; }
       .tour-dots i { width: 22px; height: 4px; border-radius: 99px; background: rgba(255,255,255,.16); }
       .tour-dots i.on { background: var(--accent); }
       .tour-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; }
       body.touring aside { z-index: 40; }
-      body.touring .tour-mark { box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 28%, transparent); color: var(--ink); border-radius: 10px; }
+      body.touring .tour-mark { position: relative; z-index: 41; box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 4px color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--ink); border-radius: 12px; scroll-margin-top: 16px; }
       @media (max-width: 980px) { .set-grid { grid-template-columns: 1fr; } .set-wide { grid-column: auto; } }
       main > section:not(#pane-live):not(#pane-settings) { overflow: auto; }
       #pane-settings { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
@@ -244,7 +245,8 @@
       .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
       .filters button, .tiny, .close, .tracker { height: 32px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); padding: 0 12px; cursor: pointer; }
       .filters button.on, .tracker { background: var(--accent); color: #1a0610; border-color: var(--accent); font-weight: 740; }
-      .game { padding: 0 16px 14px; margin-bottom: 12px; overflow: hidden; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), #110910; animation: cardin .38s cubic-bezier(.2,.7,.2,1) both; }
+      .game { padding: 0 16px 14px; margin-bottom: 12px; overflow: hidden; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), #110910; }
+      #recent:not(.settled) .game { animation: cardin .38s cubic-bezier(.2,.7,.2,1) both; }
       .game.win { background: linear-gradient(180deg, rgba(61,206,134,.08), transparent 42%), #110910; border-color: rgba(61,206,134,.28); }
       .game.loss { background: linear-gradient(180deg, rgba(255,77,109,.08), transparent 42%), #110910; border-color: rgba(255,77,109,.24); }
       .game:hover { border-color: rgba(255,255,255,.16); }
@@ -280,6 +282,7 @@
       .stats td, .stats th { text-align: left; padding: 7px 8px; border-top: 1px solid var(--line); }
       .stats tr.you td { color: var(--you); }
       .bundle-poster { position: relative; min-height: 260px; margin: 0 0 16px; border-radius: 22px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); cursor: pointer; background: #12080e center/cover no-repeat; }
+      button.bundle-poster { appearance: none; width: 100%; display: block; padding: 0; text-align: left; color: inherit; font: inherit; }
       .bundle-poster .veil { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(10,4,8,.94) 0%, rgba(10,4,8,.62) 46%, rgba(10,4,8,.18) 100%); }
       .bundle-poster .copy { position: relative; z-index: 1; max-width: 540px; padding: 28px 26px; }
       .bundle-poster h1 { margin: 4px 0 8px; font-size: 46px; letter-spacing: -0.05em; line-height: .95; }

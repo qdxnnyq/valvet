@@ -252,12 +252,22 @@
         const by = new Map();
         const weight = (match) => ((match.rounds || []).length * 3) + ((match.deaths || []).length) + ((match.kills || []).length) + ((match.edges || []).length) + ((match.players || []).length * 2) + (match.won === true || match.won === false ? 6 : 0);
         for (const row of history) if (row && row.id) by.set(String(row.id).toLowerCase(), row);
+        const named = (match) => ((match && match.players) || []).filter((player) => {
+          const name = String((player && player.name) || "").trim();
+          return name && name !== "Player" && name !== "Hidden";
+        }).length;
         for (const row of keepNames(rows)) {
           if (!row || !row.id) continue;
           if (row.map) row.map = mapName(row.map);
           const id = String(row.id).toLowerCase();
           const prev = by.get(id);
-          if (!prev || weight(row) > weight(prev)) by.set(id, row);
+          if (prev) {
+            const nextW = weight(row);
+            const prevW = weight(prev);
+            if (nextW < prevW || named(row) + 1 < named(prev)) continue;
+            if (nextW === prevW && named(row) <= named(prev)) continue;
+          }
+          by.set(id, row);
         }
         history = [...by.values()].sort((a, b) => (Number(b.started) || 0) - (Number(a.started) || 0) || String(b.when || "").localeCompare(String(a.when || "")));
         for (const match of history) {
@@ -273,7 +283,7 @@
         try {
           const data = await (await fetch("/api/history", { cache: "no-store" })).json();
           mergeHistory(data.matches || []);
-          if (tab === "history" && !modeQueue) { recentKey = ""; drawRecent(history); }
+          if (tab === "history" && !modeQueue) drawRecent(history);
           if (tab === "deaths") { const root = document.getElementById("deaths"); if (root) root.dataset.sig = ""; paintDeaths(); }
           if (tab === "clutches") { const root = document.getElementById("clutches"); if (root) root.dataset.sig = ""; paintClutches(); }
           if (tab === "queues") { const root = document.getElementById("queues"); if (root) root.dataset.sig = ""; paintQueues(); }
