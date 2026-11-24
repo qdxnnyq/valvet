@@ -71,7 +71,6 @@
           <button id="tab-patches" type="button">Patches</button>
           <button id="tab-alerts" type="button">Trace</button>
           <button id="tab-crosshairs" type="button">Crosshairs</button>
-          <button id="tab-sounds" type="button">Sounds</button>
           <button id="tab-game" type="button">Game</button>
         </nav>
         <div class="side-foot">
@@ -171,10 +170,6 @@
             </div>
           </header>
           <div class="desk">
-            <section class="desk-card" id="rank-board-card" hidden>
-              <h2>Ranks</h2>
-              <div id="rank-board"></div>
-            </section>
             <section class="desk-card">
               <h2 id="friends-title-2">Valorant</h2>
               <div id="friends-2"></div>
@@ -411,10 +406,26 @@
           <header class="page-hero"><div><div class="eyebrow">Official</div><h1>News</h1><p class="sub">Announcements and upcoming bundles.</p></div></header>
           <div id="news" class="empty">News shows up here.</div>
         </section>
-        <section id="pane-sounds" hidden>
-          <header class="page-hero"><div><div class="eyebrow">Alerts</div><h1>Sounds</h1><p class="sub">Alerts you can turn on, including win and loss.</p></div></header>
-          <div class="set-grid">
-            <section class="set-card">
+        <section id="pane-settings" hidden>
+          <div class="settings-scroll">
+            <header class="set-hero">
+              <div>
+                <div class="eyebrow">This PC</div>
+                <h1>Settings</h1>
+                <p class="sub">Sounds and colours stay on this computer.</p>
+              </div>
+              <button type="button" class="tiny" id="tour-again">Replay tutorial</button>
+            </header>
+            <div class="set-switch" id="set-switch">
+              <button type="button" data-set="look" class="on">Look</button>
+              <button type="button" data-set="sound">Sounds</button>
+              <button type="button" data-set="window">Window</button>
+              <button type="button" data-set="share">Share</button>
+              <button type="button" data-set="discord">Discord</button>
+              <button type="button" data-set="backup">Backup and feedback</button>
+            </div>
+            <div class="set-grid">
+            <section class="set-card" data-set="sound">
               <div class="eyebrow">Sound</div>
               <h2>Sound</h2>
               <label class="set-row"><span>Interface sounds</span><input id="set-sound" type="checkbox" /></label>
@@ -542,26 +553,6 @@
               <label class="set-row"><span>Quiet until</span><input id="set-quiet-to" type="time" /></label>
               <p class="sub">Queue, match start, friend join, and night market stay off until you turn them on. Win and loss use their own volume.</p>
             </section>
-          </div>
-        </section>
-        <section id="pane-settings" hidden>
-          <div class="settings-scroll">
-            <header class="set-hero">
-              <div>
-                <div class="eyebrow">This PC</div>
-                <h1>Settings</h1>
-                <p class="sub">Sounds and colours stay on this computer.</p>
-              </div>
-              <button type="button" class="tiny" id="tour-again">Replay tutorial</button>
-            </header>
-            <div class="set-switch" id="set-switch">
-              <button type="button" data-set="look" class="on">Look</button>
-              <button type="button" data-set="window">Window</button>
-              <button type="button" data-set="share">Share</button>
-              <button type="button" data-set="discord">Discord</button>
-              <button type="button" data-set="backup">Backup and feedback</button>
-            </div>
-            <div class="set-grid">
               <section class="set-card" id="look-sample" data-set="look">
                 <div class="eyebrow">Sample</div>
                 <h2>This is the look</h2>
@@ -587,12 +578,6 @@
                   </div>
                   <div class="expect"><b>62%</b><span>expected</span></div>
                 </div>
-              </section>
-              <section class="set-card" data-set="look">
-                <div class="eyebrow">Sound</div>
-                <h2>Sound</h2>
-                <p class="sub">Sounds are on the Sounds tab.</p>
-                <div class="set-actions"><button class="tiny" id="jump-sounds" type="button">Open Sounds</button></div>
               </section>
               <section class="set-card" id="feedback-card" data-set="backup">
                 <div class="eyebrow">Contact</div>

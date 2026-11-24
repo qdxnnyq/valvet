@@ -1147,7 +1147,29 @@ func (c *riotClient) kickWatch(sess riotSession) {
 			return
 		}
 		label := strings.TrimSpace(target.Name + "#" + target.Tag)
-		notePing(id, label+" finished a match")
+		mapName := ""
+		var finished int64
+		if rows := c.fetchMatches(ctx, sess, c.agents, []string{id}); len(rows) > 0 {
+			mapName = rows[0].Map
+			finished = rows[0].Started
+			if rows[0].Length > 0 && finished > 0 {
+				finished += int64(rows[0].Length) * 1000
+			}
+		}
+		if finished == 0 {
+			for _, hit := range c.historyHits(ctx, sess, puuid, 0, 1) {
+				if strings.EqualFold(hit.ID, id) {
+					finished = hit.Start
+					if finished > 0 && finished < 1_000_000_000_000 {
+						finished *= 1000
+					}
+				}
+			}
+		}
+		if finished == 0 {
+			finished = time.Now().UnixMilli()
+		}
+		notePing(id, label, mapName, finished)
 	}()
 }
 
@@ -1229,15 +1251,17 @@ func sawMatch(puuid, matchID string) bool {
 	return first
 }
 
-func notePing(matchID, label string) {
+func notePing(matchID, name, mapName string, finished int64) {
 	matchID = strings.TrimSpace(matchID)
-	label = strings.TrimSpace(label)
-	if matchID == "" || label == "" {
+	name = strings.TrimSpace(name)
+	mapName = strings.ReplaceAll(strings.TrimSpace(mapName), "|", " ")
+	if matchID == "" || name == "" {
 		return
 	}
+	text := name + "|" + mapName + "|" + strconv.FormatInt(finished, 10)
 	pingMu.Lock()
 	defer pingMu.Unlock()
-	rows := append([]savedPing{{ID: matchID, Text: label, At: time.Now().Unix()}}, loadPings()...)
+	rows := append([]savedPing{{ID: matchID, Text: text, At: time.Now().Unix()}}, loadPings()...)
 	if len(rows) > 20 {
 		rows = rows[:20]
 	}

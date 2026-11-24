@@ -12,10 +12,10 @@
         }
         const copy = el("div");
         const title = el("b");
-        title.append(document.createTextNode(name));
-        if (peaked) title.append(el("i", "peak-flag", "Peak"));
+        title.textContent = name;
         copy.append(title);
-        if (!peaked && player.rr) copy.append(el("span", null, player.rr + " RR"));
+        if (peaked) copy.append(el("span", "peak-flag", "Peak"));
+        else if (player.rr) copy.append(el("span", null, player.rr + " RR"));
         box.append(copy);
         box.onclick = (event) => {
           event.preventDefault();
@@ -579,46 +579,6 @@
         if (offlineBtn) offlineBtn.classList.toggle("solid", showOfflineFriends);
         stampSeen([...party, ...online, ...offlineSrc, ...league, ...riot], data && data.ok !== false);
         pingCareQueue([...party, ...online, ...league]);
-        paintRankBoard(valorant.concat(party.filter((person) => person.you)));
-      }
-      function rankValue(text) {
-        const order = ["Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendant", "Immortal", "Radiant"];
-        const raw = String(text || "");
-        const head = order.findIndex((name) => raw.indexOf(name) === 0);
-        if (head < 0) return -1;
-        const n = Number((raw.match(/(\d+)/) || [])[1] || (order[head] === "Radiant" ? 3 : 1));
-        return head * 10 + n;
-      }
-      function paintRankBoard(people) {
-        const card = document.getElementById("rank-board-card");
-        const root = document.getElementById("rank-board");
-        if (!card || !root) return;
-        const rows = [];
-        const seen = new Set();
-        for (const person of people || []) {
-          const score = rankValue(person.rank);
-          if (score < 0) continue;
-          const id = String(person.puuid || person.name || "").toLowerCase();
-          if (!id || seen.has(id)) continue;
-          seen.add(id);
-          rows.push(person);
-        }
-        rows.sort((a, b) => rankValue(b.rank) - rankValue(a.rank));
-        card.hidden = !rows.length;
-        root.replaceChildren();
-        if (!rows.length) return;
-        for (const person of rows.slice(0, 12)) {
-          const line = el("div", "status-line");
-          if (person.rankIcon) {
-            const img = document.createElement("img");
-            img.className = "rankimg";
-            img.alt = "";
-            img.src = cachedArt(person.rankIcon);
-            line.append(img);
-          }
-          line.append(el("b", null, person.name || "Player"), el("span", "subline", person.rank));
-          root.append(line);
-        }
       }
       function drawStore(shop) {
         nightEnds = Number(shop && shop.nightEnds) || 0;

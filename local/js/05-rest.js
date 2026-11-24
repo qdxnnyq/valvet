@@ -855,7 +855,7 @@
         const shown = [...nav.querySelectorAll("button")].filter((button) => !button.hidden).length;
         nav.dataset.fill = shown <= 8 ? "few" : shown <= 16 ? "some" : "many";
       }
-      const TABS = ["live", "friends", "history", "session", "seen", "store", "bundle", "patches", "esports", "loadout", "agents", "profile", "pass", "records", "maps", "deaths", "clutches", "queues", "team", "news", "alerts", "crosshairs", "sounds", "game", "settings"];
+      const TABS = ["live", "friends", "history", "session", "seen", "store", "bundle", "patches", "esports", "loadout", "agents", "profile", "pass", "records", "maps", "deaths", "clutches", "queues", "team", "news", "alerts", "crosshairs", "game", "settings"];
       let quietNav = false;
       function setTab(next, user) {
         hideSeenTip();
@@ -879,6 +879,16 @@
             void pane.offsetWidth;
             pane.classList.add("enter");
           }
+        }
+        const traceBtn = document.getElementById("tab-alerts");
+        if (next === "alerts") {
+          localStorage.setItem("valvet-trace-seen", String(Date.now()));
+          if (traceBtn) traceBtn.classList.remove("trace-ping");
+          document.querySelectorAll("#watch-list .fresh").forEach((row) => row.classList.remove("fresh"));
+        } else if (traceBtn && traceBtn.classList.contains("trace-ping") === false) {
+          const seenAt = Number(localStorage.getItem("valvet-trace-seen") || 0);
+          const book = readJSON("valvet-trace-hits") || {};
+          if (Object.values(book).some((row) => row && row.at > seenAt)) traceBtn.classList.add("trace-ping");
         }
         if (next === "history" || next === "deaths" || next === "clutches" || next === "queues" || next === "profile" || next === "records" || next === "session") loadAct(false);
         if (next === "history") drawRecent(modeQueue ? modeMatches || [] : history);
@@ -1139,6 +1149,7 @@
         }
         unfriends = nextGone;
         unfriendReady = true;
+        window.__valvetSocial = data;
         const list = document.getElementById("watch-list");
         const gone = document.getElementById("unfriends");
         if (!list || !gone) return;
@@ -1146,9 +1157,21 @@
         if (!watch.length) list.append(el("div", "empty", "Nobody on the watch list yet."));
         for (const item of watch) {
           const row = el("div", "alert-row");
-          row.append(el("b", null, item.name + "#" + item.tag));
-          const last = lastSeenMap(item);
-          if (last) row.append(el("span", "sub", last));
+          const copy = el("div");
+          copy.append(el("b", null, item.name + "#" + item.tag));
+          const key = String(item.name + "#" + item.tag).toLowerCase();
+          const hit = (readJSON("valvet-trace-hits") || {})[key] || {};
+          const seenAt = Number(localStorage.getItem("valvet-trace-seen") || 0);
+          if (hit.at && hit.at > seenAt) row.classList.add("fresh");
+          const last = hit.map ? "Last map " + hit.map : lastSeenMap(item);
+          const bits = [];
+          if (last) bits.push(last);
+          if (hit.finished) {
+            const when = new Date(hit.finished);
+            if (!Number.isNaN(when.getTime())) bits.push("Finished " + when.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }));
+          }
+          if (bits.length) copy.append(el("div", "sub", bits.join(" · ")));
+          row.append(copy);
           const remove = el("button", "tiny", "Remove");
           remove.type = "button";
           remove.onclick = () => changeWatch("DELETE", item.name + "#" + item.tag);
@@ -2755,7 +2778,7 @@
         { tab: "alerts", mark: "watch-block", kicker: "Trace", title: "Watch list", body: "Add a Name#Tag. If they are in your lobby or your match, the row is marked and the watch sound can play. If they finish a game you were not in, Valvet tells you." },
         { tab: "game", mark: "tab-game", kicker: "Game", title: "Your settings", body: "Graphics and the sensitivity from the Valorant menu on this PC. Type your mouse DPI for eDPI, cm/360, and the sensitivity for a target eDPI." },
         { tab: "pass", mark: "tab-pass", kicker: "Pass", title: "Battle pass", body: "Level, XP, and the time left in the act. Reward tiles stay square. A free pass, if Riot ships one, shows on this page." },
-        { tab: "sounds", mark: "row-friend-sound", kicker: "Sounds", title: "Sounds", body: "Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume. Any sound can be set to none. Quiet hours mute them." },
+        { tab: "settings", mark: "set-switch", kicker: "Sounds", title: "Sounds", body: "Sounds are a tab in Settings. Friend in your match, watch list, win, and loss each have their own sound. Win and loss have their own volume." },
         { tab: "settings", mark: "set-minimal", kicker: "Live only", title: "Live only", body: "Live only keeps the match and leaves the other pages off. Turn it off when you want the rest." },
         { tab: "settings", mark: "swatches", kicker: "Look", title: "Colour", body: "Pick a preset, or upload a picture and Valvet takes the colours from it." },
         { tab: "settings", mark: "feedback-card", kicker: "Contact", title: "Feedback", body: "Write what happened and press Send. The same card opens Twitter." },
@@ -2882,7 +2905,7 @@
       const jumpSounds = document.getElementById("jump-sounds");
       if (jumpSounds) jumpSounds.onclick = () => setTab("sounds");
       function applySetTab(name) {
-        const allowed = ["look", "window", "share", "discord", "backup"];
+        const allowed = ["look", "sound", "window", "share", "discord", "backup"];
         const pick = allowed.indexOf(name) >= 0 ? name : (localStorage.getItem("velvet-set-tab") || "look");
         const use = allowed.indexOf(pick) >= 0 ? pick : "look";
         localStorage.setItem("velvet-set-tab", use);

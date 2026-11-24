@@ -1,7 +1,5 @@
-      .mood-box { width: 96px; height: 96px; min-width: 96px; min-height: 96px; overflow: hidden; border-radius: 14px; flex: none; background: #fff7fa; }
-      .mood-box img { width: 96px !important; height: 96px !important; max-width: none; display: block !important; object-fit: cover; border-radius: 0; }
-      .mood-box.win img { object-view-box: inset(38% 4% 0 4%); object-position: center 70%; }
-      .mood-box.loss img { object-fit: cover; object-position: center 32%; }
+      .mood-box { width: 64px; height: 64px; min-width: 64px; min-height: 64px; overflow: hidden; border-radius: 12px; flex: none; background: transparent; }
+      .mood-box img { width: 64px !important; height: 64px !important; max-width: none; display: block !important; object-fit: contain; background: transparent; border-radius: 0; }
       .wl { display: inline-grid; place-items: center; min-width: 52px; height: 26px; font-size: 11px; font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
       .wl.w { color: #9dffc3; border-color: rgba(61,206,134,.45); background: rgba(61,206,134,.1); }
       .wl.l { color: #ffb3c4; border-color: rgba(255,77,109,.4); background: rgba(255,77,109,.1); }

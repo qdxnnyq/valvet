@@ -216,6 +216,17 @@ func TestEnemyOnSelect(t *testing.T) {
 	if party[0].Party == "" || party[0].Party != party[1].Party || party[2].Party != "" || party[0].PartyN != 2 {
 		t.Fatal(party)
 	}
+	hints := map[string]partyHint{
+		"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa": {id: "guess"},
+		"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb": {id: "guess"},
+	}
+	overlayParties(hints, map[string]partyHint{
+		"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa": {id: "enemy"},
+		"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb": {id: "enemy"},
+	})
+	if hints["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"].id != "enemy" || hints["bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"].id != "enemy" {
+		t.Fatal(hints)
+	}
 }
 
 func TestStoreOffers(t *testing.T) {

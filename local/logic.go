@@ -580,6 +580,28 @@ func groupsOf(in map[string]partyHint) map[string]partyHint {
 	return out
 }
 
+func overlayParties(dst, src map[string]partyHint) {
+	if dst == nil || len(src) == 0 {
+		return
+	}
+	src = groupsOf(src)
+	byID := map[string][]string{}
+	for id, hint := range src {
+		if hint.id == "" {
+			continue
+		}
+		byID[hint.id] = append(byID[hint.id], id)
+	}
+	for partyID, members := range byID {
+		if len(members) < 2 || len(members) > 5 {
+			continue
+		}
+		for _, id := range members {
+			dst[id] = partyHint{id: partyID, size: len(members)}
+		}
+	}
+}
+
 func fillGroups(dst, src map[string]partyHint) {
 	if dst == nil || len(src) == 0 {
 		return
@@ -621,11 +643,18 @@ func forceParty(dst map[string]partyHint, partyID string, members []string, rost
 		seen[id] = true
 		in = append(in, id)
 	}
-	if len(in) < 2 || len(in) > 5 {
+	free := make([]string, 0, len(in))
+	for _, id := range in {
+		if prev := dst[id]; prev.id != "" && prev.id != partyID {
+			continue
+		}
+		free = append(free, id)
+	}
+	if len(free) < 2 || len(free) > 5 {
 		return
 	}
-	for _, id := range in {
-		dst[id] = partyHint{id: partyID, size: len(in)}
+	for _, id := range free {
+		dst[id] = partyHint{id: partyID, size: len(free)}
 	}
 }
 

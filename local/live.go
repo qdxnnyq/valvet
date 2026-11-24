@@ -424,15 +424,17 @@ func (c *riotClient) read(ctx context.Context) snapshot {
 		if locked := c.lockedStacks(matchID); len(locked) > 0 {
 			fillGroups(hints, locked)
 		}
+		fillGroups(hints, c.cachedParties(players))
+		fillGroups(hints, c.archiveStacks(players))
+		known := map[string]partyHint{}
 		if match != nil {
 			got := map[string]string{}
 			harvestParties(match, got)
-			fillGroups(hints, hintsFromIDs(got))
+			fillGroups(known, hintsFromIDs(got))
 		}
-		fillGroups(hints, partyHintsFrom(players))
-		fillGroups(hints, c.cachedParties(players))
-		fillGroups(hints, c.archiveStacks(players))
-		fillGroups(hints, presenceHints)
+		fillGroups(known, partyHintsFrom(players))
+		fillGroups(known, presenceHints)
+		overlayParties(hints, known)
 		mine := ""
 		if me != "" {
 			if hint, ok := presenceHints[me]; ok {

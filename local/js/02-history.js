@@ -296,11 +296,12 @@
       }
       function statTable(players) {
         const board = el("div", "boardstat");
-        const head = el("div", "boardline head");
-        for (const label of ["", "Player", "KDA", "Dmg", "HS", "ADR", "ACS"]) head.append(el("span", null, label));
-        board.append(head);
-        const list = byKDA(players);
-        for (const player of list) {
+        const head = () => {
+          const row = el("div", "boardline head");
+          for (const label of ["", "Player", "KDA", "Dmg", "HS", "ADR", "ACS"]) row.append(el("span", null, label));
+          return row;
+        };
+        const addRow = (player) => {
           const row = el("div", "boardline" + (player.you ? " me" : ""));
           row.dataset.who = whoKey(player);
           const agent = el("span");
@@ -323,6 +324,19 @@
             el("span", null, player.acs || "—")
           );
           board.append(row);
+        };
+        const grouped = groups(players);
+        grouped.sort((a, b) => Number(b[1].some((player) => player.you)) - Number(a[1].some((player) => player.you)));
+        if (grouped.length < 2) {
+          board.append(head());
+          for (const player of byKDA(players)) addRow(player);
+          return board;
+        }
+        for (const [team, list] of grouped) {
+          const yours = list.some((player) => player.you);
+          board.append(el("div", "boardteam", (yours ? "Your team" : "Enemy") + (team ? " · " + team : "")));
+          board.append(head());
+          for (const player of byKDA(list)) addRow(player);
         }
         return board;
       }
@@ -1003,26 +1017,33 @@
       }
       const heardPings = new Set();
       try { JSON.parse(localStorage.getItem("velvet-pings") || "[]").forEach((id) => heardPings.add(id)); } catch {}
+      function traceBook() {
+        return readJSON("valvet-trace-hits") || {};
+      }
+      function saveTrace(book) {
+        localStorage.setItem("valvet-trace-hits", JSON.stringify(book));
+      }
       function notePings(data) {
         let fresh = false;
-        let last = "";
+        const book = traceBook();
         for (const row of (data && data.pings) || []) {
-          const text = String(row);
-          const cut = text.indexOf("|");
-          const id = cut >= 0 ? text.slice(0, cut) : text;
-          const label = cut >= 0 ? text.slice(cut + 1) : text;
+          const parts = String(row).split("|");
+          const id = parts[0] || "";
           if (!id || heardPings.has(id)) continue;
           heardPings.add(id);
           fresh = true;
-          last = label;
+          const name = parts[1] || parts.slice(1).join("|");
+          const map = parts.length >= 3 ? parts[2] : "";
+          const finished = Number(parts[3]) || 0;
+          const key = String(name || id).toLowerCase();
+          book[key] = { name, map, finished, at: Date.now() };
         }
         if (!fresh) return;
+        saveTrace(book);
         localStorage.setItem("velvet-pings", JSON.stringify([...heardPings].slice(-40)));
-        const node = document.getElementById("played-live");
-        if (node && last) {
-          node.hidden = false;
-          node.textContent = last;
-        }
+        const tabBtn = document.getElementById("tab-alerts");
+        if (tabBtn && tab !== "alerts") tabBtn.classList.add("trace-ping");
+        if (typeof paintSocialBook === "function" && window.__valvetSocial) paintSocialBook(window.__valvetSocial);
         playPlayed(false);
       }
       function showSampleCard() {

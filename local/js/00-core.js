@@ -326,12 +326,8 @@
         return Math.pow(t, 2.15);
       }
       function resultVolume() {
-        let stored = localStorage.getItem("velvet-result-volume");
-        if (stored == null || stored === "1") {
-          stored = "40";
-          localStorage.setItem("velvet-result-volume", stored);
-        }
-        const pct = Number(stored);
+        const raw = localStorage.getItem("velvet-result-volume");
+        const pct = raw == null || raw === "" ? 40 : Number(raw);
         return Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 40)) / 100;
       }
       function waveSample(wave, phase, t, freq) {
@@ -420,25 +416,39 @@
       function tone(freq, dur) {
         playNotes([freq], "sine", Math.max(0.06, dur || 0.08), false, { step: 0, dur: dur || 0.08, decay: 8 });
       }
+      let soundCtx = null;
+      function soundContext() {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        if (!soundCtx) soundCtx = new Ctx();
+        if (soundCtx.state === "suspended") soundCtx.resume();
+        return soundCtx;
+      }
       function playFile(url, force, gain, absolute) {
         if (!force && localStorage.getItem("velvet-sound") === "off") return Promise.resolve(false);
         const pct = Number(localStorage.getItem("velvet-volume"));
         const scale = gain == null ? 1 : gain;
         const base = absolute ? 1 : ((Number.isFinite(pct) ? pct : 15) / 100);
-        const audio = document.createElement("audio");
-        audio.setAttribute("playsinline", "");
-        audio.preload = "auto";
-        audio.src = url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
-        const levelRaw = Math.max(0, Math.min(1, base * scale));
-        audio.volume = levelRaw > 0 && levelRaw < 0.08 ? 0.45 : levelRaw;
-        document.body.append(audio);
-        if (clipAudio && clipAudio !== audio) { try { clipAudio.pause(); clipAudio.remove(); } catch {} }
-        clipAudio = audio;
-        const drop = () => { if (audio.parentNode) audio.remove(); };
-        audio.onended = drop;
-        const played = audio.play();
-        if (played && typeof played.then === "function") return played.then(() => true).catch(() => { drop(); return false; });
-        return Promise.resolve(true);
+        const level = Math.max(0, Math.min(1, base * scale));
+        if (level <= 0) return Promise.resolve(false);
+        return fetch(url, { cache: "no-store" }).then((res) => {
+          if (!res.ok) throw new Error("sound");
+          return res.arrayBuffer();
+        }).then((buf) => {
+          const ctx = soundContext();
+          if (!ctx) throw new Error("sound");
+          const ready = ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
+          return ready.then(() => ctx.decodeAudioData(buf.slice(0))).then((decoded) => {
+            const src = ctx.createBufferSource();
+            const amp = ctx.createGain();
+            amp.gain.value = level;
+            src.buffer = decoded;
+            src.connect(amp);
+            amp.connect(ctx.destination);
+            src.start(0);
+            return true;
+          });
+        }).catch(() => false);
       }
       function playPack(force) {
         if ((localStorage.getItem("velvet-soundpack") || "") === "none") return Promise.resolve(false);
@@ -477,20 +487,22 @@
         const vol = resultVolume();
         if (vol <= 0) return;
         if (pick === "custom") {
-          playFile("/api/media?kind=" + (kind === "loss" ? "loss" : "win"), !!force, vol, true);
+          playFile("/api/media?kind=" + (kind === "loss" ? "loss" : "win"), true, vol, true);
           return;
         }
         const sound = RESULT_SOUNDS[pick] || RESULT_SOUNDS[kind === "loss" ? "sad" : "gg"];
-        const backup = () => {
-          const tone = kind === "loss" ? RESULT_SOUNDS.low : RESULT_SOUNDS.cheer;
-          playNotes(tone.notes, tone.wave, tone.dur || 0.18, true, { ...tone, gain: 1, volume: Math.max(vol, 0.4) });
-        };
         if (sound.file) {
-          const ran = playFile(sound.file, !!force, vol, true);
-          if (ran && typeof ran.then === "function") ran.then((ok) => { if (!ok) backup(); });
+          const ran = playFile(sound.file, true, vol, true);
+          if (ran && typeof ran.then === "function") {
+            ran.then((ok) => {
+              if (ok) return;
+              const tone = kind === "loss" ? RESULT_SOUNDS.low : RESULT_SOUNDS.cheer;
+              playNotes(tone.notes, tone.wave, tone.dur || 0.18, true, { ...tone, gain: 1, volume: vol });
+            });
+          }
           return;
         }
-        playNotes(sound.notes, sound.wave, sound.dur || 0.18, !!force, { ...sound, gain: 1, volume: vol < 0.08 ? 0.45 : vol });
+        playNotes(sound.notes, sound.wave, sound.dur || 0.18, !!force, { ...sound, gain: 1, volume: vol });
       }
       function playJoin() {
         return playNotes([494, 659, 880], "triangle", 0.12, false, { step: 0.07, decay: 5 });
